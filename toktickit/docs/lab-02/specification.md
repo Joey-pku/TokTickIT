@@ -141,7 +141,7 @@ The stakeholder explicitly mandates that multi-tenant ownership boundaries be en
 
 ### Query, Search & Error Rules
 - **BR-22 (Search Scope)**: Search queries perform case-insensitive substring matching against `ticketNumber` and `summary`.
-- **BR-23 (Pagination & Sorting Bounds)**: Page numbers are 1-based (`page >= 1`). Allowed page sizes are 10, 25, or 50 (default 10). If an invalid page or sort parameter is supplied, the backend falls back to `page=1` and `createdAt DESC`.
+- **BR-23 (Pagination & Sorting Bounds)**: Page numbers are 1-based. Allowed page sizes are 10, 25, or 50. Defaults are `page=1`, `pageSize=10`, `sortBy=createdAt`, `sortOrder=desc`. Omitted parameters use defaults. Invalid supplied `categoryId`, `requestedPriority`, `status`, `sortBy`, `sortOrder`, `page`, or `pageSize` return HTTP `400 Bad Request` (`VALIDATION_ERROR`). Page beyond total returns HTTP 200 with `items: []`. A `totalItems=0` means `totalPages=0`. Deterministic secondary sorting is `id DESC`.
 - **BR-24 (Information-Hiding Ownership Rejection)**: When a user attempts to access a ticket or attachment owned by another requester, the backend responds with HTTP 404 Not Found rather than HTTP 403 Forbidden to prevent leaking information regarding the existence of other users' tickets.
 - **BR-25 (Lab 3 Architectural Decoupling)**: Development Requester identity simulation is strictly isolated to the data access layer using an `x-requester-id` header/context so that transition to Lab 3 JWT/session authentication will require zero schema changes to `Ticket` or `Attachment`.
 
@@ -316,7 +316,7 @@ The REST API exposes JSON-based endpoints for data operations and multipart endp
 ### 1. Reference Data & Requester Endpoints
 - **`GET /api/development-requesters`**:
   - *Description*: Retrieves all active Development Requesters (`isActive = true`).
-  - *Response (200 OK)*: Array of `{ id, name, email, department }`.
+  - *Response (200 OK)*: Array of `{ id, name, department }`.
 - **`GET /api/categories`**:
   - *Description*: Retrieves all seeded categories in ascending ID order.
   - *Response (200 OK)*: Array of `{ id, name }`.
@@ -335,30 +335,34 @@ The REST API exposes JSON-based endpoints for data operations and multipart endp
   - *Description*: Retrieves a paginated list of tickets owned exclusively by the requester in `x-requester-id`.
   - *Query Parameters*:
     - `search`: String (searches `ticketNumber` and `summary`).
-    - `category`: Category ID or `ALL`.
-    - `priority`: `LOW`, `MEDIUM`, `HIGH`, or `ALL`.
-    - `status`: Status value (`NEW`) or `ALL`.
-    - `sortBy`: `createdAt` (default), `ticketNumber`, `updatedAt`.
-    - `sortOrder`: `asc`, `desc` (default `desc`).
-    - `page`: Integer ≥ 1 (default 1).
-    - `pageSize`: Integer (10, 25, 50; default 10).
+    - `categoryId`: Category ID (omission represents "All").
+    - `requestedPriority`: `LOW`, `MEDIUM`, or `HIGH` (omission represents "All").
+    - `status`: Status value (supports `NEW` only in Lab 2, omission represents "All").
+    - `sortBy`: `createdAt`, `ticketNumber`, `updatedAt`.
+    - `sortOrder`: `asc`, `desc`.
+    - `page`: Integer ≥ 1.
+    - `pageSize`: Integer (10, 25, 50).
   - *Response (200 OK)*: `{ items: [...tickets], pagination: { page, pageSize, totalItems, totalPages } }`.
-- **`GET /api/tickets/:id`**:
+- **`GET /api/tickets/:ticketId`**:
   - *Description*: Retrieves detailed information and attachments for an owned ticket.
   - *Response (200 OK)*: Ticket detail object including reference labels and attachment list.
   - *Errors*: `404 Not Found` if ticket does not exist or is owned by a different requester.
 
 ### 3. Attachment Endpoints
-- **`POST /api/tickets/:id/attachments`**:
+- **`POST /api/tickets/:ticketId/attachments`**:
   - *Description*: Uploads one permitted attachment to an existing owned ticket. One file per request. Also updates the parent Ticket's `updatedAt`.
   - *Request*: `multipart/form-data` with `file` payload.
   - *Response (201 Created)*: Uploaded attachment metadata object.
-  - *Errors*: `400 Bad Request` (invalid type, size > 5 MB, or active count > 5); `404 Not Found` if ticket is unowned.
-- **`GET /api/attachments/:id/download`**:
+  - *Errors*: `400 Bad Request` (malformed/missing request data as defined by API contract), `415 Unsupported Media Type` (unsupported attachment type), `413 Payload Too Large` (file exceeding 5,242,880 bytes), `409 Conflict` (maximum 5 active attachments exceeded), `404 Not Found` (nonexistent or cross-requester ticket).
+- **`GET /api/attachments/:attachmentId`**:
+  - *Description*: Retrieves metadata for an active or soft-removed owned attachment.
+  - *Response (200 OK)*: Attachment metadata. Soft-removed metadata remains retrievable. Response must not expose `storedFileName`, `filePath`, `uploadedById`, or `removedById`.
+  - *Errors*: `404 Not Found` (nonexistent or cross-requester attachment).
+- **`GET /api/attachments/:attachmentId/download`**:
   - *Description*: Streams the physical file for an active attachment.
   - *Response (200 OK)*: Binary file stream with `Content-Disposition: attachment; filename="..."`.
   - *Errors*: `404 Not Found` if file does not exist, belongs to another requester's ticket, or `isRemoved === true`.
-- **`PATCH /api/attachments/:id/remove`**:
+- **`PATCH /api/attachments/:attachmentId/remove`**:
   - *Description*: Soft-removes an active attachment with a mandatory reason. Also updates the parent Ticket's `updatedAt`.
   - *Request Body*: `{ removalReason: string }`.
   - *Response (200 OK)*: Updated attachment metadata with `isRemoved: true`, `removedAt`, and `removalReason`.
@@ -366,9 +370,29 @@ The REST API exposes JSON-based endpoints for data operations and multipart endp
 
 ### 4. Ticket `updatedAt` Behavior
 - At Ticket creation, `updatedAt` initially equals `createdAt`.
-- A successful attachment upload (`POST /api/tickets/:id/attachments`) updates the parent Ticket's `updatedAt`.
-- A successful attachment soft removal (`PATCH /api/attachments/:id/remove`) updates the parent Ticket's `updatedAt`.
+- A successful attachment upload (`POST /api/tickets/:ticketId/attachments`) updates the parent Ticket's `updatedAt`.
+- A successful attachment soft removal (`PATCH /api/attachments/:attachmentId/remove`) updates the parent Ticket's `updatedAt`.
 - This ensures the My Tickets "Last Updated" column reflects attachment activity.
+
+### 5. API Error Envelope & Requester Context
+- **Requester-Context Errors**:
+  - Missing `x-requester-id` -> `400 Bad Request` (`MISSING_REQUESTER_CONTEXT`).
+  - Malformed/non-integer `x-requester-id` -> `400 Bad Request` (`INVALID_REQUESTER_ID`).
+  - Nonexistent or inactive requester -> `404 Not Found` (`REQUESTER_NOT_FOUND`).
+  - Cross-requester owned resources -> `404 Not Found` (resource-specific not-found response).
+  - *Note*: There is no HTTP `403 Forbidden` behavior in Lab 2.
+- **Standard Error Envelope**:
+  All errors must be returned in the following standard contract format:
+  ```json
+  {
+    "error": {
+      "code": "...",
+      "message": "...",
+      "fields": { } // validation only, when applicable
+    }
+  }
+  ```
+  *Note*: Legacy unstructured error responses (e.g., `{ "error": "Ticket not found" }`) are forbidden. Responses must never expose stack traces, Prisma errors, SQL details, filesystem paths, stored filenames, or other internal information.
 
 ---
 
