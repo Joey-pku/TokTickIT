@@ -8,11 +8,11 @@ describe("GET /api/categories", () => {
 
     expect(res.status).toBe(200);
 
-    expect(res.body).toEqual([
+    expect(res.body).toEqual({ items: [
       { id: 1, name: "Account and Access" },
       { id: 2, name: "Hardware" },
       { id: 3, name: "Software" },
       { id: 4, name: "Network" },
-    ]);
+    ] });
   });
 });
