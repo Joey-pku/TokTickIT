@@ -314,7 +314,7 @@ The database seeder (`seed.ts`) must be strictly idempotent (safe to run repeate
 The REST API exposes JSON-based endpoints for data operations and multipart endpoints for file management. Requester ownership is passed via the `x-requester-id` HTTP header and strictly enforced by server middleware.
 
 ### 1. Reference Data & Requester Endpoints
-- **`GET /api/dev-requesters`**:
+- **`GET /api/development-requesters`**:
   - *Description*: Retrieves all active Development Requesters (`isActive = true`).
   - *Response (200 OK)*: Array of `{ id, name, email, department }`.
 - **`GET /api/categories`**:
@@ -326,10 +326,11 @@ The REST API exposes JSON-based endpoints for data operations and multipart endp
 
 ### 2. Ticket Endpoints
 - **`POST /api/tickets`**:
-  - *Description*: Creates a new ticket for the requester specified in `x-requester-id`. Supports optional multipart file uploads for initial attachments.
-  - *Request Body*: Multipart form or JSON containing `{ categoryId, relatedSystemId, requestedPriority, summary, description }` plus files.
-  - *Response (201 Created)*: Created ticket object with `{ id, ticketNumber, createdAt, currentStatus, summary, description, attachments: [...] }`.
+  - *Description*: Creates a new ticket for the requester specified in `x-requester-id`. Accepts ticket fields only; attachments are uploaded separately in subsequent requests.
+  - *Request Body*: `application/json` containing `{ categoryId, relatedSystemId, requestedPriority, summary, description }`.
+  - *Response (201 Created)*: Created ticket object with `{ id, ticketNumber, createdAt, updatedAt, currentStatus, summary, description, requesterId }`.
   - *Errors*: `400 Bad Request` on validation failure; `404 Not Found` if requester ID is invalid.
+  - *Note on initial attachments*: After the ticket is created, initial attachments are uploaded one file per request using `POST /api/tickets/:id/attachments`. This two-step approach supports partial success: a failed attachment upload does not roll back the successfully created Ticket, and failed uploads may be retried from Ticket Detail.
 - **`GET /api/tickets`**:
   - *Description*: Retrieves a paginated list of tickets owned exclusively by the requester in `x-requester-id`.
   - *Query Parameters*:
@@ -341,7 +342,7 @@ The REST API exposes JSON-based endpoints for data operations and multipart endp
     - `sortOrder`: `asc`, `desc` (default `desc`).
     - `page`: Integer ≥ 1 (default 1).
     - `pageSize`: Integer (10, 25, 50; default 10).
-  - *Response (200 OK)*: `{ data: [...tickets], pagination: { page, pageSize, totalItems, totalPages } }`.
+  - *Response (200 OK)*: `{ items: [...tickets], pagination: { page, pageSize, totalItems, totalPages } }`.
 - **`GET /api/tickets/:id`**:
   - *Description*: Retrieves detailed information and attachments for an owned ticket.
   - *Response (200 OK)*: Ticket detail object including reference labels and attachment list.
@@ -349,19 +350,25 @@ The REST API exposes JSON-based endpoints for data operations and multipart endp
 
 ### 3. Attachment Endpoints
 - **`POST /api/tickets/:id/attachments`**:
-  - *Description*: Uploads one or more permitted attachments to an existing ticket.
+  - *Description*: Uploads one permitted attachment to an existing owned ticket. One file per request. Also updates the parent Ticket's `updatedAt`.
   - *Request*: `multipart/form-data` with `file` payload.
-  - *Response (201 Created)*: Uploaded attachment metadata object(s).
+  - *Response (201 Created)*: Uploaded attachment metadata object.
   - *Errors*: `400 Bad Request` (invalid type, size > 5 MB, or active count > 5); `404 Not Found` if ticket is unowned.
 - **`GET /api/attachments/:id/download`**:
   - *Description*: Streams the physical file for an active attachment.
   - *Response (200 OK)*: Binary file stream with `Content-Disposition: attachment; filename="..."`.
   - *Errors*: `404 Not Found` if file does not exist, belongs to another requester's ticket, or `isRemoved === true`.
 - **`PATCH /api/attachments/:id/remove`**:
-  - *Description*: Soft-removes an attachment with a mandatory reason.
+  - *Description*: Soft-removes an active attachment with a mandatory reason. Also updates the parent Ticket's `updatedAt`.
   - *Request Body*: `{ removalReason: string }`.
   - *Response (200 OK)*: Updated attachment metadata with `isRemoved: true`, `removedAt`, and `removalReason`.
-  - *Errors*: `400 Bad Request` if removal reason is missing or invalid; `404 Not Found` if attachment is not owned or already removed.
+  - *Errors*: `400 Bad Request` if removal reason is missing or invalid; `404 Not Found` if attachment does not exist or is not owned by the requester; `409 Conflict` (`ALREADY_REMOVED`) if the attachment has already been soft-removed.
+
+### 4. Ticket `updatedAt` Behavior
+- At Ticket creation, `updatedAt` initially equals `createdAt`.
+- A successful attachment upload (`POST /api/tickets/:id/attachments`) updates the parent Ticket's `updatedAt`.
+- A successful attachment soft removal (`PATCH /api/attachments/:id/remove`) updates the parent Ticket's `updatedAt`.
+- This ensures the My Tickets "Last Updated" column reflects attachment activity.
 
 ---
 
