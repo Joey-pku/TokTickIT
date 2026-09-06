@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { removeAttachment, type Attachment } from "./attachment-api.js";
 import { formatFileSize } from "./AttachmentPicker.js";
-export function RemovalModal({ attachment, close, removed }: { attachment: Attachment; close: () => void; removed: (value: Attachment) => void }) {
+export function RemovalModal({ attachment, close, removed, fallbackFocus }: { attachment: Attachment; close: () => void; removed: (value: Attachment) => void; fallbackFocus?: () => void }) {
   const [reason, setReason] = useState(""); const [busy, setBusy] = useState(false); const [error, setError] = useState("");
   const dialog = useRef<HTMLDivElement>(null); const controller = useRef<AbortController>(); const pending = useRef(false);
-  useEffect(() => { const trigger = document.activeElement as HTMLElement | null; dialog.current?.querySelector("textarea")?.focus(); return () => { controller.current?.abort(); trigger?.focus(); }; }, []);
+  const trigger = useRef<HTMLElement | null>(null);
+  useEffect(() => { trigger.current ??= document.activeElement as HTMLElement | null; dialog.current?.querySelector("textarea")?.focus(); return () => { controller.current?.abort(); queueMicrotask(() => { if (dialog.current?.isConnected) return; if (trigger.current?.isConnected) trigger.current.focus(); else fallbackFocus?.(); }); }; }, []);
   const length = reason.trim().length, valid = length >= 5 && length <= 255;
   function keyboard(event: KeyboardEvent) {
     if (event.key === "Escape") { event.preventDefault(); close(); }

@@ -16,7 +16,7 @@ export function CreateTicket() {
   const [busy, setBusy] = useState(false); const [created, setCreated] = useState<Ticket | null>(null);
   const pending = useRef(false); const controller = useRef<AbortController | null>(null);
   const [files, setFiles] = useState<File[]>([]);
-  const [uploadMessages, setUploadMessages] = useState<{ name: string; failed: boolean }[]>([]);
+  const [uploadMessages, setUploadMessages] = useState<{ name: string; failed: boolean; reason?: string }[]>([]);
   const [uploading, setUploading] = useState(false);
   useEffect(() => () => { controller.current?.abort(); }, []);
   async function submit(event: FormEvent) {
@@ -38,8 +38,9 @@ export function CreateTicket() {
           try {
             await uploadAttachment(result.id, file, abort.signal);
             if (!abort.signal.aborted) setUploadMessages(previous => [...previous, { name: file.name, failed: false }]);
-          } catch {
-            if (!abort.signal.aborted) setUploadMessages(previous => [...previous, { name: file.name, failed: true }]);
+          } catch (error) {
+            const reason = error instanceof TicketApiError ? error.error.message : "Unable to communicate with the server. Please try again.";
+            if (!abort.signal.aborted) setUploadMessages(previous => [...previous, { name: file.name, failed: true, reason }]);
           }
         }
         if (!abort.signal.aborted) setUploading(false);
@@ -57,7 +58,7 @@ export function CreateTicket() {
     {failed && <div className="zen-alert zen-error" role="alert">Server error: Unable to submit ticket. Please check your network and try again.</div>}
     {created && <div className="zen-alert ticket-success" role="status">Ticket {created.ticketNumber} created successfully.</div>}
     {uploading && <p role="status"><span className="zen-spinner ticket-inline-spinner" aria-hidden="true" /> Uploading attachments...</p>}
-    <div aria-live="polite">{uploadMessages.map((item, i) => <p key={i} className={`zen-alert ${item.failed ? "zen-error" : "ticket-success"}`}>{item.name} {item.failed ? "upload failed. The ticket remains created. You can retry uploading this attachment from Ticket Detail." : "uploaded successfully."}</p>)}</div>
+    <div aria-live="polite">{uploadMessages.map((item, i) => <p key={i} className={`zen-alert ${item.failed ? "zen-error" : "ticket-success"}`}>{item.name} {item.failed ? `upload failed. ${item.reason} The ticket remains created. You can retry uploading this attachment from Ticket Detail.` : "uploaded successfully."}</p>)}</div>
     {created && uploadMessages.some(item => item.failed) && <><p><TicketLink href={`/tickets/${created.id}`}>Retry failed uploads from Ticket Detail</TicketLink></p><div className="ticket-panel"><ReadOnly label="Summary">{summary}</ReadOnly><ReadOnly label="Description">{description}</ReadOnly></div></>}
     <form className="ticket-panel" onSubmit={submit} noValidate>
       <div className="ticket-grid">

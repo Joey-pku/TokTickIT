@@ -4,6 +4,7 @@ import { AttachmentPicker, formatFileSize } from "./AttachmentPicker.js";
 import { RemovalModal } from "./RemovalModal.js";
 import { formatDate } from "./TicketComponents.js";
 export function AttachmentSection({ ticketId, attachments, refresh, changed }: { ticketId: number; attachments: Attachment[]; refresh: () => Promise<void>; changed: (attachment: Attachment) => void }) {
+  const heading = useRef<HTMLHeadingElement>(null);
   const [files, setFiles] = useState<File[]>([]); const [busy, setBusy] = useState(false); const [messages, setMessages] = useState<{ file: File; failed: boolean; text: string }[]>([]);
   const [removing, setRemoving] = useState<Attachment | null>(null); const [notice, setNotice] = useState("");
   const [downloading, setDownloading] = useState<number | null>(null);
@@ -33,7 +34,7 @@ export function AttachmentSection({ ticketId, attachments, refresh, changed }: {
     catch { if (!controller.current?.signal.aborted) setNotice(`Unable to download ${file.originalFileName}. Please try again.`); }
     finally { if (!controller.current?.signal.aborted) { downloadPending.current = false; setDownloading(null); } }
   }
-  return <section aria-label="Ticket attachments"><h2>Attachments ({active.length}/5)</h2>
+  return <section aria-label="Ticket attachments"><h2 ref={heading} tabIndex={-1}>Attachments ({active.length}/5)</h2>
     {notice && <div role="status" className="zen-alert zen-info">{notice}<button className="zen-button zen-secondary" onClick={() => { refresh().then(() => setNotice("")).catch(() => setNotice("Unable to refresh ticket information. Please try again.")); }}>Refresh attachments</button></div>}
     {!active.length && <p>No active attachments.</p>}
     <ul className="ticket-attachments">{active.map(file => <li key={file.id}><span aria-hidden="true">{file.mimeType.startsWith("image/") ? "▧" : "▤"} </span><strong>{file.originalFileName}</strong><p>{formatFileSize(file.fileSizeBytes)} · {formatDate(file.createdAt)}</p><div className="attachment-row-actions"><button className="zen-button zen-secondary" disabled={downloading !== null} aria-label={`${downloading === file.id ? "Downloading" : "Download"} ${file.originalFileName}`} onClick={() => download(file)}>{downloading === file.id ? "Downloading..." : "Download"}</button><button className="zen-button attachment-danger-outline" aria-label={`Remove ${file.originalFileName}`} onClick={() => setRemoving(file)}>Remove</button></div></li>)}</ul>
@@ -41,6 +42,6 @@ export function AttachmentSection({ ticketId, attachments, refresh, changed }: {
     <button className="zen-button zen-primary" disabled={busy || !files.length || active.length >= 5} onClick={() => upload(files)}>{busy && <span className="zen-spinner ticket-inline-spinner" aria-hidden="true" />}{busy ? "Uploading..." : "Upload attachments"}</button>
     <div aria-live="polite">{messages.map((message, i) => <div className={`zen-alert ${message.failed ? "zen-error" : "ticket-success"}`} key={i}>{message.text}{message.failed && <button className="zen-button zen-secondary" disabled={busy || active.length >= 5} onClick={() => upload([message.file], true)}>Retry {message.file.name}</button>}</div>)}</div>
     {removed.length > 0 && <details className="attachment-removed"><summary>Removed Attachments ({removed.length})</summary><ul className="ticket-attachments">{removed.map(file => <li className="ticket-removed" key={file.id}><strong>{file.originalFileName}</strong><span className="attachment-removed-badge">Removed</span><p>{formatFileSize(file.fileSizeBytes)} · {formatDate(file.createdAt)}</p>{file.removedAt && <p>Removed on {formatDate(file.removedAt)}</p>}<p><em>Reason: {file.removalReason}</em></p></li>)}</ul></details>}
-    {removing && <RemovalModal attachment={removing} close={() => { setRemoving(null); void refresh().catch(() => {}); }} removed={item => { changed(item); setRemoving(null); setNotice("Attachment removed successfully."); void update(); }} />}
+    {removing && <RemovalModal attachment={removing} fallbackFocus={() => heading.current?.focus()} close={() => { setRemoving(null); void refresh().catch(() => {}); }} removed={item => { changed(item); setRemoving(null); setNotice("Attachment removed successfully."); void update(); }} />}
   </section>;
 }

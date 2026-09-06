@@ -1,4 +1,5 @@
 import { useId, useState } from "react";
+import { FileIcon, UploadIcon } from "./Icons.js";
 export const MAX_ATTACHMENT_BYTES = 5_242_880;
 const types: Record<string, string> = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", pdf: "application/pdf" };
 export function validateAttachment(file: File): string | null {
@@ -17,10 +18,10 @@ export function AttachmentPicker({ files, onChange, slots = 5, disabled = false 
     setError(errors.join(" ")); onChange(accepted);
   }
   return <div className="attachment-picker" onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); add(Array.from(event.dataTransfer.files)); }}>
-    <label htmlFor={id}>Supporting attachments</label><p>Allowed: JPG, JPEG, PNG, WEBP, PDF. Maximum 5 MB per file. Up to 5 files.</p>
+    <UploadIcon /><label htmlFor={id}>Supporting attachments</label><p>Allowed: JPG, JPEG, PNG, WEBP, PDF. Maximum 5 MB per file. Up to 5 files.</p>
     <input id={id} type="file" multiple accept=".jpg,.jpeg,.png,.webp,.pdf" disabled={disabled || slots <= 0} aria-describedby={error ? `${id}-error` : undefined} aria-invalid={!!error} onChange={event => { add(Array.from(event.target.files ?? [])); event.target.value = ""; }} />
     {slots <= 0 && <p>Maximum active attachments (5/5) reached. Remove an existing attachment to upload a new one.</p>}
     {error && <p id={`${id}-error`} className="ticket-field-error" role="alert">{error}</p>}
-    <ul className="attachment-queue">{files.map((file, index) => <li key={`${file.name}-${index}`}><span>{file.name} ({formatFileSize(file.size)})</span><button type="button" className="zen-button zen-secondary" disabled={disabled} aria-label={`Discard ${file.name}`} onClick={() => onChange(files.filter((_, i) => i !== index))}>Discard</button></li>)}</ul>
+    <ul className="attachment-queue">{files.map((file, index) => <li key={`${file.name}-${index}`}><FileIcon image={file.type.startsWith("image/")} /><span>{file.name} ({formatFileSize(file.size)})</span><button type="button" className="zen-button attachment-danger-outline" disabled={disabled} aria-label={`Remove ${file.name} from upload queue`} onClick={() => onChange(files.filter((_, i) => i !== index))}>✕ Remove</button></li>)}</ul>
   </div>;
 }
