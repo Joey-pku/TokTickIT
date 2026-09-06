@@ -10,7 +10,7 @@ TokTickIT is an IT Service Desk application.
 
 ## Prerequisites
 
-* Node.js and npm
+* Node.js >=22 and npm. Part 4 was executed on Node 24.14.0; Node 22 was not execution-tested. The installed `file-type@22.0.2` and `content-disposition@3.0.0` require Node >=22.
 * PostgreSQL
 
 ## Frontend Setup
@@ -82,3 +82,67 @@ npm test
 Do not commit `.env` files or secrets.
 
 Use `.env.example` as the template for local environment configuration.
+
+## Lab 2 development and verification
+
+Development Requester selection is a testing identity mechanism, not authentication.
+The Lab 1 system check remains at `/`; Lab 2 starts at `/select-requester`.
+
+On Windows PowerShell use `npm.cmd` to avoid the local script execution-policy restriction on `npm.ps1`.
+Before migrating, confirm the effective `DATABASE_URL` identifies the intended development database. Environment variables override `.env`.
+From `server/`:
+
+```powershell
+npm.cmd ci
+npm.cmd exec -- prisma migrate status
+npm.cmd run prisma:migrate
+npm.cmd run prisma:seed
+npm.cmd exec -- prisma validate
+$env:NODE_ENV = 'development'
+$env:PORT = '3000'
+npm.cmd run dev
+```
+
+Apply checked-in migrations only. If Prisma reports drift, requests a reset, or proposes unexpected schema work, stop and investigate. Never run test cleanup against development. Stop project server processes before regenerating Prisma Client on Windows if its engine DLL is locked.
+
+From a separate terminal in `client/`:
+
+```powershell
+npm.cmd ci
+$env:VITE_API_URL = 'http://localhost:3000'
+npm.cmd run dev -- --host localhost --strictPort
+```
+
+PostgreSQL uses localhost:5432; frontend uses http://localhost:5173; API uses http://localhost:3000. This machine's PostgreSQL service is `postgresql-x64-18`; installations elsewhere may use a different service name. Do not stop another process merely to reclaim a port.
+
+For the compiled server, run `npm.cmd run build` followed by `npm.cmd start` in `server/`. Its entry point is `dist/src/index.js`.
+
+Development attachments default to private `server/uploads/attachments/`. `UPLOAD_DIR` can override that path. Removal retains audit metadata and may retain the binary; requester downloads of removed files return 404.
+
+### Isolated tests
+
+From `server/`, `npm.cmd run test:db` prepares the API-test database configured by `TEST_DATABASE_URL` / `.env.test` (default database name `toktickit_test`), then `npm.cmd test` runs API tests. The database name must end in `_test`. From `client/`, run `npm.cmd test`.
+
+For E2E, from `toktickit/`:
+
+```powershell
+npm.cmd ci
+npm.cmd exec -- playwright install chromium
+npm.cmd run test:e2e
+```
+
+Playwright uses a real API on 3001, Vite on 5174 and the dedicated `toktickit_e2e_test` database. It derives connection credentials from the effective development connection, replaces the database name, and never resets development. The PostgreSQL role must be able to create the E2E database if absent. E2E preparation does not write `server/.env.test`. Do not share the E2E database with another simultaneous run.
+
+Tests seed reference data, create their own tickets, and clean their mutable data. Uploads use an isolated temporary directory named `toktickit-attachments-test-e2e-*`; normal development storage is untouched. One worker and zero automatic retries are configured.
+
+To refresh the selected screenshot evidence:
+
+```powershell
+$env:CAPTURE_EVIDENCE = '1'
+$env:E2E_REPORT = 'artifacts/lab-02/results/e2e-green.json'
+npm.cmd run test:e2e
+```
+
+The explicit development browser check is `node e2e/support/manual-development.mjs` from `toktickit/`, with development servers already running. **It creates and retains a development verification ticket and a soft-removed attachment audit record.** It is not an isolated test and performs no database cleanup.
+
+See [Part 4 verification](docs/lab-02/verification.md), [AI use](docs/lab-02/ai-use.md), and [review findings](docs/lab-02/reviewer.md). The final submission PDF and human peer-review evidence remain separate delivery responsibilities.

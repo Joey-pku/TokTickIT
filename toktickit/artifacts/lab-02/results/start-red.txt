@@ -1,0 +1,7 @@
+Command: npm.cmd start (toktickit/server)
+Runtime: Node v24.14.0
+Exit code: 1
+Script: node dist/index.js
+Error: MODULE_NOT_FOUND — dist/index.js does not exist.
+The existing compiled entry point is dist/src/index.js.
+Captured before changing the production start target during Part 4.

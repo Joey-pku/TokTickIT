@@ -1,0 +1,9 @@
+
+> toktickit-server@1.0.0 start
+> node dist/src/index.js
+
+TokTickIT API listening on http://localhost:3002
+
+Health and development database reference API: passed.
+Port 3002 used because existing development server owns 3000.
+Runtime: v24.14.0

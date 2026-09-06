@@ -1,0 +1,204 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--grep",
+      "detail grid"
+    ],
+    "configFile": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\playwright.config.ts",
+    "rootDir": "C:/Users/MSI/Desktop/3rd year/SE/lab/lab_1/Lab1_Starter_Scaffold/toktickit/e2e/lab-02",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\support\\global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/MSI/Desktop/3rd year/SE/lab/lab_1/Lab1_Starter_Scaffold/toktickit/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/MSI/Desktop/3rd year/SE/lab/lab_1/Lab1_Starter_Scaffold/toktickit/e2e/lab-02",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/lab-02/results/e2e.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "responsive-accessibility.spec.ts",
+      "file": "responsive-accessibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Contract: detail grid, badge tokens and semantic read-only icons",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 13234,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-table .badge-low')\nExpected: \u001b[32m\"rgb(\u001b[7m4\u001b[27m, 12\u001b[7m0\u001b[27m, \u001b[7m87\u001b[27m)\"\u001b[39m\nReceived: \u001b[31m\"rgb(\u001b[7m21\u001b[27m, 12\u001b[7m8\u001b[27m, \u001b[7m61\u001b[27m)\"\u001b[39m\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.ticket-table .badge-low') with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-table .badge-low')\u001b[22m\n\u001b[2m    20 × locator resolved to <span class=\"ticket-badge badge-low\">Low</span>\u001b[22m\n\u001b[2m       - unexpected value \"rgb(21, 128, 61)\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-table .badge-low')\nExpected: \u001b[32m\"rgb(\u001b[7m4\u001b[27m, 12\u001b[7m0\u001b[27m, \u001b[7m87\u001b[27m)\"\u001b[39m\nReceived: \u001b[31m\"rgb(\u001b[7m21\u001b[27m, 12\u001b[7m8\u001b[27m, \u001b[7m61\u001b[27m)\"\u001b[39m\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.ticket-table .badge-low') with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-table .badge-low')\u001b[22m\n\u001b[2m    20 × locator resolved to <span class=\"ticket-badge badge-low\">Low</span>\u001b[22m\n\u001b[2m       - unexpected value \"rgb(21, 128, 61)\"\u001b[22m\n\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:16:63",
+                    "location": {
+                      "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                      "column": 63,
+                      "line": 16
+                    },
+                    "snippet": "  14 |   const low = await fixture.ticket({ requestedPriority: 'LOW' }); await fixture.ticket({ requestedPriority: 'HIGH' });\n  15 |   await select(page, fixture.a.id);\n> 16 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('color', 'rgb(4, 120, 87)');\n     |                                                               ^\n  17 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('background-color', 'rgb(209, 250, 229)');\n  18 |   await expect.soft(page.locator('.ticket-table .badge-high')).toHaveCSS('border-top-color', 'rgb(252, 165, 165)');\n  19 |   await page.goto(`/tickets/${low.id}`); await expect(page.getByText(fixture.body.description)).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 63,
+                        "line": 16
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-table .badge-low')\nExpected: \u001b[32m\"rgb(\u001b[7m4\u001b[27m, 12\u001b[7m0\u001b[27m, \u001b[7m87\u001b[27m)\"\u001b[39m\nReceived: \u001b[31m\"rgb(\u001b[7m21\u001b[27m, 12\u001b[7m8\u001b[27m, \u001b[7m61\u001b[27m)\"\u001b[39m\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.ticket-table .badge-low') with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-table .badge-low')\u001b[22m\n\u001b[2m    20 × locator resolved to <span class=\"ticket-badge badge-low\">Low</span>\u001b[22m\n\u001b[2m       - unexpected value \"rgb(21, 128, 61)\"\u001b[22m\n\n\n  14 |   const low = await fixture.ticket({ requestedPriority: 'LOW' }); await fixture.ticket({ requestedPriority: 'HIGH' });\n  15 |   await select(page, fixture.a.id);\n> 16 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('color', 'rgb(4, 120, 87)');\n     |                                                               ^\n  17 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('background-color', 'rgb(209, 250, 229)');\n  18 |   await expect.soft(page.locator('.ticket-table .badge-high')).toHaveCSS('border-top-color', 'rgb(252, 165, 165)');\n  19 |   await page.goto(`/tickets/${low.id}`); await expect(page.getByText(fixture.body.description)).toBeVisible();\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:16:63"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 63,
+                        "line": 17
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-table .badge-low')\nExpected: \u001b[32m\"rgb(20\u001b[7m9\u001b[27m, 25\u001b[7m0\u001b[27m, 2\u001b[7m29\u001b[27m)\"\u001b[39m\nReceived: \u001b[31m\"rgb(2\u001b[7m2\u001b[27m0, 25\u001b[7m2\u001b[27m, 2\u001b[7m31\u001b[27m)\"\u001b[39m\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.ticket-table .badge-low') with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-table .badge-low')\u001b[22m\n\u001b[2m    20 × locator resolved to <span class=\"ticket-badge badge-low\">Low</span>\u001b[22m\n\u001b[2m       - unexpected value \"rgb(220, 252, 231)\"\u001b[22m\n\n\n  15 |   await select(page, fixture.a.id);\n  16 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('color', 'rgb(4, 120, 87)');\n> 17 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('background-color', 'rgb(209, 250, 229)');\n     |                                                               ^\n  18 |   await expect.soft(page.locator('.ticket-table .badge-high')).toHaveCSS('border-top-color', 'rgb(252, 165, 165)');\n  19 |   await page.goto(`/tickets/${low.id}`); await expect(page.getByText(fixture.body.description)).toBeVisible();\n  20 |   expect.soft(await page.locator('.ticket-grid').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:17:63"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 64,
+                        "line": 18
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-table .badge-high')\nExpected: \u001b[32m\"rgb(2\u001b[7m52\u001b[27m, 1\u001b[7m65, 165\u001b[27m)\"\u001b[39m\nReceived: \u001b[31m\"rgb(2\u001b[7m48\u001b[27m, 1\u001b[7m13, 113\u001b[27m)\"\u001b[39m\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.ticket-table .badge-high') with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-table .badge-high')\u001b[22m\n\u001b[2m    20 × locator resolved to <span class=\"ticket-badge badge-high\">High</span>\u001b[22m\n\u001b[2m       - unexpected value \"rgb(248, 113, 113)\"\u001b[22m\n\n\n  16 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('color', 'rgb(4, 120, 87)');\n  17 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('background-color', 'rgb(209, 250, 229)');\n> 18 |   await expect.soft(page.locator('.ticket-table .badge-high')).toHaveCSS('border-top-color', 'rgb(252, 165, 165)');\n     |                                                                ^\n  19 |   await page.goto(`/tickets/${low.id}`); await expect(page.getByText(fixture.body.description)).toBeVisible();\n  20 |   expect.soft(await page.locator('.ticket-grid').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);\n  21 |   await page.goto('/tickets/new');\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:18:64"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 134,
+                        "line": 20
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m3\u001b[39m\n\n  18 |   await expect.soft(page.locator('.ticket-table .badge-high')).toHaveCSS('border-top-color', 'rgb(252, 165, 165)');\n  19 |   await page.goto(`/tickets/${low.id}`); await expect(page.getByText(fixture.body.description)).toBeVisible();\n> 20 |   expect.soft(await page.locator('.ticket-grid').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);\n     |                                                                                                                                      ^\n  21 |   await page.goto('/tickets/new');\n  22 |   for (const label of ['Ticket Number', 'Ticket Date', 'Requester']) await expect.soft(page.locator('.ticket-readonly').filter({ has: page.getByText(label, { exact: true }) }).locator('svg')).toHaveCount(1);\n  23 | });\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:20:134"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 193,
+                        "line": 22
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-readonly').filter({ has: getByText('Ticket Number', { exact: true }) }).locator('svg')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCount\" locator('.ticket-readonly').filter({ has: getByText('Ticket Number', { exact: true }) }).locator('svg') with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-readonly').filter({ has: getByText('Ticket Number', { exact: true }) }).locator('svg')\u001b[22m\n\u001b[2m    20 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n\n  20 |   expect.soft(await page.locator('.ticket-grid').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);\n  21 |   await page.goto('/tickets/new');\n> 22 |   for (const label of ['Ticket Number', 'Ticket Date', 'Requester']) await expect.soft(page.locator('.ticket-readonly').filter({ has: page.getByText(label, { exact: true }) }).locator('svg')).toHaveCount(1);\n     |                                                                                                                                                                                                 ^\n  23 | });\n  24 |\n  25 | test('Contract: attachment picker icon and red queue removal', async ({ page, fixture }) => {\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:22:193"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 193,
+                        "line": 22
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-readonly').filter({ has: getByText('Ticket Date', { exact: true }) }).locator('svg')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCount\" locator('.ticket-readonly').filter({ has: getByText('Ticket Date', { exact: true }) }).locator('svg') with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-readonly').filter({ has: getByText('Ticket Date', { exact: true }) }).locator('svg')\u001b[22m\n\u001b[2m    20 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n\n  20 |   expect.soft(await page.locator('.ticket-grid').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);\n  21 |   await page.goto('/tickets/new');\n> 22 |   for (const label of ['Ticket Number', 'Ticket Date', 'Requester']) await expect.soft(page.locator('.ticket-readonly').filter({ has: page.getByText(label, { exact: true }) }).locator('svg')).toHaveCount(1);\n     |                                                                                                                                                                                                 ^\n  23 | });\n  24 |\n  25 | test('Contract: attachment picker icon and red queue removal', async ({ page, fixture }) => {\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:22:193"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 193,
+                        "line": 22
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-readonly').filter({ has: getByText('Requester', { exact: true }) }).locator('svg')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCount\" locator('.ticket-readonly').filter({ has: getByText('Requester', { exact: true }) }).locator('svg') with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-readonly').filter({ has: getByText('Requester', { exact: true }) }).locator('svg')\u001b[22m\n\u001b[2m    20 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n\n  20 |   expect.soft(await page.locator('.ticket-grid').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);\n  21 |   await page.goto('/tickets/new');\n> 22 |   for (const label of ['Ticket Number', 'Ticket Date', 'Requester']) await expect.soft(page.locator('.ticket-readonly').filter({ has: page.getByText(label, { exact: true }) }).locator('svg')).toHaveCount(1);\n     |                                                                                                                                                                                                 ^\n  23 | });\n  24 |\n  25 | test('Contract: attachment picker icon and red queue removal', async ({ page, fixture }) => {\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:22:193"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:14:45.268Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-C-dfcbb-nd-semantic-read-only-icons\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-C-dfcbb-nd-semantic-read-only-icons\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                    "column": 63,
+                    "line": 16
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "91a1faa62bcf8b254d39-fbda9b6a9675c4de5924",
+          "file": "responsive-accessibility.spec.ts",
+          "line": 13,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-06T08:14:42.482Z",
+    "duration": 16310.484999999999,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}
