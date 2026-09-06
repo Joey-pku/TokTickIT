@@ -41,7 +41,11 @@ enum RequestedPriority {
   HIGH
 }
 
-// Foundation only: ticket and attachment workflows belong to later branches.
+model TicketNumberCounter {
+  year      Int @id
+  lastValue Int
+}
+
 model Ticket {
   id                Int                  @id @default(autoincrement())
   ticketNumber      String               @unique

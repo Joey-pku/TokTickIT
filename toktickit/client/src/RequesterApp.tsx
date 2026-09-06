@@ -5,9 +5,12 @@ import { RequesterProvider, useRequester } from "./RequesterContext.js";
 import { RequesterSelector } from "./RequesterSelector.js";
 import { navigate, usePathname } from "./navigation.js";
 import { readRequesterId } from "./requester-storage.js";
+import { CreateTicket } from "./CreateTicket.js";
+import { MyTickets } from "./MyTickets.js";
+import { RequesterTicketDetail } from "./RequesterTicketDetail.js";
 
 // Keying the scoped subtree by identity discards future local requester caches
-// immediately on switching; no ticket screens or ticket requests exist yet.
+// immediately on switching.
 export function RequesterGuard({ children }: { children: ReactNode }) {
   const { requester, state } = useRequester();
   useEffect(() => {
@@ -20,7 +23,7 @@ function RequesterRoutes() {
   const path = usePathname();
   return <AppShell>{path === "/select-requester"
     ? <RequesterSelector />
-    : <RequesterGuard>{null /* Reserved shell outlet; ticket features are deferred. */}</RequesterGuard>}
+    : <RequesterGuard>{path === "/tickets/new" ? <CreateTicket /> : /^\/tickets\/[^/]+$/.test(path) ? <RequesterTicketDetail key={path} id={Number(path.split("/")[2])} /> : <MyTickets />}</RequesterGuard>}
   </AppShell>;
 }
 export function RequesterApp() {
