@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import { getPrisma } from "./prisma.js";
 import { sendError } from "./errors.js";
+import { tickets } from "./tickets.js";
+import type { ErrorRequestHandler } from "express";
 
 // Keep the exported app separate from the listener for Supertest.
 export const app = express();
@@ -33,4 +35,10 @@ app.get("/api/related-systems", async (_req, res) => {
     res.json({ items });
   } catch { sendError(res, "INTERNAL_ERROR"); }
 });
+app.use("/api/tickets", tickets);
+const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
+  if (error?.type === "entity.parse.failed") sendError(res, "VALIDATION_ERROR", { body: "A valid JSON object is required." });
+  else sendError(res, "INTERNAL_ERROR");
+};
+app.use(errorHandler);
 export default app;
