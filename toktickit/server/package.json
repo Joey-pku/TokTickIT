@@ -12,15 +12,21 @@
     "test": "vitest run",
     "test:db": "node scripts/setup-test-db.mjs"
   },
-  "prisma": { "seed": "tsx prisma/seed.ts" },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "content-disposition": "^3.0.0",
     "cors": "^2.8.5",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "file-type": "^22.0.2",
+    "multer": "^2.3.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/multer": "^2.2.0",
     "@types/node": "^22.10.2",
     "@types/supertest": "^6.0.2",
     "prisma": "^5.22.0",

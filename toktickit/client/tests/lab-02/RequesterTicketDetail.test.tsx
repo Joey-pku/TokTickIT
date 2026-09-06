@@ -12,7 +12,7 @@ it("UI-DTL-001,008: displays backend fields read-only and back navigation", asyn
   expect(screen.getByText("Hardware")).toBeInTheDocument();
   expect(screen.getByText("VPN")).toBeInTheDocument();
   expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: /Upload|Download|Remove/ })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Upload attachments" })).toBeDisabled();
   await user.click(screen.getByRole("link", { name: /Back to My Tickets/ }));
   expect(window.location.pathname).toBe("/tickets");
 });
@@ -38,8 +38,10 @@ it("renders removed metadata without operational attachment UI", async () => {
     id: 7, originalFileName: "proof.pdf", mimeType: "application/pdf", fileSizeBytes: 1024, isRemoved: true,
     removedAt: detail.updatedAt, removalReason: "Wrong document", createdAt: detail.createdAt,
   }] });
-  render(<RequesterApp />); expect(await screen.findByText("proof.pdf")).toBeInTheDocument();
+  render(<RequesterApp />); await screen.findByText("Removed Attachments (1)");
+  await userEvent.setup().click(screen.getByText("Removed Attachments (1)"));
+  expect(screen.getByText("proof.pdf")).toBeInTheDocument();
   expect(screen.getByText(/Wrong document/)).toBeInTheDocument();
   expect(screen.queryByRole("link", { name: /Download/ })).not.toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: /Remove|Upload/ })).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Remove proof.pdf" })).not.toBeInTheDocument();
 });

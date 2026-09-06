@@ -7,6 +7,8 @@ node_modules/
 !.env.example
 # build output
 dist/
+server/uploads/
+server/test-uploads/
 build/
 # prisma
 server/prisma/*.db

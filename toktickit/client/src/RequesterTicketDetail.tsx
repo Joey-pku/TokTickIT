@@ -1,12 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AttachmentSection } from "./AttachmentSection.js";
+import type { Attachment } from "./attachment-api.js";
 import { getTicket, TicketApiError, type TicketDetail } from "./ticket-api.js";
 import { Badge, formatDate, ReadOnly, Skeleton, TicketLink } from "./TicketComponents.js";
 export function RequesterTicketDetail({ id }: { id: number }) {
   const [ticket, setTicket] = useState<TicketDetail | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "missing" | "error">("loading");
   const [attempt, retry] = useState(0);
+  const current = useRef<AbortController>();
+  const refreshVersion = useRef(0);
+  async function refresh() {
+    const signal = current.current!.signal, version = ++refreshVersion.current;
+    const value = await getTicket(id, signal);
+    if (!signal.aborted && version === refreshVersion.current) setTicket(value);
+  }
+  function changed(attachment: Attachment) {
+    ++refreshVersion.current;
+    setTicket(previous => previous && ({ ...previous, attachments: [...previous.attachments.filter(item => item.id !== attachment.id), attachment] }));
+  }
   useEffect(() => {
-    const controller = new AbortController(); setState("loading"); setTicket(null);
+    const controller = new AbortController(); current.current = controller; setState("loading"); setTicket(null);
     getTicket(id, controller.signal).then(value => { if (!controller.signal.aborted) { setTicket(value); setState("ready"); } })
       .catch(error => { if (!controller.signal.aborted) setState(error instanceof TicketApiError && error.status === 404 ? "missing" : "error"); });
     return () => controller.abort();
@@ -19,6 +32,6 @@ export function RequesterTicketDetail({ id }: { id: number }) {
       <div className="ticket-grid"><ReadOnly label="Ticket No.">{ticket.ticketNumber}</ReadOnly><ReadOnly label="Ticket Date">{formatDate(ticket.createdAt)}</ReadOnly><ReadOnly label="Requester">{ticket.requesterName}</ReadOnly></div>
       <div className="ticket-grid"><ReadOnly label="Category">{ticket.categoryName}</ReadOnly><ReadOnly label="Related System">{ticket.relatedSystemName}</ReadOnly><ReadOnly label="Requested Priority"><Badge value={ticket.requestedPriority} /></ReadOnly><ReadOnly label="Current Status"><Badge value={ticket.currentStatus} /></ReadOnly></div>
       <ReadOnly label="Summary"><strong>{ticket.summary}</strong></ReadOnly><div className="ticket-description"><ReadOnly label="Description">{ticket.description}</ReadOnly></div>
-    </div><aside className="ticket-panel"><h2>Attachments</h2>{ticket.attachments.length === 0 ? <p>No attachments.</p> : <ul className="ticket-attachments">{ticket.attachments.map(file => <li key={file.id} className={file.isRemoved ? "ticket-removed" : ""}><strong>{file.originalFileName}</strong><p>{(file.fileSizeBytes / 1024).toFixed(1)} KB · {file.mimeType}</p><p>{formatDate(file.createdAt)}</p>{file.isRemoved && <><span>Removed</span>{file.removedAt && <p>{formatDate(file.removedAt)}</p>}<p>{file.removalReason}</p></>}</li>)}</ul>}</aside></div>}
+    </div><aside className="ticket-panel"><AttachmentSection ticketId={ticket.id} attachments={ticket.attachments} refresh={refresh} changed={changed} /></aside></div>}
   </section>;
 }

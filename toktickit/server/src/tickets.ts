@@ -3,6 +3,7 @@ import type { Prisma, RequestedPriority } from "@prisma/client";
 import { getPrisma } from "./prisma.js";
 import { requesterContext } from "./requester-context.js";
 import { sendError } from "./errors.js";
+import { attachmentSelect } from "./attachment-dto.js";
 
 export const tickets = Router();
 tickets.use(requesterContext);
@@ -99,7 +100,7 @@ tickets.get("/:ticketId", async (req, res) => {
     if (id > 2147483647) { sendError(res, "TICKET_NOT_FOUND"); return; }
     const ticket = await getPrisma().ticket.findFirst({ where: { id, requesterId: res.locals.requesterId }, select: {
       ...createSelect, requester: { select: { name: true } }, category: { select: { name: true } }, relatedSystem: { select: { name: true } },
-      attachments: { orderBy: { id: "asc" }, select: { id: true, originalFileName: true, mimeType: true, fileSizeBytes: true, isRemoved: true, removedAt: true, removalReason: true, createdAt: true } },
+      attachments: { orderBy: { id: "asc" }, select: attachmentSelect },
     } });
     if (!ticket) { sendError(res, "TICKET_NOT_FOUND"); return; }
     const { requester, category, relatedSystem, ...dto } = ticket;
