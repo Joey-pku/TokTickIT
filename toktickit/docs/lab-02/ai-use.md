@@ -1,6 +1,6 @@
 # Lab 2 AI assistance record
 
-Date: 2026-09-06. This record describes assistance visible in the working files, saved test artifacts and this conversation. It is not a claim of human peer review or a student-authored personal reflection.
+Date: 2026-09-06. This record describes assistance visible in the working files, saved test artifacts and this conversation. It is not a claim of human peer review.
 
 ## Instructions and student decisions
 
@@ -26,7 +26,7 @@ These are summaries of actual instructions, not reconstructed quotations or inve
 | 1: requester foundation | Schema/reference seed, requester context, selection/persistence, shell and regression coverage | Current foundation tests pass: 22 server and 20 client. No separate Part 1 RED artifact was found in the workspace; none is invented here. |
 | 2: ticket workflow | API validation/DTOs, PostgreSQL numbering, requester isolation, list/detail/create UI and tests | Workspace `part2-*-red.json`, `part2-*-green.json`, and `part2-verification.md`. Current Part 2 regressions: 76 server, 25 client. |
 | 3: attachments | Upload validation/storage, ownership, audited soft removal, sequential initial uploads, retry/error behavior and tests | Workspace `part3-*-red.json` and `part3-*-green.json`. Current Part 3 regressions: 37 server, 14 client. |
-| 4: verification | Playwright setup, browser journeys, responsive checks, visual inspection, defect reproduction/fixes, runtime and development checks | `artifacts/lab-02/results/`, selected screenshots, and `verification.md`. Human review and student reflection remain pending. |
+| 4: verification | Playwright setup, browser journeys, responsive checks, visual inspection, defect reproduction/fixes, runtime and development checks | Final verification evidence is available in `artifacts/lab-02/results/`, selected screenshots, and `verification.md`. Human peer-review evidence is recorded separately in `reviewer.md`. |
 
 Numbering/trim validation is exercised through integration tests against PostgreSQL; this record does not relabel that coverage as separate unit tests.
 
@@ -46,4 +46,10 @@ Final verification ran on Node 24.14.0. Installed dependencies declare Node >=22
 
 The AI used local file inspection, terminal commands, Prisma/PostgreSQL, Vitest, Playwright and direct screenshot inspection. Existing development processes were identified before reuse; only the separately launched smoke-test process tree was stopped. No Git operations were performed.
 
-The student remains responsible for understanding the implementation, inspecting changes, validating the evidence, providing genuine peer-review records and submitting their own reflection. **Student reflection: pending student input.** No personal learning claim, reviewer identity, approval or PR link has been fabricated.
+The student remains responsible for understanding the implementation, inspecting changes, validating the evidence, and providing genuine peer-review records.
+
+## My Reflection
+
+AI helped me throughout Lab 2 by supporting requirement analysis, implementation planning, code generation and review, and software testing. However, I learned that I should not blindly trust AI-generated results. I still needed to read the lab requirements myself, inspect the implementation, run the application, and manually check whether the UI and functionality matched the requirements.
+
+During final verification, several issues were discovered even though the implementation initially appeared complete, which showed me the importance of testing and reviewing AI-generated work. Overall, this lab taught me how to use AI as a development assistant while still taking responsibility for understanding, verifying, and making decisions about my own software.

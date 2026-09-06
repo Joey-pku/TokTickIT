@@ -47,7 +47,7 @@ Both reviewers participated in reviewing the Lab 2 pull requests throughout the 
 | PR #12 | Part 1 — Development Requester foundation | Reviewed |
 | PR #14 | Part 2 — Requester ticket workflow | Reviewed |
 | PR #16 | Part 3 — Requester attachments | Reviewed |
-| Part 4 PR | Verification, fixes, E2E tests and evidence | Pending — PR not created yet |
+| PR #20 | Part 4 — verification, fixes, E2E tests and evidence | Merged into `lab2-staging` |
 | Final `lab2-staging` → `main` PR | Final Lab 2 integration/release | Pending — PR not created yet |
 
 The actual GitHub pull-request pages, review comments, approvals and merge history are the authoritative evidence for peer review.
@@ -56,7 +56,7 @@ The actual GitHub pull-request pages, review comments, approvals and merge histo
 
 Reviewer feedback was considered before pull requests were merged. Where a reviewer identified a change that was required, the implementation was corrected before integration. Review discussions and approvals are retained on the corresponding GitHub pull-request pages.
 
-Part 4 and final release review evidence will be added after those pull requests are created and reviewed.
+PR #20 completed the Part 4 verification and delivery-evidence stage and was merged into `lab2-staging`. Final release review evidence will be recorded after the `lab2-staging` → `main` pull request is created and reviewed.
 
 ### Review boundary
 
