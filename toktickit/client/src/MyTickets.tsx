@@ -6,21 +6,23 @@ export function MyTickets() {
   const refs = useReferences();
   const [query, setQuery] = useState<TicketQuery>(defaults);
   const [search, setSearch] = useState("");
+  const [searchPending, setSearchPending] = useState(false);
   const [data, setData] = useState<TicketPage | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [attempt, setAttempt] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => clearTimeout(timer.current), []);
   useEffect(() => {
+    if (searchPending) return;
     const controller = new AbortController(); setState("loading"); setData(null);
     listTickets(query, controller.signal).then(result => {
       if (!controller.signal.aborted) { setData(result); setState("ready"); }
     }).catch(() => { if (!controller.signal.aborted) setState("error"); });
     return () => controller.abort();
-  }, [query, attempt]);
-  function change(patch: TicketQuery) { setQuery(previous => ({ ...previous, ...patch, page: 1 })); }
-  function runSearch(value: string) { clearTimeout(timer.current); setQuery(previous => { const { search: _old, ...rest } = previous; return { ...rest, ...(value.trim() ? { search: value.trim() } : {}), page: 1 }; }); }
-  function clear() { clearTimeout(timer.current); setSearch(""); setQuery(previous => ({ page: 1, pageSize: previous.pageSize, sortBy: previous.sortBy, sortOrder: previous.sortOrder })); }
+  }, [query, attempt, searchPending]);
+  function change(patch: TicketQuery) { clearTimeout(timer.current); setSearchPending(false); setQuery(previous => ({ ...previous, ...patch, search: search.trim() || undefined, page: 1 })); }
+  function runSearch(value: string) { clearTimeout(timer.current); setSearchPending(false); setQuery(previous => { const { search: _old, ...rest } = previous; return { ...rest, ...(value.trim() ? { search: value.trim() } : {}), page: 1 }; }); }
+  function clear() { clearTimeout(timer.current); setSearchPending(false); setSearch(""); setQuery(previous => ({ page: 1, pageSize: previous.pageSize, sortBy: previous.sortBy, sortOrder: previous.sortOrder })); }
   function sort(column: TicketQuery["sortBy"]) { change({ sortBy: column, sortOrder: query.sortBy === column && query.sortOrder === "asc" ? "desc" : "asc" }); }
   const filtered = !!(query.search || query.categoryId || query.requestedPriority || query.status);
   const sortHeader = (label: string, column: TicketQuery["sortBy"]) => <th aria-sort={query.sortBy === column ? query.sortOrder === "asc" ? "ascending" : "descending" : "none"}><button type="button" aria-label={`Sort by ${label}`} onClick={() => sort(column)}>{label} <span aria-hidden="true">{query.sortBy === column ? query.sortOrder === "asc" ? "▲" : "▼" : "↕"}</span></button></th>;
@@ -29,7 +31,7 @@ export function MyTickets() {
   return <section className="ticket-page">
     <div className="ticket-page-heading"><div><h1>My Tickets</h1><p>View and track all of your support requests.</p></div><TicketLink href="/tickets/new" className="zen-button zen-primary">+ Create Ticket</TicketLink></div>
     <div className="ticket-toolbar ticket-panel">
-      <div className="ticket-search"><label htmlFor="search">Search tickets</label><input id="search" placeholder="Search by ticket # or summary..." value={search} onChange={e => { const value = e.target.value; setSearch(value); clearTimeout(timer.current); timer.current = setTimeout(() => runSearch(value), 300); }} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); runSearch(search); } }} /></div>
+      <div className="ticket-search"><label htmlFor="search">Search tickets</label><input id="search" placeholder="Search by ticket # or summary..." value={search} onChange={e => { const value = e.target.value; setSearch(value); setSearchPending(true); setQuery(previous => ({ ...previous, page: 1 })); clearTimeout(timer.current); timer.current = setTimeout(() => runSearch(value), 300); }} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); runSearch(search); } }} /></div>
       <div><label htmlFor="filter-category">Category</label><select id="filter-category" value={query.categoryId ?? ""} onChange={e => change({ categoryId: e.target.value ? Number(e.target.value) : undefined })}><option value="">All Categories</option>{refs.categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
       <div><label htmlFor="filter-priority">Requested Priority</label><select id="filter-priority" value={query.requestedPriority ?? ""} onChange={e => change({ requestedPriority: (e.target.value || undefined) as Priority | undefined })}><option value="">All Priorities</option><option value="LOW">Low</option><option value="MEDIUM">Medium</option><option value="HIGH">High</option></select></div>
       <div><label htmlFor="filter-status">Current Status</label><select id="filter-status" value={query.status ?? ""} onChange={e => change({ status: e.target.value ? "NEW" : undefined })}><option value="">All Statuses</option><option value="NEW">New</option></select></div>

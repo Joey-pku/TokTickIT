@@ -1,0 +1,1103 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\node_modules\\@playwright\\test\\cli.js",
+      "test"
+    ],
+    "configFile": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\playwright.config.ts",
+    "rootDir": "C:/Users/MSI/Desktop/3rd year/SE/lab/lab_1/Lab1_Starter_Scaffold/toktickit/e2e/lab-02",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\support\\global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/MSI/Desktop/3rd year/SE/lab/lab_1/Lab1_Starter_Scaffold/toktickit/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/MSI/Desktop/3rd year/SE/lab/lab_1/Lab1_Starter_Scaffold/toktickit/e2e/lab-02",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/lab-02/results/e2e.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "requester-error-states.spec.ts",
+      "file": "requester-error-states.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "AC-06–09: validation, submitting guard and preserved form after API failure",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1446,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:12:52.942Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "32f3a60cee6323f7a76d-4e3f3caaff3adcd2135a",
+          "file": "requester-error-states.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "AC-11: partial initial upload reports reason and retries from Detail",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6150,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/File type not permitted/)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"soft toBeVisible\" getByText(/File type not permitted/) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/File type not permitted/)\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/File type not permitted/)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"soft toBeVisible\" getByText(/File type not permitted/) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/File type not permitted/)\u001b[22m\n\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\requester-error-states.spec.ts:31:64",
+                    "location": {
+                      "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\requester-error-states.spec.ts",
+                      "column": 64,
+                      "line": 31
+                    },
+                    "snippet": "  29 |   await page.getByRole('button', { name: 'Submit Ticket' }).click();\n  30 |   await expect(page.getByText(/retry.pdf upload failed/)).toBeVisible();\n> 31 |   await expect.soft(page.getByText(/File type not permitted/)).toBeVisible();\n     |                                                                ^\n  32 |   await page.getByRole('link', { name: 'Retry failed uploads from Ticket Detail' }).click();\n  33 |   await expect(page.getByRole('heading', { name: 'Attachments (1/5)' })).toBeVisible();\n  34 |   await page.getByLabel('Supporting attachments').setInputFiles({ ...pdf, name: 'retry.pdf' });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\requester-error-states.spec.ts",
+                        "column": 64,
+                        "line": 31
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/File type not permitted/)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"soft toBeVisible\" getByText(/File type not permitted/) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/File type not permitted/)\u001b[22m\n\n\n  29 |   await page.getByRole('button', { name: 'Submit Ticket' }).click();\n  30 |   await expect(page.getByText(/retry.pdf upload failed/)).toBeVisible();\n> 31 |   await expect.soft(page.getByText(/File type not permitted/)).toBeVisible();\n     |                                                                ^\n  32 |   await page.getByRole('link', { name: 'Retry failed uploads from Ticket Detail' }).click();\n  33 |   await expect(page.getByRole('heading', { name: 'Attachments (1/5)' })).toBeVisible();\n  34 |   await page.getByLabel('Supporting attachments').setInputFiles({ ...pdf, name: 'retry.pdf' });\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\requester-error-states.spec.ts:31:64"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:12:54.623Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\requester-error-states-AC--16f5e-son-and-retries-from-Detail\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\requester-error-states-AC--16f5e-son-and-retries-from-Detail\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\requester-error-states.spec.ts",
+                    "column": 64,
+                    "line": 31
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "32f3a60cee6323f7a76d-730aa25b5c41ae3ce8ff",
+          "file": "requester-error-states.spec.ts",
+          "line": 20,
+          "column": 1
+        },
+        {
+          "title": "Requester failed load retains persistence; Retry and successful stale-context check",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 763,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:13:01.419Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "32f3a60cee6323f7a76d-885bcf3c0323866d5fa9",
+          "file": "requester-error-states.spec.ts",
+          "line": 39,
+          "column": 1
+        },
+        {
+          "title": "List API failure has no stale rows and retry recovers",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 988,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:13:02.293Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "32f3a60cee6323f7a76d-07a420ca83b600fb49b2",
+          "file": "requester-error-states.spec.ts",
+          "line": 53,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "requester-ticket-flow.spec.ts",
+      "file": "requester-ticket-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "E2E-001,002: requester persistence, JSON creation and sequential initial attachments",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1021,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:13:03.299Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2e63b8e781eaab446958-938eff6aae350ce89656",
+          "file": "requester-ticket-flow.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "E2E-003,004 and AC-29: requester switching hides tickets and attachment resources",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 847,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:13:04.331Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2e63b8e781eaab446958-ad0ff0d5f3b81f3700cd",
+          "file": "requester-ticket-flow.spec.ts",
+          "line": 28,
+          "column": 1
+        },
+        {
+          "title": "E2E-005,006: supplementary upload, download and audited removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1805,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:13:05.204Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2e63b8e781eaab446958-f66877be789d594282af",
+          "file": "requester-ticket-flow.spec.ts",
+          "line": 45,
+          "column": 1
+        },
+        {
+          "title": "E2E-007: search, filters, sorting, pagination and no results",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1515,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:13:07.020Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2e63b8e781eaab446958-13d5a02e7a10183595b0",
+          "file": "requester-ticket-flow.spec.ts",
+          "line": 75,
+          "column": 1
+        },
+        {
+          "title": "E2E-009: empty requester journey",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 483,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:13:08.549Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2e63b8e781eaab446958-6cf650c05d2b5c83eda2",
+          "file": "requester-ticket-flow.spec.ts",
+          "line": 92,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "responsive-accessibility.spec.ts",
+      "file": "responsive-accessibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Contract: search resets page immediately before the 300ms request debounce",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5991,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Previous', exact: true })\nExpected: disabled\nReceived: enabled\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" getByRole('button', { name: 'Previous', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Previous', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <button class=\"zen-button zen-secondary\">Previous</button>\u001b[22m\n\u001b[2m       - unexpected value \"enabled\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Previous', exact: true })\nExpected: disabled\nReceived: enabled\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" getByRole('button', { name: 'Previous', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Previous', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <button class=\"zen-button zen-secondary\">Previous</button>\u001b[22m\n\u001b[2m       - unexpected value \"enabled\"\u001b[22m\n\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:9:77",
+                    "location": {
+                      "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                      "column": 77,
+                      "line": 9
+                    },
+                    "snippet": "   7 |   await page.clock.install(); await page.clock.pauseAt(new Date());\n   8 |   await page.getByLabel('Search tickets').fill('issue');\n>  9 |   await expect(page.getByRole('button', { name: 'Previous', exact: true })).toBeDisabled();\n     |                                                                             ^\n  10 |   await page.clock.runFor(300);\n  11 | });\n  12 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 77,
+                        "line": 9
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Previous', exact: true })\nExpected: disabled\nReceived: enabled\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" getByRole('button', { name: 'Previous', exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Previous', exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <button class=\"zen-button zen-secondary\">Previous</button>\u001b[22m\n\u001b[2m       - unexpected value \"enabled\"\u001b[22m\n\n\n   7 |   await page.clock.install(); await page.clock.pauseAt(new Date());\n   8 |   await page.getByLabel('Search tickets').fill('issue');\n>  9 |   await expect(page.getByRole('button', { name: 'Previous', exact: true })).toBeDisabled();\n     |                                                                             ^\n  10 |   await page.clock.runFor(300);\n  11 | });\n  12 |\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:9:77"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:13:09.062Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-C-b6590--the-300ms-request-debounce\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-C-b6590--the-300ms-request-debounce\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                    "column": 77,
+                    "line": 9
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "91a1faa62bcf8b254d39-abda2763347f5347c799",
+          "file": "responsive-accessibility.spec.ts",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "Contract: detail grid, badge tokens and semantic read-only icons",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 30150,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-table .badge-low')\nExpected: \u001b[32m\"rgb(\u001b[7m4\u001b[27m, 12\u001b[7m0\u001b[27m, \u001b[7m87\u001b[27m)\"\u001b[39m\nReceived: \u001b[31m\"rgb(\u001b[7m21\u001b[27m, 12\u001b[7m8\u001b[27m, \u001b[7m61\u001b[27m)\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.ticket-table .badge-low') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-table .badge-low')\u001b[22m\n\u001b[2m    14 × locator resolved to <span class=\"ticket-badge badge-low\">Low</span>\u001b[22m\n\u001b[2m       - unexpected value \"rgb(21, 128, 61)\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-table .badge-low')\nExpected: \u001b[32m\"rgb(\u001b[7m4\u001b[27m, 12\u001b[7m0\u001b[27m, \u001b[7m87\u001b[27m)\"\u001b[39m\nReceived: \u001b[31m\"rgb(\u001b[7m21\u001b[27m, 12\u001b[7m8\u001b[27m, \u001b[7m61\u001b[27m)\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.ticket-table .badge-low') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-table .badge-low')\u001b[22m\n\u001b[2m    14 × locator resolved to <span class=\"ticket-badge badge-low\">Low</span>\u001b[22m\n\u001b[2m       - unexpected value \"rgb(21, 128, 61)\"\u001b[22m\n\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:16:63",
+                    "location": {
+                      "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                      "column": 63,
+                      "line": 16
+                    },
+                    "snippet": "  14 |   const low = await fixture.ticket({ requestedPriority: 'LOW' }); await fixture.ticket({ requestedPriority: 'HIGH' });\n  15 |   await select(page, fixture.a.id);\n> 16 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('color', 'rgb(4, 120, 87)');\n     |                                                               ^\n  17 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('background-color', 'rgb(209, 250, 229)');\n  18 |   await expect.soft(page.locator('.ticket-table .badge-high')).toHaveCSS('border-top-color', 'rgb(252, 165, 165)');\n  19 |   await page.goto(`/tickets/${low.id}`); await expect(page.getByText(fixture.body.description)).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 63,
+                        "line": 16
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-table .badge-low')\nExpected: \u001b[32m\"rgb(\u001b[7m4\u001b[27m, 12\u001b[7m0\u001b[27m, \u001b[7m87\u001b[27m)\"\u001b[39m\nReceived: \u001b[31m\"rgb(\u001b[7m21\u001b[27m, 12\u001b[7m8\u001b[27m, \u001b[7m61\u001b[27m)\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.ticket-table .badge-low') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-table .badge-low')\u001b[22m\n\u001b[2m    14 × locator resolved to <span class=\"ticket-badge badge-low\">Low</span>\u001b[22m\n\u001b[2m       - unexpected value \"rgb(21, 128, 61)\"\u001b[22m\n\n\n  14 |   const low = await fixture.ticket({ requestedPriority: 'LOW' }); await fixture.ticket({ requestedPriority: 'HIGH' });\n  15 |   await select(page, fixture.a.id);\n> 16 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('color', 'rgb(4, 120, 87)');\n     |                                                               ^\n  17 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('background-color', 'rgb(209, 250, 229)');\n  18 |   await expect.soft(page.locator('.ticket-table .badge-high')).toHaveCSS('border-top-color', 'rgb(252, 165, 165)');\n  19 |   await page.goto(`/tickets/${low.id}`); await expect(page.getByText(fixture.body.description)).toBeVisible();\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:16:63"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 63,
+                        "line": 17
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-table .badge-low')\nExpected: \u001b[32m\"rgb(20\u001b[7m9\u001b[27m, 25\u001b[7m0\u001b[27m, 2\u001b[7m29\u001b[27m)\"\u001b[39m\nReceived: \u001b[31m\"rgb(2\u001b[7m2\u001b[27m0, 25\u001b[7m2\u001b[27m, 2\u001b[7m31\u001b[27m)\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.ticket-table .badge-low') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-table .badge-low')\u001b[22m\n\u001b[2m    14 × locator resolved to <span class=\"ticket-badge badge-low\">Low</span>\u001b[22m\n\u001b[2m       - unexpected value \"rgb(220, 252, 231)\"\u001b[22m\n\n\n  15 |   await select(page, fixture.a.id);\n  16 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('color', 'rgb(4, 120, 87)');\n> 17 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('background-color', 'rgb(209, 250, 229)');\n     |                                                               ^\n  18 |   await expect.soft(page.locator('.ticket-table .badge-high')).toHaveCSS('border-top-color', 'rgb(252, 165, 165)');\n  19 |   await page.goto(`/tickets/${low.id}`); await expect(page.getByText(fixture.body.description)).toBeVisible();\n  20 |   expect.soft(await page.locator('.ticket-grid').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:17:63"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 64,
+                        "line": 18
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-table .badge-high')\nExpected: \u001b[32m\"rgb(2\u001b[7m52\u001b[27m, 1\u001b[7m65, 165\u001b[27m)\"\u001b[39m\nReceived: \u001b[31m\"rgb(2\u001b[7m48\u001b[27m, 1\u001b[7m13, 113\u001b[27m)\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.ticket-table .badge-high') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-table .badge-high')\u001b[22m\n\u001b[2m    14 × locator resolved to <span class=\"ticket-badge badge-high\">High</span>\u001b[22m\n\u001b[2m       - unexpected value \"rgb(248, 113, 113)\"\u001b[22m\n\n\n  16 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('color', 'rgb(4, 120, 87)');\n  17 |   await expect.soft(page.locator('.ticket-table .badge-low')).toHaveCSS('background-color', 'rgb(209, 250, 229)');\n> 18 |   await expect.soft(page.locator('.ticket-table .badge-high')).toHaveCSS('border-top-color', 'rgb(252, 165, 165)');\n     |                                                                ^\n  19 |   await page.goto(`/tickets/${low.id}`); await expect(page.getByText(fixture.body.description)).toBeVisible();\n  20 |   expect.soft(await page.locator('.ticket-grid').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);\n  21 |   await page.goto('/tickets/new');\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:18:64"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 134,
+                        "line": 20
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m3\u001b[39m\n\n  18 |   await expect.soft(page.locator('.ticket-table .badge-high')).toHaveCSS('border-top-color', 'rgb(252, 165, 165)');\n  19 |   await page.goto(`/tickets/${low.id}`); await expect(page.getByText(fixture.body.description)).toBeVisible();\n> 20 |   expect.soft(await page.locator('.ticket-grid').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);\n     |                                                                                                                                      ^\n  21 |   await page.goto('/tickets/new');\n  22 |   for (const label of ['Ticket Number', 'Ticket Date', 'Requester']) await expect.soft(page.locator('.ticket-readonly').filter({ has: page.getByText(label, { exact: true }) }).locator('svg')).toHaveCount(1);\n  23 | });\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:20:134"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 193,
+                        "line": 22
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-readonly').filter({ has: getByText('Ticket Number', { exact: true }) }).locator('svg')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCount\" locator('.ticket-readonly').filter({ has: getByText('Ticket Number', { exact: true }) }).locator('svg') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-readonly').filter({ has: getByText('Ticket Number', { exact: true }) }).locator('svg')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n\n  20 |   expect.soft(await page.locator('.ticket-grid').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);\n  21 |   await page.goto('/tickets/new');\n> 22 |   for (const label of ['Ticket Number', 'Ticket Date', 'Requester']) await expect.soft(page.locator('.ticket-readonly').filter({ has: page.getByText(label, { exact: true }) }).locator('svg')).toHaveCount(1);\n     |                                                                                                                                                                                                 ^\n  23 | });\n  24 |\n  25 | test('Contract: attachment picker icon and red queue removal', async ({ page, fixture }) => {\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:22:193"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 193,
+                        "line": 22
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-readonly').filter({ has: getByText('Ticket Date', { exact: true }) }).locator('svg')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCount\" locator('.ticket-readonly').filter({ has: getByText('Ticket Date', { exact: true }) }).locator('svg') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-readonly').filter({ has: getByText('Ticket Date', { exact: true }) }).locator('svg')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n\n  20 |   expect.soft(await page.locator('.ticket-grid').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);\n  21 |   await page.goto('/tickets/new');\n> 22 |   for (const label of ['Ticket Number', 'Ticket Date', 'Requester']) await expect.soft(page.locator('.ticket-readonly').filter({ has: page.getByText(label, { exact: true }) }).locator('svg')).toHaveCount(1);\n     |                                                                                                                                                                                                 ^\n  23 | });\n  24 |\n  25 | test('Contract: attachment picker icon and red queue removal', async ({ page, fixture }) => {\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:22:193"
+                    },
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 193,
+                        "line": 22
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-readonly').filter({ has: getByText('Requester', { exact: true }) }).locator('svg')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCount\" locator('.ticket-readonly').filter({ has: getByText('Requester', { exact: true }) }).locator('svg') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-readonly').filter({ has: getByText('Requester', { exact: true }) }).locator('svg')\u001b[22m\n\u001b[2m    12 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\u001b[2m  - Test ended.\u001b[22m\n\n\n  20 |   expect.soft(await page.locator('.ticket-grid').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(2);\n  21 |   await page.goto('/tickets/new');\n> 22 |   for (const label of ['Ticket Number', 'Ticket Date', 'Requester']) await expect.soft(page.locator('.ticket-readonly').filter({ has: page.getByText(label, { exact: true }) }).locator('svg')).toHaveCount(1);\n     |                                                                                                                                                                                                 ^\n  23 | });\n  24 |\n  25 | test('Contract: attachment picker icon and red queue removal', async ({ page, fixture }) => {\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:22:193"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:13:15.709Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-C-dfcbb-nd-semantic-read-only-icons\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-C-dfcbb-nd-semantic-read-only-icons\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                    "column": 63,
+                    "line": 16
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "91a1faa62bcf8b254d39-fbda9b6a9675c4de5924",
+          "file": "responsive-accessibility.spec.ts",
+          "line": 13,
+          "column": 1
+        },
+        {
+          "title": "Contract: attachment picker icon and red queue removal",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 20954,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.attachment-picker > svg')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCount\" locator('.attachment-picker > svg') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.attachment-picker > svg')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.attachment-picker > svg')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCount\" locator('.attachment-picker > svg') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.attachment-picker > svg')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:27:63",
+                    "location": {
+                      "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                      "column": 63,
+                      "line": 27
+                    },
+                    "snippet": "  25 | test('Contract: attachment picker icon and red queue removal', async ({ page, fixture }) => {\n  26 |   await select(page, fixture.a.id); await fillTicket(page, fixture); await page.getByLabel('Supporting attachments').setInputFiles(pdf);\n> 27 |   await expect.soft(page.locator('.attachment-picker > svg')).toHaveCount(1);\n     |                                                               ^\n  28 |   await expect.soft(page.locator('.attachment-queue li svg')).toHaveCount(1);\n  29 |   await expect.soft(page.locator('.attachment-queue button')).toHaveCSS('color', 'rgb(220, 38, 38)');\n  30 |   await expect.soft(page.locator('.attachment-queue button')).toHaveAccessibleName(/Remove/);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 63,
+                        "line": 27
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.attachment-picker > svg')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCount\" locator('.attachment-picker > svg') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.attachment-picker > svg')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n\n  25 | test('Contract: attachment picker icon and red queue removal', async ({ page, fixture }) => {\n  26 |   await select(page, fixture.a.id); await fillTicket(page, fixture); await page.getByLabel('Supporting attachments').setInputFiles(pdf);\n> 27 |   await expect.soft(page.locator('.attachment-picker > svg')).toHaveCount(1);\n     |                                                               ^\n  28 |   await expect.soft(page.locator('.attachment-queue li svg')).toHaveCount(1);\n  29 |   await expect.soft(page.locator('.attachment-queue button')).toHaveCSS('color', 'rgb(220, 38, 38)');\n  30 |   await expect.soft(page.locator('.attachment-queue button')).toHaveAccessibleName(/Remove/);\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:27:63"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 63,
+                        "line": 28
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.attachment-queue li svg')\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCount\" locator('.attachment-queue li svg') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.attachment-queue li svg')\u001b[22m\n\u001b[2m    14 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n\n  26 |   await select(page, fixture.a.id); await fillTicket(page, fixture); await page.getByLabel('Supporting attachments').setInputFiles(pdf);\n  27 |   await expect.soft(page.locator('.attachment-picker > svg')).toHaveCount(1);\n> 28 |   await expect.soft(page.locator('.attachment-queue li svg')).toHaveCount(1);\n     |                                                               ^\n  29 |   await expect.soft(page.locator('.attachment-queue button')).toHaveCSS('color', 'rgb(220, 38, 38)');\n  30 |   await expect.soft(page.locator('.attachment-queue button')).toHaveAccessibleName(/Remove/);\n  31 | });\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:28:63"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 63,
+                        "line": 29
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.attachment-queue button')\nExpected: \u001b[32m\"rgb(2\u001b[7m20, 38\u001b[27m, 3\u001b[7m8\u001b[27m)\"\u001b[39m\nReceived: \u001b[31m\"rgb(2\u001b[7m8, 42\u001b[27m, 3\u001b[7m6\u001b[27m)\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.attachment-queue button') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.attachment-queue button')\u001b[22m\n\u001b[2m    14 × locator resolved to <button type=\"button\" class=\"zen-button zen-secondary\" aria-label=\"Discard evidence.pdf\">Discard</button>\u001b[22m\n\u001b[2m       - unexpected value \"rgb(28, 42, 36)\"\u001b[22m\n\n\n  27 |   await expect.soft(page.locator('.attachment-picker > svg')).toHaveCount(1);\n  28 |   await expect.soft(page.locator('.attachment-queue li svg')).toHaveCount(1);\n> 29 |   await expect.soft(page.locator('.attachment-queue button')).toHaveCSS('color', 'rgb(220, 38, 38)');\n     |                                                               ^\n  30 |   await expect.soft(page.locator('.attachment-queue button')).toHaveAccessibleName(/Remove/);\n  31 | });\n  32 |\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:29:63"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 63,
+                        "line": 30
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAccessibleName\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.attachment-queue button')\nExpected pattern: \u001b[32m/Remove/\u001b[39m\nReceived string:  \u001b[31m\"Discard evidence.pdf\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveAccessibleName\" locator('.attachment-queue button') with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.attachment-queue button')\u001b[22m\n\u001b[2m    14 × locator resolved to <button type=\"button\" class=\"zen-button zen-secondary\" aria-label=\"Discard evidence.pdf\">Discard</button>\u001b[22m\n\u001b[2m       - unexpected value \"Discard evidence.pdf\"\u001b[22m\n\n\n  28 |   await expect.soft(page.locator('.attachment-queue li svg')).toHaveCount(1);\n  29 |   await expect.soft(page.locator('.attachment-queue button')).toHaveCSS('color', 'rgb(220, 38, 38)');\n> 30 |   await expect.soft(page.locator('.attachment-queue button')).toHaveAccessibleName(/Remove/);\n     |                                                               ^\n  31 | });\n  32 |\n  33 | test('Contract: removal validation and focus after the trigger disappears', async ({ page, request, fixture }) => {\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:30:63"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:13:46.539Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-C-e03ca--icon-and-red-queue-removal\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-C-e03ca--icon-and-red-queue-removal\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                    "column": 63,
+                    "line": 27
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "91a1faa62bcf8b254d39-6116d2196e053d26db2d",
+          "file": "responsive-accessibility.spec.ts",
+          "line": 25,
+          "column": 1
+        },
+        {
+          "title": "Contract: removal validation and focus after the trigger disappears",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1168,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:41:118",
+                    "location": {
+                      "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                      "column": 118,
+                      "line": 41
+                    },
+                    "snippet": "  39 |   await reason.fill('Wrong document uploaded'); await page.getByRole('button', { name: 'Confirm Removal' }).click();\n  40 |   await expect(page.getByRole('dialog')).toHaveCount(0);\n> 41 |   expect(await page.evaluate(() => document.activeElement !== document.body && document.activeElement?.isConnected)).toBe(true);\n     |                                                                                                                      ^\n  42 | });\n  43 |\n  44 | for (const [width, height] of [[1280,800],[820,1180],[375,667],[768,1024],[375,812]]) {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 118,
+                        "line": 41
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  39 |   await reason.fill('Wrong document uploaded'); await page.getByRole('button', { name: 'Confirm Removal' }).click();\n  40 |   await expect(page.getByRole('dialog')).toHaveCount(0);\n> 41 |   expect(await page.evaluate(() => document.activeElement !== document.body && document.activeElement?.isConnected)).toBe(true);\n     |                                                                                                                      ^\n  42 | });\n  43 |\n  44 | for (const [width, height] of [[1280,800],[820,1180],[375,667],[768,1024],[375,812]]) {\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:41:118"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:14:08.398Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-C-c3113-fter-the-trigger-disappears\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-C-c3113-fter-the-trigger-disappears\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                    "column": 118,
+                    "line": 41
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "91a1faa62bcf8b254d39-a6e3b9f9ec3608c436ae",
+          "file": "responsive-accessibility.spec.ts",
+          "line": 33,
+          "column": 1
+        },
+        {
+          "title": "E2E-008,010 / AC-30–32: responsive 1280x800",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 940,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:14:10.249Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "91a1faa62bcf8b254d39-a03b6e4043e6e0e62055",
+          "file": "responsive-accessibility.spec.ts",
+          "line": 45,
+          "column": 3
+        },
+        {
+          "title": "E2E-008,010 / AC-30–32: responsive 820x1180",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 999,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m281.09375\u001b[39m\nReceived:    \u001b[31m210.09375\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m281.09375\u001b[39m\nReceived:    \u001b[31m210.09375\u001b[39m\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:51:32",
+                    "location": {
+                      "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                      "column": 32,
+                      "line": 51
+                    },
+                    "snippet": "  49 |     if (width >= 768 && width < 992) {\n  50 |       const search = await page.locator('.ticket-search').boundingBox(); const category = await page.locator('.ticket-toolbar > div').nth(1).boundingBox();\n> 51 |       expect.soft(category!.y).toBeGreaterThanOrEqual(search!.y + search!.height);\n     |                                ^\n  52 |     }\n  53 |     for (const path of ['/tickets', '/tickets/new', `/tickets/${ticket.id}`]) {\n  54 |       await page.goto(path); await expect(page.locator('h1')).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 32,
+                        "line": 51
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m281.09375\u001b[39m\nReceived:    \u001b[31m210.09375\u001b[39m\n\n  49 |     if (width >= 768 && width < 992) {\n  50 |       const search = await page.locator('.ticket-search').boundingBox(); const category = await page.locator('.ticket-toolbar > div').nth(1).boundingBox();\n> 51 |       expect.soft(category!.y).toBeGreaterThanOrEqual(search!.y + search!.height);\n     |                                ^\n  52 |     }\n  53 |     for (const path of ['/tickets', '/tickets/new', `/tickets/${ticket.id}`]) {\n  54 |       await page.goto(path); await expect(page.locator('h1')).toBeVisible();\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:51:32"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:14:11.294Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-E-a0a7a-C-30–32-responsive-820x1180\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-E-a0a7a-C-30–32-responsive-820x1180\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                    "column": 32,
+                    "line": 51
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "91a1faa62bcf8b254d39-83ad7fb2c623b2a32d9e",
+          "file": "responsive-accessibility.spec.ts",
+          "line": 45,
+          "column": 3
+        },
+        {
+          "title": "E2E-008,010 / AC-30–32: responsive 375x667",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1129,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"My Tickets\",\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"My Tickets\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:60:28",
+                    "location": {
+                      "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                      "column": 28,
+                      "line": 60
+                    },
+                    "snippet": "  58 |       if (width < 768) {\n  59 |         const small = await page.locator('.zen-app a:visible, .zen-app button:visible, .zen-app input:visible, .zen-app select:visible, .zen-app summary:visible').evaluateAll(elements => elements.filter(el => el.getBoundingClientRect().height < 44).map(el => el.textContent || el.getAttribute('aria-label')));\n> 60 |         expect.soft(small).toEqual([]);\n     |                            ^\n  61 |       }\n  62 |     }\n  63 |   });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 28,
+                        "line": 60
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"My Tickets\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  58 |       if (width < 768) {\n  59 |         const small = await page.locator('.zen-app a:visible, .zen-app button:visible, .zen-app input:visible, .zen-app select:visible, .zen-app summary:visible').evaluateAll(elements => elements.filter(el => el.getBoundingClientRect().height < 44).map(el => el.textContent || el.getAttribute('aria-label')));\n> 60 |         expect.soft(small).toEqual([]);\n     |                            ^\n  61 |       }\n  62 |     }\n  63 |   });\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:60:28"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:14:12.852Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-E-14b7b-AC-30–32-responsive-375x667\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-E-14b7b-AC-30–32-responsive-375x667\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                    "column": 28,
+                    "line": 60
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "91a1faa62bcf8b254d39-b177c6e3635c558b559b",
+          "file": "responsive-accessibility.spec.ts",
+          "line": 45,
+          "column": 3
+        },
+        {
+          "title": "E2E-008,010 / AC-30–32: responsive 768x1024",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1004,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m281.09375\u001b[39m\nReceived:    \u001b[31m210.09375\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m281.09375\u001b[39m\nReceived:    \u001b[31m210.09375\u001b[39m\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:51:32",
+                    "location": {
+                      "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                      "column": 32,
+                      "line": 51
+                    },
+                    "snippet": "  49 |     if (width >= 768 && width < 992) {\n  50 |       const search = await page.locator('.ticket-search').boundingBox(); const category = await page.locator('.ticket-toolbar > div').nth(1).boundingBox();\n> 51 |       expect.soft(category!.y).toBeGreaterThanOrEqual(search!.y + search!.height);\n     |                                ^\n  52 |     }\n  53 |     for (const path of ['/tickets', '/tickets/new', `/tickets/${ticket.id}`]) {\n  54 |       await page.goto(path); await expect(page.locator('h1')).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 32,
+                        "line": 51
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m281.09375\u001b[39m\nReceived:    \u001b[31m210.09375\u001b[39m\n\n  49 |     if (width >= 768 && width < 992) {\n  50 |       const search = await page.locator('.ticket-search').boundingBox(); const category = await page.locator('.ticket-toolbar > div').nth(1).boundingBox();\n> 51 |       expect.soft(category!.y).toBeGreaterThanOrEqual(search!.y + search!.height);\n     |                                ^\n  52 |     }\n  53 |     for (const path of ['/tickets', '/tickets/new', `/tickets/${ticket.id}`]) {\n  54 |       await page.goto(path); await expect(page.locator('h1')).toBeVisible();\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:51:32"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:14:14.616Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-E-86fb8-C-30–32-responsive-768x1024\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-E-86fb8-C-30–32-responsive-768x1024\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                    "column": 32,
+                    "line": 51
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "91a1faa62bcf8b254d39-280baa8f1d3ff5819aae",
+          "file": "responsive-accessibility.spec.ts",
+          "line": 45,
+          "column": 3
+        },
+        {
+          "title": "E2E-008,010 / AC-30–32: responsive 375x812",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1187,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"My Tickets\",\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"My Tickets\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:60:28",
+                    "location": {
+                      "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                      "column": 28,
+                      "line": 60
+                    },
+                    "snippet": "  58 |       if (width < 768) {\n  59 |         const small = await page.locator('.zen-app a:visible, .zen-app button:visible, .zen-app input:visible, .zen-app select:visible, .zen-app summary:visible').evaluateAll(elements => elements.filter(el => el.getBoundingClientRect().height < 44).map(el => el.textContent || el.getAttribute('aria-label')));\n> 60 |         expect.soft(small).toEqual([]);\n     |                            ^\n  61 |       }\n  62 |     }\n  63 |   });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 28,
+                        "line": 60
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"My Tickets\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  58 |       if (width < 768) {\n  59 |         const small = await page.locator('.zen-app a:visible, .zen-app button:visible, .zen-app input:visible, .zen-app select:visible, .zen-app summary:visible').evaluateAll(elements => elements.filter(el => el.getBoundingClientRect().height < 44).map(el => el.textContent || el.getAttribute('aria-label')));\n> 60 |         expect.soft(small).toEqual([]);\n     |                            ^\n  61 |       }\n  62 |     }\n  63 |   });\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:60:28"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T08:14:16.255Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-E-321f6-AC-30–32-responsive-375x812\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-E-321f6-AC-30–32-responsive-375x812\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                    "column": 28,
+                    "line": 60
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "91a1faa62bcf8b254d39-9eda14934c9b0847e638",
+          "file": "responsive-accessibility.spec.ts",
+          "line": 45,
+          "column": 3
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-06T08:12:50.026Z",
+    "duration": 87667.334,
+    "expected": 9,
+    "skipped": 0,
+    "unexpected": 9,
+    "flaky": 0
+  }
+}
