@@ -1,0 +1,326 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--grep",
+      "VIS typography|supplementary upload|selected visual"
+    ],
+    "configFile": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\playwright.config.ts",
+    "rootDir": "C:/Users/MSI/Desktop/3rd year/SE/lab/lab_1/Lab1_Starter_Scaffold/toktickit/e2e/lab-02",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\support\\global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/MSI/Desktop/3rd year/SE/lab/lab_1/Lab1_Starter_Scaffold/toktickit/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/MSI/Desktop/3rd year/SE/lab/lab_1/Lab1_Starter_Scaffold/toktickit/e2e/lab-02",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/lab-02/results/e2e.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "requester-ticket-flow.spec.ts",
+      "file": "requester-ticket-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "E2E-005,006: supplementary upload, download and audited removal",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 18011,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Remove evidence.pdf', exact: true })\nExpected: focused\nReceived: inactive\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('button', { name: 'Remove evidence.pdf', exact: true }) with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Remove evidence.pdf', exact: true })\u001b[22m\n\u001b[2m    20 × locator resolved to <button aria-label=\"Remove evidence.pdf\" class=\"zen-button attachment-danger-outline\">Remove</button>\u001b[22m\n\u001b[2m       - unexpected value \"inactive\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Remove evidence.pdf', exact: true })\nExpected: focused\nReceived: inactive\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('button', { name: 'Remove evidence.pdf', exact: true }) with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Remove evidence.pdf', exact: true })\u001b[22m\n\u001b[2m    20 × locator resolved to <button aria-label=\"Remove evidence.pdf\" class=\"zen-button attachment-danger-outline\">Remove</button>\u001b[22m\n\u001b[2m       - unexpected value \"inactive\"\u001b[22m\n\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\requester-ticket-flow.spec.ts:62:87",
+                    "location": {
+                      "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\requester-ticket-flow.spec.ts",
+                      "column": 87,
+                      "line": 62
+                    },
+                    "snippet": "  60 |   await reason.fill('bad'); await expect(page.getByRole('button', { name: 'Confirm Removal' })).toBeDisabled();\n  61 |   await page.keyboard.press('Escape'); await expect(page.getByRole('dialog')).toHaveCount(0);\n> 62 |   await expect(page.getByRole('button', { name: `Remove ${pdf.name}`, exact: true })).toBeFocused();\n     |                                                                                       ^\n  63 |   await page.getByRole('button', { name: `Remove ${pdf.name}`, exact: true }).click();\n  64 |   await reason.fill('Uploaded the wrong document'); await page.getByRole('button', { name: 'Confirm Removal' }).click();\n  65 |   await expect(page.getByRole('heading', { name: 'Attachments (0/5)' })).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\requester-ticket-flow.spec.ts",
+                        "column": 87,
+                        "line": 62
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Remove evidence.pdf', exact: true })\nExpected: focused\nReceived: inactive\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('button', { name: 'Remove evidence.pdf', exact: true }) with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Remove evidence.pdf', exact: true })\u001b[22m\n\u001b[2m    20 × locator resolved to <button aria-label=\"Remove evidence.pdf\" class=\"zen-button attachment-danger-outline\">Remove</button>\u001b[22m\n\u001b[2m       - unexpected value \"inactive\"\u001b[22m\n\n\n  60 |   await reason.fill('bad'); await expect(page.getByRole('button', { name: 'Confirm Removal' })).toBeDisabled();\n  61 |   await page.keyboard.press('Escape'); await expect(page.getByRole('dialog')).toHaveCount(0);\n> 62 |   await expect(page.getByRole('button', { name: `Remove ${pdf.name}`, exact: true })).toBeFocused();\n     |                                                                                       ^\n  63 |   await page.getByRole('button', { name: `Remove ${pdf.name}`, exact: true }).click();\n  64 |   await reason.fill('Uploaded the wrong document'); await page.getByRole('button', { name: 'Confirm Removal' }).click();\n  65 |   await expect(page.getByRole('heading', { name: 'Attachments (0/5)' })).toBeVisible();\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\requester-ticket-flow.spec.ts:62:87"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T12:22:10.219Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\requester-ticket-flow-E2E--1e9f5-ownload-and-audited-removal\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\requester-ticket-flow-E2E--1e9f5-ownload-and-audited-removal\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\requester-ticket-flow.spec.ts",
+                    "column": 87,
+                    "line": 62
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "2e63b8e781eaab446958-f66877be789d594282af",
+          "file": "requester-ticket-flow.spec.ts",
+          "line": 45,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "responsive-accessibility.spec.ts",
+      "file": "responsive-accessibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "VIS typography: page, section and badge sizes follow UI section 2.3",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7750,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-table .ticket-badge').first()\nExpected: \u001b[32m\"1\u001b[7m1\u001b[27mpx\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m3\u001b[27mpx\"\u001b[39m\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.ticket-table .ticket-badge').first() with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-table .ticket-badge').first()\u001b[22m\n\u001b[2m    19 × locator resolved to <span class=\"ticket-badge badge-medium\">Medium</span>\u001b[22m\n\u001b[2m       - unexpected value \"13px\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-table .ticket-badge').first()\nExpected: \u001b[32m\"1\u001b[7m1\u001b[27mpx\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m3\u001b[27mpx\"\u001b[39m\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.ticket-table .ticket-badge').first() with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-table .ticket-badge').first()\u001b[22m\n\u001b[2m    19 × locator resolved to <span class=\"ticket-badge badge-medium\">Medium</span>\u001b[22m\n\u001b[2m       - unexpected value \"13px\"\u001b[22m\n\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:35:74",
+                    "location": {
+                      "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                      "column": 74,
+                      "line": 35
+                    },
+                    "snippet": "  33 | test('VIS typography: page, section and badge sizes follow UI section 2.3', async ({ page, fixture }) => {\n  34 |   const ticket = await fixture.ticket(); await select(page, fixture.a.id);\n> 35 |   await expect.soft(page.locator('.ticket-table .ticket-badge').first()).toHaveCSS('font-size', '11px');\n     |                                                                          ^\n  36 |   await expect.soft(page.locator('h1')).toHaveCSS('font-weight', '600');\n  37 |   await page.goto(`/tickets/${ticket.id}`);\n  38 |   await expect.soft(page.getByRole('heading', { name: 'Attachments (0/5)' })).toHaveCSS('font-size', '22px');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 74,
+                        "line": 35
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ticket-table .ticket-badge').first()\nExpected: \u001b[32m\"1\u001b[7m1\u001b[27mpx\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m3\u001b[27mpx\"\u001b[39m\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('.ticket-table .ticket-badge').first() with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ticket-table .ticket-badge').first()\u001b[22m\n\u001b[2m    19 × locator resolved to <span class=\"ticket-badge badge-medium\">Medium</span>\u001b[22m\n\u001b[2m       - unexpected value \"13px\"\u001b[22m\n\n\n  33 | test('VIS typography: page, section and badge sizes follow UI section 2.3', async ({ page, fixture }) => {\n  34 |   const ticket = await fixture.ticket(); await select(page, fixture.a.id);\n> 35 |   await expect.soft(page.locator('.ticket-table .ticket-badge').first()).toHaveCSS('font-size', '11px');\n     |                                                                          ^\n  36 |   await expect.soft(page.locator('h1')).toHaveCSS('font-weight', '600');\n  37 |   await page.goto(`/tickets/${ticket.id}`);\n  38 |   await expect.soft(page.getByRole('heading', { name: 'Attachments (0/5)' })).toHaveCSS('font-size', '22px');\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:35:74"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 41,
+                        "line": 36
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('h1')\nExpected: \u001b[32m\"\u001b[7m6\u001b[27m00\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7m7\u001b[27m00\"\u001b[39m\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" locator('h1') with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\u001b[2m    19 × locator resolved to <h1>My Tickets</h1>\u001b[22m\n\u001b[2m       - unexpected value \"700\"\u001b[22m\n\n\n  34 |   const ticket = await fixture.ticket(); await select(page, fixture.a.id);\n  35 |   await expect.soft(page.locator('.ticket-table .ticket-badge').first()).toHaveCSS('font-size', '11px');\n> 36 |   await expect.soft(page.locator('h1')).toHaveCSS('font-weight', '600');\n     |                                         ^\n  37 |   await page.goto(`/tickets/${ticket.id}`);\n  38 |   await expect.soft(page.getByRole('heading', { name: 'Attachments (0/5)' })).toHaveCSS('font-size', '22px');\n  39 | });\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:36:41"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                        "column": 79,
+                        "line": 38
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCSS\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('heading', { name: 'Attachments (0/5)' })\nExpected: \u001b[32m\"2\u001b[7m2\u001b[27mpx\"\u001b[39m\nReceived: \u001b[31m\"2\u001b[7m0\u001b[27mpx\"\u001b[39m\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"soft toHaveCSS\" getByRole('heading', { name: 'Attachments (0/5)' }) with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Attachments (0/5)' })\u001b[22m\n\u001b[2m    19 × locator resolved to <h2 tabindex=\"-1\">Attachments (0/5)</h2>\u001b[22m\n\u001b[2m       - unexpected value \"20px\"\u001b[22m\n\n\n  36 |   await expect.soft(page.locator('h1')).toHaveCSS('font-weight', '600');\n  37 |   await page.goto(`/tickets/${ticket.id}`);\n> 38 |   await expect.soft(page.getByRole('heading', { name: 'Attachments (0/5)' })).toHaveCSS('font-size', '22px');\n     |                                                                               ^\n  39 | });\n  40 |\n  41 | test('Contract: removal validation and focus after the trigger disappears', async ({ page, request, fixture }) => {\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts:38:79"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T12:22:30.412Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-V-1085d-sizes-follow-UI-section-2-3\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\responsive-accessibility-V-1085d-sizes-follow-UI-section-2-3\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\responsive-accessibility.spec.ts",
+                    "column": 74,
+                    "line": 35
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "91a1faa62bcf8b254d39-fe359bee6b3b81ed601c",
+          "file": "responsive-accessibility.spec.ts",
+          "line": 33,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "visual-evidence.spec.ts",
+      "file": "visual-evidence.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "VIS-001–015: selected visual evidence and keyboard/mobile modal inspection",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6296,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Remove supporting-evidence-with-a-long-descriptive-filename-for-responsive-layout-verification.pdf', exact: true })\nExpected: focused\nReceived: inactive\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('button', { name: 'Remove supporting-evidence-with-a-long-descriptive-filename-for-responsive-layout-verification.pdf', exact: true }) with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Remove supporting-evidence-with-a-long-descriptive-filename-for-responsive-layout-verification.pdf', exact: true })\u001b[22m\n\u001b[2m    19 × locator resolved to <button class=\"zen-button attachment-danger-outline\" aria-label=\"Remove supporting-evidence-with-a-long-descriptive-filename-for-responsive-layout-verification.pdf\">Remove</button>\u001b[22m\n\u001b[2m       - unexpected value \"inactive\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Remove supporting-evidence-with-a-long-descriptive-filename-for-responsive-layout-verification.pdf', exact: true })\nExpected: focused\nReceived: inactive\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('button', { name: 'Remove supporting-evidence-with-a-long-descriptive-filename-for-responsive-layout-verification.pdf', exact: true }) with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Remove supporting-evidence-with-a-long-descriptive-filename-for-responsive-layout-verification.pdf', exact: true })\u001b[22m\n\u001b[2m    19 × locator resolved to <button class=\"zen-button attachment-danger-outline\" aria-label=\"Remove supporting-evidence-with-a-long-descriptive-filename-for-responsive-layout-verification.pdf\">Remove</button>\u001b[22m\n\u001b[2m       - unexpected value \"inactive\"\u001b[22m\n\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\visual-evidence.spec.ts:47:131",
+                    "location": {
+                      "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\visual-evidence.spec.ts",
+                      "column": 131,
+                      "line": 47
+                    },
+                    "snippet": "  45 |     const bounds = await page.getByRole('dialog').boundingBox(); expect(bounds!.x).toBeGreaterThanOrEqual(0); expect(bounds!.width).toBeLessThanOrEqual(width);\n  46 |     if (name === 'desktop' || name === 'mobile-ui') await capture(`${name}-removal-modal`);\n> 47 |     await page.keyboard.press('Escape'); await expect(page.getByRole('button', { name: `Remove ${longFile.name}`, exact: true })).toBeFocused();\n     |                                                                                                                                   ^\n  48 |   }\n  49 |   expect((await request.get(`${api}/api/attachments/${attachment.id}/download`, { headers: fixture.headers })).status()).toBe(200);\n  50 |   // Breakpoint checks need no extra screenshots."
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\visual-evidence.spec.ts",
+                        "column": 131,
+                        "line": 47
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Remove supporting-evidence-with-a-long-descriptive-filename-for-responsive-layout-verification.pdf', exact: true })\nExpected: focused\nReceived: inactive\nTimeout:  2000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" getByRole('button', { name: 'Remove supporting-evidence-with-a-long-descriptive-filename-for-responsive-layout-verification.pdf', exact: true }) with timeout 2000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Remove supporting-evidence-with-a-long-descriptive-filename-for-responsive-layout-verification.pdf', exact: true })\u001b[22m\n\u001b[2m    19 × locator resolved to <button class=\"zen-button attachment-danger-outline\" aria-label=\"Remove supporting-evidence-with-a-long-descriptive-filename-for-responsive-layout-verification.pdf\">Remove</button>\u001b[22m\n\u001b[2m       - unexpected value \"inactive\"\u001b[22m\n\n\n  45 |     const bounds = await page.getByRole('dialog').boundingBox(); expect(bounds!.x).toBeGreaterThanOrEqual(0); expect(bounds!.width).toBeLessThanOrEqual(width);\n  46 |     if (name === 'desktop' || name === 'mobile-ui') await capture(`${name}-removal-modal`);\n> 47 |     await page.keyboard.press('Escape'); await expect(page.getByRole('button', { name: `Remove ${longFile.name}`, exact: true })).toBeFocused();\n     |                                                                                                                                   ^\n  48 |   }\n  49 |   expect((await request.get(`${api}/api/attachments/${attachment.id}/download`, { headers: fixture.headers })).status()).toBe(200);\n  50 |   // Breakpoint checks need no extra screenshots.\n    at C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\visual-evidence.spec.ts:47:131"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-06T12:22:39.752Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\visual-evidence-VIS-001–01-591ae-ard-mobile-modal-inspection\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\test-results\\visual-evidence-VIS-001–01-591ae-ard-mobile-modal-inspection\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\MSI\\Desktop\\3rd year\\SE\\lab\\lab_1\\Lab1_Starter_Scaffold\\toktickit\\e2e\\lab-02\\visual-evidence.spec.ts",
+                    "column": 131,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "42834b34c0a3fd5ff2d5-170fce0078839747b631",
+          "file": "visual-evidence.spec.ts",
+          "line": 4,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-06T12:21:55.242Z",
+    "duration": 51729.983,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

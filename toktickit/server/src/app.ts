@@ -1,57 +1,46 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import cors from "cors";
 import { getPrisma } from "./prisma.js";
-// getPrisma() is your lazy database handle. Call it INSIDE a route when you
-// need the DB (Issue 4). It is intentionally unused until then.
-void getPrisma;
+import { sendError } from "./errors.js";
+import { tickets } from "./tickets.js";
+import { attachments } from "./attachments.js";
+import type { ErrorRequestHandler } from "express";
 
-// The Express app is exported separately from app.listen() (see index.ts) so
-// Supertest can import `app` without opening a port. Do not merge these files.
+// Keep the exported app separate from the listener for Supertest.
 export const app = express();
-
-app.use(cors());          // already wired: lets the Vite dev server call this API
+app.use(cors());
 app.use(express.json());
-
-// ---------------------------------------------------------------------------
-// Issue 2 — API health check
-// Make the test in tests/lab-01/health.test.ts pass.
-// It must return HTTP 200 with JSON: { status: "ok", service: "TokTickIT API" }
-// ---------------------------------------------------------------------------
-app.get("/api/health", (_req: Request, res: Response) => {
-  res.status(200).json({
-    status: "ok",
-    service: "TokTickIT API",
-  });
+app.get("/api/health", (_req, res) => {
+  res.json({ status: "ok", service: "TokTickIT API" });
 });
-
-// ---------------------------------------------------------------------------
-// Issue 4 — Category list
-// Add:  GET /api/categories
-//   -> read categories from PostgreSQL via getPrisma().category.findMany(...)
-//   -> return each { id, name } in a predictable (id) order
-//   -> on failure, respond 500 with a safe message (no internal details)
-// TODO(Issue 4): implement the route here.
-// ---------------------------------------------------------------------------
-app.get("/api/categories", async (_req: Request, res: Response) => {
+// Public reference data: requester context is deliberately not mounted here.
+app.get("/api/categories", async (_req, res) => {
   try {
-    const prisma = getPrisma();
-
-    const categories = await prisma.category.findMany({
-      select: {
-        id: true,
-        name: true,
-      },
-      orderBy: {
-        id: "asc",
-      },
-    });
-
-    res.status(200).json(categories);
-  } catch (_error) {
-    res.status(500).json({
-      error: "Failed to retrieve categories",
-    });
-  }
+    const items = await getPrisma().category.findMany({ select: { id: true, name: true }, orderBy: { id: "asc" } });
+    res.json({ items });
+  } catch { sendError(res, "INTERNAL_ERROR"); }
 });
-
+app.get("/api/development-requesters", async (_req, res) => {
+  try {
+    const items = await getPrisma().developmentRequester.findMany({
+      where: { isActive: true }, select: { id: true, name: true, department: true }, orderBy: { name: "asc" },
+    });
+    res.json({ items });
+  } catch { sendError(res, "INTERNAL_ERROR"); }
+});
+app.get("/api/related-systems", async (_req, res) => {
+  try {
+    const items = await getPrisma().relatedSystem.findMany({
+      where: { isActive: true }, select: { id: true, name: true }, orderBy: { name: "asc" },
+    });
+    res.json({ items });
+  } catch { sendError(res, "INTERNAL_ERROR"); }
+});
+app.use("/api", attachments);
+app.use("/api/tickets", tickets);
+const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
+  if (error?.type === "entity.parse.failed") sendError(res, "VALIDATION_ERROR", { body: "A valid JSON object is required." });
+  else sendError(res, "INTERNAL_ERROR");
+};
+app.use(errorHandler);
 export default app;

@@ -1,6 +1,3 @@
-// Prisma schema — datasource and generator are pre-wired.
-// Your DATABASE_URL lives in server/.env (copy it from .env.example).
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,18 +7,83 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ---------------------------------------------------------------------------
-// Issue 3 — Create and seed IT request categories
-// Define a Category model with:
-//   id        Int      @id @default(autoincrement())
-//   name      String   @unique
-//   createdAt DateTime @default(now())
-// Then run:  npx prisma migrate dev --name init
-// TODO(Issue 3): add the Category model below.
-// ---------------------------------------------------------------------------
-
 model Category {
   id        Int      @id @default(autoincrement())
   name      String   @unique
   createdAt DateTime @default(now())
+  tickets   Ticket[]
+}
+
+model DevelopmentRequester {
+  id         Int          @id @default(autoincrement())
+  name       String
+  email      String       @unique
+  department String
+  isActive   Boolean      @default(true)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  tickets    Ticket[]
+  uploads    Attachment[] @relation("AttachmentUploader")
+  removals   Attachment[] @relation("AttachmentRemover")
+}
+
+model RelatedSystem {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  tickets   Ticket[]
+}
+
+enum RequestedPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model TicketNumberCounter {
+  year      Int @id
+  lastValue Int
+}
+
+model Ticket {
+  id                Int                  @id @default(autoincrement())
+  ticketNumber      String               @unique
+  summary           String               @db.VarChar(100)
+  description       String               @db.VarChar(2000)
+  requestedPriority RequestedPriority    @default(MEDIUM)
+  currentStatus     String               @default("NEW")
+  requesterId       Int
+  categoryId        Int
+  relatedSystemId   Int
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  requester         DevelopmentRequester @relation(fields: [requesterId], references: [id])
+  category          Category             @relation(fields: [categoryId], references: [id])
+  relatedSystem     RelatedSystem        @relation(fields: [relatedSystemId], references: [id])
+  attachments       Attachment[]
+
+  @@index([requesterId, createdAt(sort: Desc)])
+  @@index([requesterId, currentStatus])
+}
+
+model Attachment {
+  id               Int                   @id @default(autoincrement())
+  ticketId         Int
+  originalFileName String
+  storedFileName   String                @unique
+  filePath         String
+  mimeType         String
+  fileSizeBytes    Int
+  isRemoved        Boolean               @default(false)
+  removedAt        DateTime?
+  removedById      Int?
+  removalReason    String?               @db.VarChar(255)
+  uploadedById     Int
+  createdAt        DateTime              @default(now())
+  ticket           Ticket                @relation(fields: [ticketId], references: [id])
+  uploadedBy       DevelopmentRequester  @relation("AttachmentUploader", fields: [uploadedById], references: [id])
+  removedBy        DevelopmentRequester? @relation("AttachmentRemover", fields: [removedById], references: [id])
+
+  @@index([ticketId, isRemoved])
 }
