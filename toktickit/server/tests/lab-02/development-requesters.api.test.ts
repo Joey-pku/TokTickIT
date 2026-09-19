@@ -17,6 +17,7 @@ describe("Development requester and reference APIs", () => {
       expect(item.id).toEqual(expect.any(Number));
       expect(item.department).toEqual(expect.any(String));
     }
+    expect(JSON.stringify(response.body)).not.toMatch(/passwordHash|mustChangePassword|seedKey|role|session|token/i);
   });
   it("returns categories in id order in the items envelope without context", async () => {
     const response = await request(app).get("/api/categories");
@@ -38,7 +39,7 @@ describe("Development requester and reference APIs", () => {
     expect((await request(app).get(`/api/${path}`).set("x-requester-id", "invalid")).status).toBe(200);
   });
   it.each([
-    ["development-requesters", "developmentRequester"], ["categories", "category"], ["related-systems", "relatedSystem"],
+    ["development-requesters", "user"], ["categories", "category"], ["related-systems", "relatedSystem"],
   ] as const)("%s handles empty results and sanitizes DB failures", async (path, model) => {
     const delegate = prisma[model] as unknown as { findMany: () => Promise<unknown[]> };
     const spy = vi.spyOn(delegate, "findMany");

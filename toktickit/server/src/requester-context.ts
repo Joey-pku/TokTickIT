@@ -15,7 +15,7 @@ export const requesterContext: RequestHandler<Record<string, string>, unknown, u
   // A positive ID beyond PostgreSQL Int range cannot identify an existing row.
   if (id > 2147483647) { sendError(res, "REQUESTER_NOT_FOUND"); return; }
   try {
-    const requester = await getPrisma().developmentRequester.findFirst({ where: { id, isActive: true }, select: { id: true } });
+    const requester = await getPrisma().user.findFirst({ where: { id, isActive: true, role: "REQUESTER" }, select: { id: true } });
     if (!requester) { sendError(res, "REQUESTER_NOT_FOUND"); return; }
     res.locals.requesterId = requester.id;
     next();

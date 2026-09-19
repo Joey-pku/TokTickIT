@@ -2,7 +2,7 @@
 
 > **Document Status**: Draft — Pending Review  
 > **Engineering Contracts**: [`specification.md`](./specification.md), [`ui-spec.md`](./ui-spec.md), [`api-spec.md`](./api-spec.md)  
-> **Execution State**: **Not Run** (Pre-implementation test plan)
+> **Execution State**: **Partial** — Feature 10 `API-MIG-01` and `API-SEED-01` passed on 2026-09-19; unrelated Lab 3 tests remain **Not Run**.
 
 ---
 
@@ -18,6 +18,7 @@
 
 ### 1.2 Test Database & Storage Isolation Strategy
 - **Database Isolation**: API integration tests run against `TEST_DATABASE_URL` targeting `toktickit_test`. Normal development data is never touched or cleaned.
+- **Feature 10 Isolation**: `npm.cmd run test:feature10` creates uniquely named `toktickit_feature10_*_test` databases, tracks exactly what it creates, stages historical migrations outside the repository, and cleans up only its own databases and temporary attachment directory.
 - **Upload Isolation**: Attachment tests configure `UPLOAD_DIR` to a temporary test directory (e.g. `server/test-uploads/`) cleaned up in `afterAll`.
 - **Seed Invariance**: Seed tests verify that repeated runs do not overwrite user-edited emails, names, passwords, or operational ticket states.
 - **CSRF Test Client**: Integration test requests include `.set("X-Requested-With", "XMLHttpRequest")` and `.set("Origin", "http://localhost:5173")` to satisfy the server CSRF middleware.
@@ -37,8 +38,9 @@ toktickit/
 │       ├── staff-queue.api.test.ts              <- Queue search, filter, sort, pagination, tie-breaking
 │       ├── staff-ticket-detail.api.test.ts      <- Claim/reassign, auto-advance, priority, status, appear-resolved
 │       ├── comments-notes.api.test.ts           <- Public comments & internal notes view and append
-│       ├── users-admin.api.test.ts              <- Admin user CRUD, safety constraints, session revocation
-│       └── migration-seed.test.ts               <- Schema migration and canonical seedKey preservation reruns
+│       └── users-admin.api.test.ts              <- Admin user CRUD, safety constraints, session revocation
+├── server/scripts/
+│   └── test-feature10.mjs                       <- Dedicated migration and seed preservation harness
 ├── client/tests/
 │   ├── lab-01/                                  <- Historical Lab 1 UI tests (untouched)
 │   ├── lab-02/                                  <- Lab 2 UI tests
@@ -97,8 +99,8 @@ toktickit/
 | **AC-28** | Admin password reset & immediate session revocation | `API-ADM-07`, `UI-ADM-04`, `E2E-ADM-02`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/user-administration.spec.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
 | **AC-29** | Admin safety constraints (self-deactivation, last admin) | `API-ADM-05`, `API-ADM-06`, `UI-ADM-03`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
 | **AC-30** | Forbidden access by role & immediate enforcement upon role demotion | `API-RBAC-01`–`API-RBAC-04`, `API-RBAC-05` | `server/tests/lab-03/authorization.api.test.ts` | **Not Run** |
-| **AC-31** | Non-destructive migration data preservation | `API-MIG-01` | `server/tests/lab-03/migration-seed.test.ts` | **Not Run** |
-| **AC-32** | Canonical seedKey invariance across reruns | `API-SEED-01` | `server/tests/lab-03/migration-seed.test.ts` | **Not Run** |
+| **AC-31** | Non-destructive migration data preservation | `API-MIG-01` | `server/scripts/test-feature10.mjs` | **Passed — 2026-09-19** |
+| **AC-32** | Canonical seedKey invariance across reruns | `API-SEED-01` | `server/scripts/test-feature10.mjs` | **Passed — 2026-09-19** |
 
 ### 2.2 UI Specification & Non-Functional Traceability (`ui-spec.md` §§5–7)
 
@@ -205,9 +207,11 @@ toktickit/
 - `API-ADM-08`: Deactivating staff unassigns active tickets (`ownerId = null`) while preserving `ownerId` on completed/terminal tickets. [AC-22]
 - `API-ADM-09`: Admin creating user with invalid role value returns 400 `VALIDATION_ERROR`. [AC-26]
 
-#### `server/tests/lab-03/migration-seed.test.ts`
+#### `server/scripts/test-feature10.mjs` (dedicated; excluded from ordinary Vitest discovery)
 - `API-MIG-01`: Migration verification: `DevelopmentRequester` records mapped to `User` with preserved IDs, tickets, and attachments. [AC-31]
 - `API-SEED-01`: Seed rerun with existing edited emails and temporary passwords preserves modifications without duplicate records. [AC-32]
+
+Executed with `npm.cmd run test:feature10` on 2026-09-19: **Passed**. The harness also verified fresh-chain deployment, atomic rollback on case-insensitive legacy email collisions, SQL-enforced case-insensitive uniqueness, bcrypt cost 10, preserved attachment bytes, no seeded sessions, and monotonic ticket numbering.
 
 ---
 

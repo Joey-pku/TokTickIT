@@ -123,6 +123,22 @@ Development attachments default to private `server/uploads/attachments/`. `UPLOA
 
 From `server/`, `npm.cmd run test:db` prepares the API-test database configured by `TEST_DATABASE_URL` / `.env.test` (default database name `toktickit_test`), then `npm.cmd test` runs API tests. The database name must end in `_test`. From `client/`, run `npm.cmd test`.
 
+Feature 10 migration and seed verification uses disposable databases whose
+names begin `toktickit_feature10_` and end `_test`:
+
+```powershell
+cd server
+npm.cmd run test:feature10
+```
+
+The harness stages the Lab 2 migrations in a temporary directory, verifies an
+upgrade and a fresh installation, and drops only databases it created and
+tracked. It explicitly refuses the development and shared test database names.
+`User.email` case-insensitive uniqueness is maintained by the migration's
+SQL-managed `User_email_lower_key` functional index because Prisma 5 cannot
+declare functional indexes. `Session.token` stores a SHA-256 digest of a future
+opaque cookie token; it must never store the raw cookie token.
+
 For E2E, from `toktickit/`:
 
 ```powershell

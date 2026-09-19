@@ -14,17 +14,31 @@ model Category {
   tickets   Ticket[]
 }
 
-model DevelopmentRequester {
-  id         Int          @id @default(autoincrement())
-  name       String
-  email      String       @unique
-  department String
-  isActive   Boolean      @default(true)
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  tickets    Ticket[]
-  uploads    Attachment[] @relation("AttachmentUploader")
-  removals   Attachment[] @relation("AttachmentRemover")
+enum Role {
+  REQUESTER
+  IT_STAFF
+  ADMINISTRATOR
+}
+
+model User {
+  id                 Int            @id @default(autoincrement())
+  seedKey            String?        @unique
+  name               String
+  email              String         @unique
+  department         String?
+  passwordHash       String
+  role               Role           @default(REQUESTER)
+  isActive           Boolean        @default(true)
+  mustChangePassword Boolean        @default(true)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  requestedTickets   Ticket[]       @relation("TicketRequester")
+  ownedTickets       Ticket[]       @relation("TicketOwner")
+  uploads            Attachment[]   @relation("AttachmentUploader")
+  removals           Attachment[]   @relation("AttachmentRemover")
+  comments           Comment[]      @relation("CommentAuthor")
+  internalNotes      InternalNote[] @relation("InternalNoteAuthor")
+  sessions           Session[]
 }
 
 model RelatedSystem {
@@ -47,43 +61,91 @@ model TicketNumberCounter {
 }
 
 model Ticket {
-  id                Int                  @id @default(autoincrement())
-  ticketNumber      String               @unique
-  summary           String               @db.VarChar(100)
-  description       String               @db.VarChar(2000)
-  requestedPriority RequestedPriority    @default(MEDIUM)
-  currentStatus     String               @default("NEW")
-  requesterId       Int
-  categoryId        Int
-  relatedSystemId   Int
-  createdAt         DateTime             @default(now())
-  updatedAt         DateTime             @updatedAt
-  requester         DevelopmentRequester @relation(fields: [requesterId], references: [id])
-  category          Category             @relation(fields: [categoryId], references: [id])
-  relatedSystem     RelatedSystem        @relation(fields: [relatedSystemId], references: [id])
-  attachments       Attachment[]
+  id                  Int               @id @default(autoincrement())
+  seedKey             String?           @unique
+  ticketNumber        String            @unique
+  summary             String            @db.VarChar(100)
+  description         String            @db.VarChar(2000)
+  requestedPriority   RequestedPriority @default(MEDIUM)
+  itPriority          RequestedPriority
+  currentStatus       String            @default("NEW")
+  requesterResolved   Boolean           @default(false)
+  requesterResolvedAt DateTime?
+  requesterId         Int
+  ownerId             Int?
+  categoryId          Int
+  relatedSystemId     Int
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  requester           User              @relation("TicketRequester", fields: [requesterId], references: [id], onDelete: Restrict)
+  owner               User?             @relation("TicketOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  category            Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  relatedSystem       RelatedSystem     @relation(fields: [relatedSystemId], references: [id], onDelete: Restrict)
+  attachments         Attachment[]
+  comments            Comment[]
+  internalNotes       InternalNote[]
 
   @@index([requesterId, createdAt(sort: Desc)])
   @@index([requesterId, currentStatus])
+  @@index([ownerId, currentStatus])
 }
 
 model Attachment {
-  id               Int                   @id @default(autoincrement())
+  id               Int      @id @default(autoincrement())
   ticketId         Int
   originalFileName String
-  storedFileName   String                @unique
+  storedFileName   String   @unique
   filePath         String
   mimeType         String
   fileSizeBytes    Int
-  isRemoved        Boolean               @default(false)
+  isRemoved        Boolean  @default(false)
   removedAt        DateTime?
   removedById      Int?
-  removalReason    String?               @db.VarChar(255)
+  removalReason    String?  @db.VarChar(255)
   uploadedById     Int
-  createdAt        DateTime              @default(now())
-  ticket           Ticket                @relation(fields: [ticketId], references: [id])
-  uploadedBy       DevelopmentRequester  @relation("AttachmentUploader", fields: [uploadedById], references: [id])
-  removedBy        DevelopmentRequester? @relation("AttachmentRemover", fields: [removedById], references: [id])
+  createdAt        DateTime @default(now())
+  ticket           Ticket   @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  uploadedBy       User     @relation("AttachmentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+  removedBy        User?    @relation("AttachmentRemover", fields: [removedById], references: [id], onDelete: SetNull)
 
   @@index([ticketId, isRemoved])
+}
+
+model Session {
+  id        String   @id @db.Uuid
+  /// SHA-256 digest of the opaque cookie token; the raw token is never stored.
+  token     String   @unique
+  userId    Int
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  seedKey   String?  @unique
+  ticketId  Int
+  authorId  Int
+  content   String   @db.VarChar(2000)
+  createdAt DateTime @default(now())
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  author    User     @relation("CommentAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([ticketId, createdAt])
+}
+
+model InternalNote {
+  id        Int      @id @default(autoincrement())
+  seedKey   String?  @unique
+  ticketId  Int
+  authorId  Int
+  content   String   @db.VarChar(2000)
+  createdAt DateTime @default(now())
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  author    User     @relation("InternalNoteAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([ticketId, createdAt])
 }
