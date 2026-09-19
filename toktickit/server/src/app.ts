@@ -22,8 +22,8 @@ app.get("/api/categories", async (_req, res) => {
 });
 app.get("/api/development-requesters", async (_req, res) => {
   try {
-    const items = await getPrisma().developmentRequester.findMany({
-      where: { isActive: true }, select: { id: true, name: true, department: true }, orderBy: { name: "asc" },
+    const items = await getPrisma().user.findMany({
+      where: { isActive: true, role: "REQUESTER" }, select: { id: true, name: true, department: true }, orderBy: { name: "asc" },
     });
     res.json({ items });
   } catch { sendError(res, "INTERNAL_ERROR"); }

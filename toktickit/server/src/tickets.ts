@@ -4,6 +4,7 @@ import { getPrisma } from "./prisma.js";
 import { requesterContext } from "./requester-context.js";
 import { sendError } from "./errors.js";
 import { attachmentSelect } from "./attachment-dto.js";
+import { allocateTicketNumber } from "./ticket-number.js";
 
 export const tickets = Router();
 tickets.use(requesterContext);
@@ -32,18 +33,12 @@ tickets.post("/", async (req, res) => {
     const ticket = await db.$transaction(async tx => {
       // One database timestamp determines the UTC year and both initial timestamps.
       const [clock] = await tx.$queryRaw<{ now: Date }[]>`SELECT CURRENT_TIMESTAMP AS now`;
-      const year = clock.now.getUTCFullYear();
-      // PostgreSQL serializes concurrent increments on this year's row. The
-      // increment rolls back with the ticket; the constraint prevents overflow.
-      const [counter] = await tx.$queryRaw<{ lastValue: number }[]>`
-        INSERT INTO "TicketNumberCounter" ("year", "lastValue") VALUES (${year}, 1)
-        ON CONFLICT ("year") DO UPDATE SET "lastValue" = "TicketNumberCounter"."lastValue" + 1
-        RETURNING "lastValue"`;
+      const ticketNumber = await allocateTicketNumber(tx, clock.now);
       return tx.ticket.create({ data: {
         categoryId: body.categoryId, relatedSystemId: body.relatedSystemId,
-        summary, description, requestedPriority: body.requestedPriority,
+        summary, description, requestedPriority: body.requestedPriority, itPriority: body.requestedPriority,
         requesterId: res.locals.requesterId, currentStatus: "NEW",
-        ticketNumber: `TKT-${year}-${String(counter.lastValue).padStart(6, "0")}`,
+        ticketNumber,
         createdAt: clock.now, updatedAt: clock.now,
       }, select: createSelect });
     });
