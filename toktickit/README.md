@@ -83,10 +83,12 @@ Do not commit `.env` files or secrets.
 
 Use `.env.example` as the template for local environment configuration.
 
-## Lab 2 development and verification
+## Lab 3 authentication and verification
 
-Development Requester selection is a testing identity mechanism, not authentication.
-The Lab 1 system check remains at `/`; Lab 2 starts at `/select-requester`.
+Lab 3 replaces the development requester selector and `x-requester-id` identity with
+database-backed sessions. Open the application and sign in with a seeded account;
+accounts still using their initial password are required to change it before using
+ticket features.
 
 On Windows PowerShell use `npm.cmd` to avoid the local script execution-policy restriction on `npm.ps1`.
 Before migrating, confirm the effective `DATABASE_URL` identifies the intended development database. Environment variables override `.env`.

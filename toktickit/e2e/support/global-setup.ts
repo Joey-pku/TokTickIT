@@ -35,17 +35,30 @@ export default async function setup() {
       const prepared = spawnSync(process.execPath, args, { cwd: server, env, stdio: 'inherit' });
       if (prepared.status !== 0) throw new Error('Isolated E2E database preparation failed.');
     }
+    const testDb = new PrismaClient({ datasources: { db: { url: target.toString() } } });
+    try {
+      await testDb.user.updateMany({ data: { mustChangePassword: false } });
+    } finally {
+      await testDb.$disconnect();
+    }
+    process.env.E2E_REQUESTER_EMAIL = 'jennifer.anderson@example.com';
+    process.env.E2E_REQUESTER_PASS = 'Initial123!';
+    process.env.E2E_STAFF_EMAIL = 'staff.mike@toktickit.com';
+    process.env.E2E_STAFF_PASS = 'Initial123!';
+    process.env.E2E_ADMIN_EMAIL = 'admin@toktickit.com';
+    process.env.E2E_ADMIN_PASS = 'Initial123!';
+
     for (const [port, cwd, args, extra] of [
       [3001, server, ['--import', 'tsx', 'src/index.ts'], { PORT: '3001' }],
-      [5174, resolve('client'), ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', '5174', '--strictPort'], { VITE_API_URL: 'http://127.0.0.1:3001' }],
+      [5174, resolve('client'), ['node_modules/vite/bin/vite.js', '--host', 'localhost', '--port', '5174', '--strictPort'], { VITE_API_URL: 'http://localhost:3001' }],
     ] as const) {
-      try { await fetch(`http://127.0.0.1:${port}`); throw new Error(`Port ${port} is already in use.`); }
+      try { await fetch(`http://localhost:${port}`); throw new Error(`Port ${port} is already in use.`); }
       catch (error) { if (!(error instanceof TypeError)) throw error; }
       const child = spawn(process.execPath, [...args], { cwd, env: { ...env, ...extra }, stdio: 'inherit', windowsHide: true }); children.push(child);
       let ready = false;
       for (let i = 0; i < 100; i++) {
         if (child.exitCode !== null) throw new Error(`Server on ${port} exited.`);
-        try { if ((await fetch(`http://127.0.0.1:${port}${port === 3001 ? '/api/health' : ''}`)).ok) { ready = true; break; } } catch { }
+        try { if ((await fetch(`http://localhost:${port}${port === 3001 ? '/api/health' : ''}`)).ok) { ready = true; break; } } catch { }
         await new Promise(done => setTimeout(done, 100));
       }
       if (!ready) throw new Error(`Server on ${port} did not become ready.`);
