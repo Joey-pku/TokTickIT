@@ -8,6 +8,11 @@
  *   E2E-TEXT-01  Public comment / internal note rendering (plain text, no XSS)
  */
 import { test, expect, type Page, type BrowserContext } from "@playwright/test";
+import { createRequire } from "node:module";
+import { randomUUID } from "node:crypto";
+import { resolve } from "node:path";
+const require = createRequire(resolve("server/package.json"));
+const { PrismaClient } = require("@prisma/client");
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -31,7 +36,7 @@ async function hasHorizontalOverflow(page: Page): Promise<boolean> {
 }
 
 const PAGES_REQUESTER = ["/tickets", "/tickets/new"];
-const PAGES_STAFF = ["/staff/tickets"];
+const PAGES_STAFF = ["/staff/queue"];
 const PAGES_ADMIN = ["/admin/users"];
 
 // ---------------------------------------------------------------------------
@@ -61,7 +66,7 @@ test.describe("E2E-RESP-01: Responsive layout", () => {
       }
     });
 
-    test.skip(`No horizontal overflow at ${vpName} — staff queue`, async ({ page }) => {
+    test(`No horizontal overflow at ${vpName} — staff queue`, async ({ page }) => {
       await page.setViewportSize(viewport);
       await login(page, process.env.E2E_STAFF_EMAIL!, process.env.E2E_STAFF_PASS!);
       for (const path of PAGES_STAFF) {
@@ -101,10 +106,10 @@ test.describe("E2E-RESP-01: Responsive layout", () => {
     }
   });
 
-  test.skip("Tablet (768) – staff queue table scrolls inside its container", async ({ page }) => {
+  test("Tablet (768) – staff queue table scrolls inside its container", async ({ page }) => {
     await page.setViewportSize(VIEWPORTS.tablet);
     await login(page, process.env.E2E_STAFF_EMAIL!, process.env.E2E_STAFF_PASS!);
-    await page.goto("/staff/tickets");
+    await page.goto("/staff/queue");
     await page.waitForLoadState("networkidle");
     // The full-width page must not scroll horizontally
     expect(await hasHorizontalOverflow(page), "Page has horizontal overflow on tablet").toBe(false);
@@ -149,6 +154,9 @@ test.describe("E2E-A11Y-01: Keyboard navigation and focus", () => {
     await page.keyboard.press("Tab");
     const passwordFocused = await page.evaluate(() => document.activeElement?.id);
     expect(passwordFocused).toBe("login-password");
+    // The accessible password visibility control follows the password input.
+    await page.keyboard.press("Tab");
+    expect(await page.evaluate(() => document.activeElement?.getAttribute("aria-label"))).toBe("Show password");
     // Tab to submit
     await page.keyboard.press("Tab");
     const submitFocused = await page.evaluate(() => document.activeElement?.id);
@@ -228,40 +236,33 @@ test.describe("E2E-A11Y-01: Keyboard navigation and focus", () => {
 // ---------------------------------------------------------------------------
 test.describe("E2E-FAIL-01: Failed mutation error handling", () => {
   test("Failed comment submission shows error, preserves input, re-enables button", async ({ page }) => {
-    await login(page, process.env.E2E_REQUESTER_EMAIL!, process.env.E2E_REQUESTER_PASS!);
-    // Navigate to a ticket detail page
-    await page.goto("/tickets");
-    await page.waitForLoadState("networkidle");
-    const firstLink = page.locator("a[href^='/tickets/']").first();
-    if (await firstLink.count() === 0) { test.skip(); return; }
-    await firstLink.click();
-    await page.waitForLoadState("networkidle");
-    // Find the comment textarea
-    const textarea = page.locator("textarea[id*='comment'], textarea[name*='comment'], textarea[placeholder*='comment' i]").first();
-    if (await textarea.count() === 0) { test.skip(); return; }
-    const myComment = "Test comment that should be preserved after failure";
-    await textarea.fill(myComment);
-    // Intercept the POST to return a 500 error
-    await page.route("**/api/tickets/*/comments", async route => {
-      if (route.request().method() === "POST") {
-        await route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: { code: "INTERNAL_ERROR", message: "Server error." } }) });
-      } else { await route.continue(); }
-    });
-    const submitBtn = page.locator("button[type='submit'][id*='comment'], button:has-text('Post'), button:has-text('Submit Comment')").first();
-    if (await submitBtn.count() === 0) { test.skip(); return; }
-    await submitBtn.click();
-    // Error message should appear
-    const errorMsg = page.locator("[role='alert']:has-text('error'), [role='alert']:has-text('Error'), .zen-alert-error, .zen-error").first();
-    await expect(errorMsg).toBeVisible({ timeout: 5000 });
-    // The textarea value must be preserved
-    const preserved = await textarea.inputValue();
-    expect(preserved, "Comment text was cleared after error").toBe(myComment);
-    // The submit button must be re-enabled
-    await expect(submitBtn, "Submit button remains disabled after error").toBeEnabled();
-    // No success indicator should appear
-    await expect(page.locator("text='Comment posted', [role='status']:has-text('success')")).toHaveCount(0);
-    // Unroute
-    await page.unroute("**/api/tickets/*/comments");
+    const db = new PrismaClient({ datasources: { db: { url: process.env.TEST_DATABASE_URL } } });
+    const requester = await db.user.findUniqueOrThrow({ where: { email: process.env.E2E_REQUESTER_EMAIL } });
+    const category = await db.category.findFirstOrThrow();
+    const system = await db.relatedSystem.findFirstOrThrow({ where: { isActive: true } });
+    const ticket = await db.ticket.create({ data: { ticketNumber: `E2E-${randomUUID()}`, summary: "Failure recovery fixture", description: "Isolated comment failure fixture.", requestedPriority: "MEDIUM", itPriority: "MEDIUM", requesterId: requester.id, categoryId: category.id, relatedSystemId: system.id } });
+    try {
+      await login(page, process.env.E2E_REQUESTER_EMAIL!, process.env.E2E_REQUESTER_PASS!);
+      await page.goto(`/tickets/${ticket.id}`);
+      const textarea = page.getByLabel("Add Public Comment");
+      const myComment = "Test comment that should be preserved after failure";
+      await textarea.fill(myComment);
+      await page.route("**/api/tickets/*/comments", async route => {
+        if (route.request().method() === "POST") await route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: { code: "INTERNAL_ERROR", message: "Server error." } }) });
+        else await route.continue();
+      });
+      const submitBtn = page.getByRole("button", { name: "Post Comment" });
+      await submitBtn.click();
+      await expect(page.getByRole("alert")).toContainText("preserved");
+      await expect(textarea).toHaveValue(myComment);
+      await expect(submitBtn, "Submit button remains disabled after error").toBeEnabled();
+      await expect(page.locator("text='Comment posted', [role='status']:has-text('success')")).toHaveCount(0);
+    } finally {
+      await page.unroute("**/api/tickets/*/comments");
+      await db.comment.deleteMany({ where: { ticketId: ticket.id } });
+      await db.ticket.delete({ where: { id: ticket.id } });
+      await db.$disconnect();
+    }
   });
 
   test.skip("Failed user save (admin) shows error, preserves values, re-enables save", async ({ page }) => {
@@ -341,16 +342,16 @@ test.describe("E2E-TEXT-01: Comment and internal note text rendering", () => {
     await page.unroute("**/api/tickets/*/comments");
   });
 
-  test.skip("Internal notes (staff) render as plain text, no XSS", async ({ page }) => {
+  test("Internal notes (staff) render as plain text, no XSS", async ({ page }) => {
     await login(page, process.env.E2E_STAFF_EMAIL!, process.env.E2E_STAFF_PASS!);
-    await page.goto("/staff/tickets");
+    await page.goto("/staff/queue");
     await page.waitForLoadState("networkidle");
     const firstLink = page.locator("a[href^='/staff/tickets/']").first();
     if (await firstLink.count() === 0) { test.skip(); return; }
     await firstLink.click();
     await page.waitForLoadState("networkidle");
     // Mock internal notes
-    await page.route("**/api/staff/tickets/*/internal-notes", async route => {
+    await page.route("**/api/tickets/*/internal-notes", async route => {
       if (route.request().method() === "GET") {
         await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [
           { id: 8888, ticketId: 1, authorId: 2, authorName: "Staffy", authorRole: "IT_STAFF", content: xssPayload, createdAt: new Date().toISOString() },
@@ -361,7 +362,7 @@ test.describe("E2E-TEXT-01: Comment and internal note text rendering", () => {
     await page.waitForLoadState("networkidle");
     const xssFired = await page.evaluate(() => (window as { __xss_fired?: number }).__xss_fired);
     expect(xssFired, "XSS payload executed in internal note").toBeUndefined();
-    await page.unroute("**/api/staff/tickets/*/internal-notes");
+    await page.unroute("**/api/tickets/*/internal-notes");
   });
 
   test("HTML special characters in comments are entity-encoded, not rendered", async ({ page }) => {

@@ -13,6 +13,9 @@ const priorities = ["LOW", "MEDIUM", "HIGH"];
 const statuses = ["NEW", "OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER", "RESOLVED", "CLOSED", "REOPENED", "CANCELLED"];
 const createSelect = { id: true, ticketNumber: true, summary: true, description: true, requestedPriority: true, itPriority: true, currentStatus: true, requesterResolved: true, requesterResolvedAt: true, requesterId: true, ownerId: true, categoryId: true, relatedSystemId: true, createdAt: true, updatedAt: true } as const;
 const integer = (value: unknown): value is number => typeof value === "number" && Number.isInteger(value) && value > 0 && value <= 2147483647;
+const accessibleTicket = (id: number, userId: number, role: string) => getPrisma().ticket.findFirst({ where: role === "REQUESTER" ? { id, requesterId: userId } : { id }, select: { id: true } });
+const threadSelect = { id: true, ticketId: true, authorId: true, content: true, createdAt: true, author: { select: { name: true, role: true } } } as const;
+const flattenAuthor = ({ author, ...item }: any) => ({ ...item, authorName: author.name, authorRole: author.role });
 
 // ---------------------------------------------------------------------------
 // POST /api/tickets — Create Ticket
@@ -131,15 +134,11 @@ tickets.post("/:ticketId/appear-resolved", csrfProtection, async (req, res) => {
     if (!ticket) { sendError(res, "TICKET_NOT_FOUND"); return; }
     const eligibleStatuses = ["OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER"];
     if (!eligibleStatuses.includes(ticket.currentStatus)) { sendError(res, "INVALID_STATUS_FOR_RESOLUTION"); return; }
-    // Idempotent: if already resolved return current state without creating duplicate comment
-    if (ticket.requesterResolved) {
-      res.json({ id: ticket.id, ticketNumber: ticket.ticketNumber, requesterResolved: ticket.requesterResolved, requesterResolvedAt: ticket.requesterResolvedAt, currentStatus: ticket.currentStatus, message: "Resolution intent recorded." });
-      return;
-    }
+    if (!req.is("application/json") || !req.body || typeof req.body !== "object" || Array.isArray(req.body) || Object.keys(req.body).length > 0) { sendError(res, "VALIDATION_ERROR", { body: "An empty JSON object is required." }); return; }
     const now = new Date();
     await db.$transaction(async tx => {
-      await tx.ticket.update({ where: { id }, data: { requesterResolved: true, requesterResolvedAt: now, updatedAt: now } });
-      await tx.comment.create({ data: { ticketId: id, authorId: requesterId, content: "Requester indicated the issue appears resolved.", createdAt: now } });
+      const changed = await tx.ticket.updateMany({ where: { id, requesterId, requesterResolved: false, currentStatus: { in: eligibleStatuses } }, data: { requesterResolved: true, requesterResolvedAt: now, updatedAt: now } });
+      if (changed.count) await tx.comment.create({ data: { ticketId: id, authorId: requesterId, content: "Requester indicated that the problem appears resolved.", createdAt: now } });
     });
     const updated = await db.ticket.findUniqueOrThrow({ where: { id }, select: { id: true, ticketNumber: true, requesterResolved: true, requesterResolvedAt: true, currentStatus: true } });
     res.json({ ...updated, message: "Resolution intent recorded." });
@@ -154,11 +153,10 @@ tickets.get("/:ticketId/comments", async (req, res) => {
     if (!/^\d+$/.test(req.params.ticketId) || Number(req.params.ticketId) <= 0) { sendError(res, "TICKET_NOT_FOUND"); return; }
     const id = Number(req.params.ticketId);
     if (id > 2147483647) { sendError(res, "TICKET_NOT_FOUND"); return; }
-    const requesterId = res.locals.userId;
-    const ticket = await getPrisma().ticket.findFirst({ where: { id, requesterId }, select: { id: true } });
+    const ticket = await accessibleTicket(id, res.locals.userId, res.locals.userRole);
     if (!ticket) { sendError(res, "TICKET_NOT_FOUND"); return; }
-    const items = await getPrisma().comment.findMany({ where: { ticketId: id }, orderBy: { createdAt: "asc" }, select: { id: true, ticketId: true, authorId: true, content: true, createdAt: true, author: { select: { name: true, role: true } } } });
-    res.json({ items: items.map(({ author, ...c }) => ({ ...c, authorName: author.name, authorRole: author.role })) });
+    const items = await getPrisma().comment.findMany({ where: { ticketId: id }, orderBy: [{ createdAt: "asc" }, { id: "asc" }], select: threadSelect });
+    res.json({ items: items.map(flattenAuthor) });
   } catch { sendError(res, "INTERNAL_ERROR"); }
 });
 
@@ -170,9 +168,9 @@ tickets.post("/:ticketId/comments", csrfProtection, async (req, res) => {
     if (!/^\d+$/.test(req.params.ticketId) || Number(req.params.ticketId) <= 0) { sendError(res, "TICKET_NOT_FOUND"); return; }
     const id = Number(req.params.ticketId);
     if (id > 2147483647) { sendError(res, "TICKET_NOT_FOUND"); return; }
-    const requesterId = res.locals.userId;
+    const userId = res.locals.userId;
     const db = getPrisma();
-    const ticket = await db.ticket.findFirst({ where: { id, requesterId }, select: { id: true } });
+    const ticket = await accessibleTicket(id, userId, res.locals.userRole);
     if (!ticket) { sendError(res, "TICKET_NOT_FOUND"); return; }
     const body = req.body as Record<string, unknown>;
     if (!req.is("application/json") || !body || typeof body !== "object" || Array.isArray(body)) { sendError(res, "VALIDATION_ERROR", { body: "A JSON object is required." }); return; }
@@ -181,10 +179,38 @@ tickets.post("/:ticketId/comments", csrfProtection, async (req, res) => {
     const now = new Date();
     // Posting a manual comment resets requesterResolved
     const comment = await db.$transaction(async tx => {
-      await tx.ticket.update({ where: { id }, data: { requesterResolved: false, requesterResolvedAt: null, updatedAt: now } });
-      return tx.comment.create({ data: { ticketId: id, authorId: requesterId, content, createdAt: now }, select: { id: true, ticketId: true, authorId: true, content: true, createdAt: true, author: { select: { name: true, role: true } } } });
+      await tx.ticket.update({ where: { id }, data: { ...(res.locals.userRole === "REQUESTER" ? { requesterResolved: false, requesterResolvedAt: null } : {}), updatedAt: now } });
+      return tx.comment.create({ data: { ticketId: id, authorId: userId, content, createdAt: now }, select: threadSelect });
     });
     const { author, ...dto } = comment;
     res.status(201).json({ ...dto, authorName: author.name, authorRole: author.role });
+  } catch { sendError(res, "INTERNAL_ERROR"); }
+});
+
+tickets.get("/:ticketId/internal-notes", async (req, res) => {
+  if (res.locals.userRole === "REQUESTER") { sendError(res, "TICKET_NOT_FOUND"); return; }
+  if (!/^\d+$/.test(req.params.ticketId) || Number(req.params.ticketId) <= 0 || Number(req.params.ticketId) > 2147483647) { sendError(res, "TICKET_NOT_FOUND"); return; }
+  try {
+    const ticketId = Number(req.params.ticketId);
+    if (!await getPrisma().ticket.findUnique({ where: { id: ticketId }, select: { id: true } })) { sendError(res, "TICKET_NOT_FOUND"); return; }
+    const items = await getPrisma().internalNote.findMany({ where: { ticketId }, orderBy: [{ createdAt: "asc" }, { id: "asc" }], select: threadSelect });
+    res.json({ items: items.map(flattenAuthor) });
+  } catch { sendError(res, "INTERNAL_ERROR"); }
+});
+
+tickets.post("/:ticketId/internal-notes", async (req, res) => {
+  if (res.locals.userRole === "REQUESTER") { sendError(res, "TICKET_NOT_FOUND"); return; }
+  if (!/^\d+$/.test(req.params.ticketId) || Number(req.params.ticketId) <= 0 || Number(req.params.ticketId) > 2147483647) { sendError(res, "TICKET_NOT_FOUND"); return; }
+  const content = typeof req.body?.content === "string" ? req.body.content.trim() : "";
+  if (!req.is("application/json") || !req.body || Array.isArray(req.body) || Object.keys(req.body).some(key => key !== "content") || content.length < 1 || content.length > 2000) { sendError(res, "VALIDATION_ERROR", { content: "Internal note must be between 1 and 2000 characters." }); return; }
+  try {
+    const ticketId = Number(req.params.ticketId), db = getPrisma();
+    if (!await db.ticket.findUnique({ where: { id: ticketId }, select: { id: true } })) { sendError(res, "TICKET_NOT_FOUND"); return; }
+    const note = await db.$transaction(async tx => {
+      const created = await tx.internalNote.create({ data: { ticketId, authorId: res.locals.userId, content }, select: threadSelect });
+      await tx.ticket.update({ where: { id: ticketId }, data: { updatedAt: new Date() } });
+      return created;
+    });
+    res.status(201).json(flattenAuthor(note));
   } catch { sendError(res, "INTERNAL_ERROR"); }
 });
