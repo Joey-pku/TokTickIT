@@ -7,7 +7,13 @@ let f: Awaited<ReturnType<typeof ticketFixtures>>;
 beforeAll(async () => { f = await ticketFixtures(); });
 afterEach(async () => { vi.restoreAllMocks(); await f.clear(); });
 afterAll(async () => { await f.dispose(); });
-const detail = (id: number | string, requester = f.a.id) => request(app).get("/api/tickets/" + id).set("x-requester-id", String(requester));
+const detail = async (id: number | string, cookieOrUser?: string | { email: string }) => {
+  let cookie = typeof cookieOrUser === "string" ? cookieOrUser : undefined;
+  if (!cookieOrUser) cookie = await f.loginAs(f.a);
+  else if (typeof cookieOrUser === "object") cookie = await f.loginAs(cookieOrUser);
+  return request(app).get("/api/tickets/" + id).set("Cookie", cookie || "");
+};
+
 it("API-DTL-001,002,006: exact owned detail projects active/removed metadata only", async () => {
   const ticket = await f.ticket();
   for (const removed of [false, true]) await db.attachment.create({ data: {
@@ -16,7 +22,7 @@ it("API-DTL-001,002,006: exact owned detail projects active/removed metadata onl
     isRemoved: removed, removedAt: removed ? new Date() : null, removedById: removed ? f.a.id : null, removalReason: removed ? "Wrong document" : null,
   } });
   const res = await detail(ticket.id); expect(res.status).toBe(200);
-  expect(Object.keys(res.body).sort()).toEqual([...createKeys, "requesterName", "categoryName", "relatedSystemName", "attachments"].sort());
+  expect(Object.keys(res.body).sort()).toEqual([...createKeys, "requesterName", "categoryName", "relatedSystemName", "attachments", "comments"].sort());
   expect(res.body).toMatchObject({ id: ticket.id, requesterName: f.a.name, categoryName: "Hardware", relatedSystemName: "VPN", description: f.body.description });
   expect(res.body.attachments).toHaveLength(2);
   for (const attachment of res.body.attachments) {
@@ -28,7 +34,7 @@ it("API-DTL-001,002,006: exact owned detail projects active/removed metadata onl
 });
 it("API-DTL-003,004: unowned and nonexistent return identical 404, never 403", async () => {
   const ticket = await f.ticket();
-  const unowned = await detail(ticket.id, f.b.id); const absent = await detail(2147483647);
+  const unowned = await detail(ticket.id, f.b); const absent = await detail(2147483647);
   expect(unowned.status).toBe(404); expect(absent.status).toBe(404); expect(unowned.body).toEqual(absent.body);
   expect(unowned.body).toEqual({ error: { code: "TICKET_NOT_FOUND", message: expect.any(String) } });
 });
@@ -37,11 +43,9 @@ it("returns attachments: [] when none exist; GET does not mutate updatedAt", asy
   expect(res.status).toBe(200); expect(res.body.attachments).toEqual([]);
   expect((await db.ticket.findUniqueOrThrow({ where: { id: ticket.id } })).updatedAt).toEqual(ticket.updatedAt);
 });
-it("API-DTL-005: requester-context validation precedes resource lookup", async () => {
-  for (const [id, status, code] of [[null, 400, "MISSING_REQUESTER_CONTEXT"], ["bad", 400, "INVALID_REQUESTER_ID"], [String(f.inactive.id), 404, "REQUESTER_NOT_FOUND"]] as const) {
-    const req = request(app).get("/api/tickets/2147483647"); if (id !== null) req.set("x-requester-id", id);
-    const res = await req; expect(res.status).toBe(status); expect(res.body.error.code).toBe(code);
-  }
+it("API-DTL-005: requires session auth validation precedes resource lookup", async () => {
+  const req = request(app).get("/api/tickets/2147483647");
+  const res = await req; expect(res.status).toBe(401); expect(res.body.error.code).toBe("UNAUTHENTICATED");
 });
 it("rejects malformed path IDs", async () => {
   const res = await detail("1x"); expect(res.status).toBe(400); expect(res.body.error.code).toBe("VALIDATION_ERROR");

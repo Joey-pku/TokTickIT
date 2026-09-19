@@ -2,7 +2,7 @@
 
 > **Document Status**: Draft — Pending Review  
 > **Engineering Contracts**: [`specification.md`](./specification.md), [`ui-spec.md`](./ui-spec.md), [`api-spec.md`](./api-spec.md)  
-> **Execution State**: **Partial** — Feature 10 `API-MIG-01` and `API-SEED-01` passed on 2026-09-19; unrelated Lab 3 tests remain **Not Run**.
+> **Execution State**: **Partial** — Feature 10 and the Feature 11 authentication/permission slice passed on 2026-09-19; later staff workflow and administration tests remain **Not Run**.
 
 ---
 
@@ -23,7 +23,7 @@
 - **Seed Invariance**: Seed tests verify that repeated runs do not overwrite user-edited emails, names, passwords, or operational ticket states.
 - **CSRF Test Client**: Integration test requests include `.set("X-Requested-With", "XMLHttpRequest")` and `.set("Origin", "http://localhost:5173")` to satisfy the server CSRF middleware.
 
-### 1.3 Planned Test File Tree
+### 1.3 Test File Tree (implemented Feature 10–11 slice)
 ```
 toktickit/
 ├── server/tests/
@@ -32,33 +32,22 @@ toktickit/
 │   └── lab-03/
 │       ├── unit/
 │       │   ├── password-validation.test.ts      <- Password complexity, 72-byte UTF-8, whitespace rules
-│       │   └── status-transitions.test.ts       <- 8-state transition matrix and same-status no-ops
 │       ├── auth.api.test.ts                     <- Login, rate limits, CSRF, session expiry, logout replay
-│       ├── authorization.api.test.ts            <- RBAC matrix, requester ownership, 404 info-hiding
-│       ├── staff-queue.api.test.ts              <- Queue search, filter, sort, pagination, tie-breaking
-│       ├── staff-ticket-detail.api.test.ts      <- Claim/reassign, auto-advance, priority, status, appear-resolved
-│       ├── comments-notes.api.test.ts           <- Public comments & internal notes view and append
-│       └── users-admin.api.test.ts              <- Admin user CRUD, safety constraints, session revocation
+│       └── authorization.api.test.ts            <- RBAC matrix, requester ownership, 404 info-hiding
 ├── server/scripts/
 │   └── test-feature10.mjs                       <- Dedicated migration and seed preservation harness
 ├── client/tests/
 │   ├── lab-01/                                  <- Historical Lab 1 UI tests (untouched)
 │   ├── lab-02/                                  <- Lab 2 UI tests
 │   └── lab-03/
-│       ├── AppShell.test.tsx                    <- Role-based navigation, avatar, and logout menu
+│       ├── AppShell.test.tsx                    <- Authenticated identity, navigation, password change, logout
 │       ├── Login.test.tsx                       <- Login form, password toggle, busy state, alerts, responsive
-│       ├── ChangePassword.test.tsx              <- First-login gate, complexity checklist, submit
-│       ├── RequesterTicketDetail.test.tsx       <- Comments thread, "Problem Appears Resolved" button & caption
-│       ├── StaffTicketQueue.test.tsx            <- Table view, search/filter controls, pagination, responsive
-│       ├── StaffTicketDetail.test.tsx           <- Operational controls, comments, confidential notes
-│       └── UserManagement.test.tsx              <- User list, creation modal, edit safety constraints, focus trap
+│       └── ChangePassword.test.tsx              <- First-login gate, complexity checklist, submit
 └── e2e/
     ├── lab-02/                                  <- Lab 2 E2E (adapted to real login)
     └── lab-03/
         ├── authentication.spec.ts               <- Login, mandatory first-login change, logout flow
-        ├── staff-ticket-flow.spec.ts            <- Staff triage, claim, priority, status progression, notes
-        ├── user-administration.spec.ts          <- Admin user creation, safety rules, password reset login
-        └── ui-quality.spec.ts                   <- Responsive layout, a11y focus traps, mutation failure recovery, safe text
+        └── ui-quality.spec.ts                   <- Planned later-slice responsive/a11y coverage
 ```
 
 ---
@@ -69,17 +58,17 @@ toktickit/
 
 | AC ID | Requirement Summary | Planned Test IDs | Target Test File | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **AC-01** | Valid credentials login & session cookie establishment | `API-AUTH-01`, `UI-AUTH-01`, `E2E-AUTH-01`, `E2E-RESP-01` | `server/tests/lab-03/auth.api.test.ts`<br>`client/tests/lab-03/Login.test.tsx`<br>`e2e/lab-03/authentication.spec.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-02** | Invalid credentials & inactive account rejection (401) | `API-AUTH-02`, `API-AUTH-03`, `UI-AUTH-02` | `server/tests/lab-03/auth.api.test.ts`<br>`client/tests/lab-03/Login.test.tsx` | **Not Run** |
-| **AC-03** | Login rate limiting (5 failed attempts -> 429) | `API-AUTH-04` | `server/tests/lab-03/auth.api.test.ts` | **Not Run** |
-| **AC-04** | Mandatory first-login password change gate | `API-AUTH-05`, `UI-GATE-01`, `E2E-AUTH-02`, `E2E-RESP-01` | `server/tests/lab-03/auth.api.test.ts`<br>`client/tests/lab-03/ChangePassword.test.tsx`<br>`e2e/lab-03/authentication.spec.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-05** | Password complexity & boundary rules ($\ge 8$ code points, $\le 72$ bytes, non-equality) | `UNIT-PWD-01`–`UNIT-PWD-06`, `API-AUTH-06`, `API-AUTH-07`, `API-AUTH-12`, `UI-GATE-02` | `server/tests/lab-03/unit/password-validation.test.ts`<br>`server/tests/lab-03/auth.api.test.ts`<br>`client/tests/lab-03/ChangePassword.test.tsx` | **Not Run** |
-| **AC-06** | Session profile retrieval & 8-hour expiry (`now >= expiresAt`) | `API-AUTH-08`, `API-AUTH-09`, `UI-SHELL-01` | `server/tests/lab-03/auth.api.test.ts`<br>`client/tests/lab-03/AppShell.test.tsx` | **Not Run** |
-| **AC-07** | Logout invalidation & cookie replay prevention | `API-AUTH-10`, `API-AUTH-11`, `API-AUTH-13`, `UI-SHELL-02`, `E2E-AUTH-03` | `server/tests/lab-03/auth.api.test.ts`<br>`client/tests/lab-03/AppShell.test.tsx`<br>`e2e/lab-03/authentication.spec.ts` | **Not Run** |
-| **AC-08** | Server-enforced CSRF protection (`X-Requested-With` & Origin) | `API-CSRF-01`, `API-CSRF-02`, `API-CSRF-03` | `server/tests/lab-03/auth.api.test.ts` | **Not Run** |
-| **AC-09** | Requester ownership derived strictly from session | `API-REQ-01`, `E2E-RESP-01` | `server/tests/lab-03/authorization.api.test.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-10** | My Tickets scoping to authenticated user across all roles | `API-REQ-02`, `E2E-RESP-01` | `server/tests/lab-03/authorization.api.test.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-11** | Requester cross-resource isolation (404 information hiding) | `API-SEC-01`, `API-SEC-02` | `server/tests/lab-03/authorization.api.test.ts` | **Not Run** |
+| **AC-01** | Valid credentials login & session cookie establishment | `API-AUTH-01`, `UI-AUTH-01`, `E2E-AUTH-01`, `E2E-RESP-01` | `server/tests/lab-03/auth.api.test.ts`<br>`client/tests/lab-03/Login.test.tsx`<br>`e2e/lab-03/authentication.spec.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed (Feature 11 scope) — 2026-09-19** |
+| **AC-02** | Invalid credentials & inactive account rejection (401) | `API-AUTH-02`, `API-AUTH-03`, `UI-AUTH-02` | `server/tests/lab-03/auth.api.test.ts`<br>`client/tests/lab-03/Login.test.tsx` | **Passed — 2026-09-19** |
+| **AC-03** | Login rate limiting (5 failed attempts -> 429) | `API-AUTH-04` | `server/tests/lab-03/auth.api.test.ts` | **Passed — 2026-09-19** |
+| **AC-04** | Mandatory first-login password change gate | `API-AUTH-05`, `UI-GATE-01`, `E2E-AUTH-02`, `E2E-RESP-01` | `server/tests/lab-03/auth.api.test.ts`<br>`client/tests/lab-03/ChangePassword.test.tsx`<br>`e2e/lab-03/authentication.spec.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed (Feature 11 scope) — 2026-09-19** |
+| **AC-05** | Password complexity & boundary rules ($\ge 8$ code points, $\le 72$ bytes, non-equality) | `UNIT-PWD-01`–`UNIT-PWD-06`, `API-AUTH-06`, `API-AUTH-07`, `API-AUTH-12`, `UI-GATE-02` | `server/tests/lab-03/unit/password-validation.test.ts`<br>`server/tests/lab-03/auth.api.test.ts`<br>`client/tests/lab-03/ChangePassword.test.tsx` | **Passed — 2026-09-19** |
+| **AC-06** | Session profile retrieval & 8-hour expiry (`now >= expiresAt`) | `API-AUTH-08`, `API-AUTH-09`, `UI-SHELL-01` | `server/tests/lab-03/auth.api.test.ts`<br>`client/tests/lab-03/AppShell.test.tsx` | **Passed — 2026-09-19** |
+| **AC-07** | Logout invalidation & cookie replay prevention | `API-AUTH-10`, `API-AUTH-11`, `API-AUTH-13`, `UI-SHELL-02`, `E2E-AUTH-03` | `server/tests/lab-03/auth.api.test.ts`<br>`client/tests/lab-03/AppShell.test.tsx`<br>`e2e/lab-03/authentication.spec.ts` | **Passed — 2026-09-19** |
+| **AC-08** | Server-enforced CSRF protection (`X-Requested-With` & Origin) | `API-CSRF-01`, `API-CSRF-02`, `API-CSRF-03` | `server/tests/lab-03/auth.api.test.ts` | **Passed — 2026-09-19** |
+| **AC-09** | Requester ownership derived strictly from session | `API-REQ-01`, `E2E-RESP-01` | `server/tests/lab-03/authorization.api.test.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed (API) — 2026-09-19** |
+| **AC-10** | My Tickets scoping to authenticated user across all roles | `API-REQ-02`, `E2E-RESP-01` | `server/tests/lab-03/authorization.api.test.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed (API) — 2026-09-19** |
+| **AC-11** | Requester cross-resource isolation (404 information hiding) | `API-SEC-01`, `API-SEC-02` | `server/tests/lab-03/authorization.api.test.ts` | **Passed — 2026-09-19** |
 | **AC-12** | Public Comments view and append with safe text representation | `API-COM-01`, `API-COM-02`, `API-COM-04`, `UI-COM-01`, `E2E-FAIL-01`, `E2E-TEXT-01`, `E2E-RESP-01` | `server/tests/lab-03/comments-notes.api.test.ts`<br>`client/tests/lab-03/RequesterTicketDetail.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
 | **AC-13** | Requester "Problem Appears Resolved" signal & automated comment | `API-STAT-06`, `UI-REQ-01`, `E2E-STAFF-02` | `server/tests/lab-03/staff-ticket-detail.api.test.ts`<br>`client/tests/lab-03/RequesterTicketDetail.test.tsx`<br>`e2e/lab-03/staff-ticket-flow.spec.ts` | **Not Run** |
 | **AC-14** | Resolution signal idempotency and timestamp preservation | `API-STAT-07`, `API-STAT-11` | `server/tests/lab-03/staff-ticket-detail.api.test.ts` | **Not Run** |
@@ -98,7 +87,7 @@ toktickit/
 | **AC-27** | Admin user editing & duplicate email check on update | `API-ADM-04`, `UI-ADM-03`, `E2E-FAIL-01`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
 | **AC-28** | Admin password reset & immediate session revocation | `API-ADM-07`, `UI-ADM-04`, `E2E-ADM-02`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/user-administration.spec.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
 | **AC-29** | Admin safety constraints (self-deactivation, last admin) | `API-ADM-05`, `API-ADM-06`, `UI-ADM-03`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-30** | Forbidden access by role & immediate enforcement upon role demotion | `API-RBAC-01`–`API-RBAC-04`, `API-RBAC-05` | `server/tests/lab-03/authorization.api.test.ts` | **Not Run** |
+| **AC-30** | Forbidden access by role & immediate enforcement upon role demotion | `API-RBAC-01`–`API-RBAC-04`, `API-RBAC-05` | `server/tests/lab-03/authorization.api.test.ts` | **Passed — 2026-09-19** |
 | **AC-31** | Non-destructive migration data preservation | `API-MIG-01` | `server/scripts/test-feature10.mjs` | **Passed — 2026-09-19** |
 | **AC-32** | Canonical seedKey invariance across reruns | `API-SEED-01` | `server/scripts/test-feature10.mjs` | **Passed — 2026-09-19** |
 
@@ -219,17 +208,16 @@ Executed with `npm.cmd run test:feature10` on 2026-09-19: **Passed**. The harnes
 
 #### `client/tests/lab-03/Login.test.tsx`
 - `UI-AUTH-01`: Renders email, password inputs, and password visibility toggle. [AC-01]
-- `UI-AUTH-02`: Displays validation errors for empty fields and error banner on 401. [AC-02]
-- `UI-AUTH-03`: Submit button enters disabled busy spinner state during request. [AC-01]
+- `UI-AUTH-02`: Displays a connection error while preserving entered credentials. [AC-02]
 
 #### `client/tests/lab-03/ChangePassword.test.tsx`
-- `UI-GATE-01`: Constrained user is locked to change-password view. [AC-04]
-- `UI-GATE-02`: Dynamic password checklist updates green checkmarks for length ($\ge 8$ code points, $\le 72$ bytes), casing, number, symbol, and difference. [AC-05]
-- `UI-GATE-03`: Successful submit redirects user to role landing page. [AC-05]
+- `UI-GATE-01`: Current-password input receives initial focus and submit remains disabled until valid. [AC-04]
+- `UI-GATE-02`: Dynamic password checklist updates for length ($\ge 8$ code points, $\le 72$ bytes), casing, number, symbol, difference, and confirmation. [AC-05]
+- `UI-GATE-03`: The mandatory-change gate permits signing out. [AC-04]
 
 #### `client/tests/lab-03/AppShell.test.tsx`
-- `UI-SHELL-01`: Header renders role-tailored navigation items for Requester, Staff, and Admin. [AC-06]
-- `UI-SHELL-02`: Header renders avatar initials, role badge, and Sign Out action. [AC-07]
+- `UI-SHELL-01`: Header renders authenticated identity, role badge, and requester navigation. [AC-06]
+- `UI-SHELL-02`: Header exposes Change Password and Sign Out actions through the authentication context. [AC-07]
 
 #### `client/tests/lab-03/RequesterTicketDetail.test.tsx`
 - `UI-REQ-01`: Renders "Problem Appears Resolved" button in active statuses with caption "Posting a new comment will clear this indication." [AC-13]

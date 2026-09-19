@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useRequester } from "./RequesterContext.js";
+import { useAuth } from "./AuthContext.js";
 import { createTicket, TicketApiError, type Priority, type Ticket } from "./ticket-api.js";
 import { formatDate, ReadOnly, TicketLink, useReferences } from "./TicketComponents.js";
 import { navigate } from "./navigation.js";
@@ -7,7 +7,7 @@ import { AttachmentPicker } from "./AttachmentPicker.js";
 import { uploadAttachment } from "./attachment-api.js";
 
 export function CreateTicket() {
-  const { requester } = useRequester();
+  const { user } = useAuth();
   const refs = useReferences(true);
   const [categoryId, setCategory] = useState(""); const [relatedSystemId, setSystem] = useState("");
   const [priority, setPriority] = useState<Priority>("MEDIUM");
@@ -64,7 +64,7 @@ export function CreateTicket() {
       <div className="ticket-grid">
         <ReadOnly label="Ticket Number">{created?.ticketNumber ?? "Generated after submission"}</ReadOnly>
         <ReadOnly label="Ticket Date">{created ? formatDate(created.createdAt) : "Assigned after submission"}</ReadOnly>
-        <ReadOnly label="Requester">{requester?.name}</ReadOnly>
+        <ReadOnly label="Requester">{user?.name}</ReadOnly>
       </div>
       {created ? <div className="ticket-actions"><TicketLink className="zen-button zen-secondary" href="/tickets">Go to My Tickets</TicketLink><TicketLink className="zen-button zen-primary" href={`/tickets/${created.id}`}>View Ticket Details</TicketLink></div> : <>
         {refs.state === "loading" && <p role="status">Loading categories and related systems...</p>}

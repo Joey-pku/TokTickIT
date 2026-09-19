@@ -6,7 +6,13 @@ let f: Awaited<ReturnType<typeof ticketFixtures>>;
 beforeAll(async () => { f = await ticketFixtures(); });
 afterEach(async () => { await f.clear(); });
 afterAll(async () => { await f.dispose(); });
-const list = (query = "", id?: number) => request(app).get("/api/tickets" + query).set("x-requester-id", String(id ?? f.a.id));
+const list = async (query = "", cookieOrUser?: string | { email: string }) => {
+  let cookie = typeof cookieOrUser === "string" ? cookieOrUser : undefined;
+  if (!cookieOrUser) cookie = await f.loginAs(f.a);
+  else if (typeof cookieOrUser === "object") cookie = await f.loginAs(cookieOrUser);
+  return request(app).get("/api/tickets" + query).set("Cookie", cookie || "");
+};
+
 it("API-LST-001–005: exact DTO and pagination isolate rows and counts", async () => {
   const own = await f.ticket(); const other = await f.ticket({ requesterId: f.b.id });
   const res = await list(); expect(res.status).toBe(200);
@@ -14,7 +20,7 @@ it("API-LST-001–005: exact DTO and pagination isolate rows and counts", async 
   expect(res.body.items.map((t: { id: number }) => t.id)).toEqual([own.id]);
   expect(Object.keys(res.body.items[0]).sort()).toEqual(listKeys);
   expect(res.body.items[0]).toMatchObject({ categoryName: "Hardware", relatedSystemName: "VPN" });
-  const b = await list("", f.b.id); expect(b.body.items.map((t: { id: number }) => t.id)).toEqual([other.id]);
+  const b = await list("", f.b); expect(b.body.items.map((t: { id: number }) => t.id)).toEqual([other.id]);
   expect(await db.ticket.count({ where: { id: { in: res.body.items.map((t: { id: number }) => t.id) }, requesterId: f.a.id } })).toBe(1);
 });
 it("API-LST-004–007: pagination boundaries and allowed page sizes", async () => {
@@ -46,7 +52,7 @@ it("search treats percent and underscore as literal substring characters", async
 });
 it.each(["page=0", "page=-1", "page=1.5", "page=abc", "page=", "pageSize=11", "pageSize=0", "pageSize=abc",
   "sortBy=summary", "sortOrder=DESC", "categoryId=2147483647", "categoryId=abc", "categoryId=1.5",
-  "requestedPriority=CRITICAL", "requestedPriority=ALL", "status=OPEN", "status=ALL", "status=",
+  "requestedPriority=CRITICAL", "requestedPriority=ALL", "status=INVALID", "status=ALL", "status=",
   "page=1&page=2", "search[x]=a"])("API-LST-008,009,013,022: invalid query %s", async query => {
   const res = await list("?" + query); expect(res.status).toBe(400);
   expect(res.body).toMatchObject({ error: { code: "VALIDATION_ERROR", message: expect.any(String), fields: expect.any(Object) } });
@@ -72,9 +78,7 @@ it("API-LST-014–021: case-insensitive substring search, filters, omission and 
   expect((await list("?search=%20%20&status=NEW")).body.items).toHaveLength(2);
   expect((await list()).body.items).toHaveLength(2);
 });
-it("API-LST-023–024: requester errors use exact envelopes", async () => {
-  for (const [id, status, code] of [[null, 400, "MISSING_REQUESTER_CONTEXT"], ["bad", 400, "INVALID_REQUESTER_ID"], [String(f.inactive.id), 404, "REQUESTER_NOT_FOUND"], ["2147483647", 404, "REQUESTER_NOT_FOUND"]] as const) {
-    const req = request(app).get("/api/tickets"); if (id !== null) req.set("x-requester-id", id);
-    const res = await req; expect(res.status).toBe(status); expect(res.body).toEqual({ error: { code, message: expect.any(String) } });
-  }
+it("API-LST-023–024: requires session auth", async () => {
+  const req = request(app).get("/api/tickets");
+  const res = await req; expect(res.status).toBe(401); expect(res.body).toEqual({ error: { code: "UNAUTHENTICATED", message: expect.any(String) } });
 });
