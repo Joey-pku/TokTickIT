@@ -12,7 +12,8 @@ it("UI-DTL-001,008: displays backend fields read-only and back navigation", asyn
   expect(screen.getByText(detail.description)).toBeInTheDocument();
   expect(screen.getByText("Hardware")).toBeInTheDocument();
   expect(screen.getByText("VPN")).toBeInTheDocument();
-  expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+  expect(screen.getByRole("textbox", { name: "Add Public Comment" })).toBeInTheDocument();
+  expect(screen.queryByText(/Internal Notes/)).not.toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Upload attachments" })).toBeDisabled();
   await user.click(screen.getByRole("link", { name: /Back to My Tickets/ }));
   expect(window.location.pathname).toBe("/tickets");

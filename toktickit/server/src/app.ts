@@ -5,6 +5,7 @@ import { sendError } from "./errors.js";
 import { tickets } from "./tickets.js";
 import { attachments } from "./attachments.js";
 import { auth, csrfProtection } from "./auth.js";
+import { staff } from "./staff.js";
 import type { ErrorRequestHandler } from "express";
 
 const ALLOWED_ORIGINS = ["http://localhost:5173", "http://localhost:5174"];
@@ -37,6 +38,7 @@ app.get("/api/related-systems", async (_req, res) => {
 app.use("/api/auth", auth);
 // Attachment endpoints (session-authenticated)
 app.use("/api", attachments);
+app.use("/api/staff", staff);
 // Requester ticket endpoints
 app.use("/api/tickets", tickets);
 

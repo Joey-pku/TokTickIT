@@ -2,7 +2,7 @@
 
 > **Document Status**: Draft — Pending Review  
 > **Engineering Contracts**: [`specification.md`](./specification.md), [`ui-spec.md`](./ui-spec.md), [`api-spec.md`](./api-spec.md)  
-> **Execution State**: **Partial** — Feature 10 and the Feature 11 authentication/permission slice passed on 2026-09-19; later staff workflow and administration tests remain **Not Run**.
+> **Execution State**: **Partial** — Features 10–12 passed on 2026-09-19; Feature 13 administrator user-management tests remain **Not Run**.
 
 ---
 
@@ -23,7 +23,7 @@
 - **Seed Invariance**: Seed tests verify that repeated runs do not overwrite user-edited emails, names, passwords, or operational ticket states.
 - **CSRF Test Client**: Integration test requests include `.set("X-Requested-With", "XMLHttpRequest")` and `.set("Origin", "http://localhost:5173")` to satisfy the server CSRF middleware.
 
-### 1.3 Test File Tree (implemented Feature 10–11 slice)
+### 1.3 Test File Tree (implemented Feature 10–12 slice)
 ```
 toktickit/
 ├── server/tests/
@@ -33,7 +33,9 @@ toktickit/
 │       ├── unit/
 │       │   ├── password-validation.test.ts      <- Password complexity, 72-byte UTF-8, whitespace rules
 │       ├── auth.api.test.ts                     <- Login, rate limits, CSRF, session expiry, logout replay
-│       └── authorization.api.test.ts            <- RBAC matrix, requester ownership, 404 info-hiding
+│       ├── authorization.api.test.ts            <- RBAC matrix, requester ownership, 404 info-hiding
+│       ├── staff-workflow.api.test.ts           <- Queue, workflow, comments, notes, resolution intent
+│       └── unit/status-transitions.test.ts      <- Eight-state transition matrix
 ├── server/scripts/
 │   └── test-feature10.mjs                       <- Dedicated migration and seed preservation harness
 ├── client/tests/
@@ -42,12 +44,15 @@ toktickit/
 │   └── lab-03/
 │       ├── AppShell.test.tsx                    <- Authenticated identity, navigation, password change, logout
 │       ├── Login.test.tsx                       <- Login form, password toggle, busy state, alerts, responsive
-│       └── ChangePassword.test.tsx              <- First-login gate, complexity checklist, submit
+│       ├── ChangePassword.test.tsx              <- First-login gate, complexity checklist, submit
+│       ├── StaffTicketQueue.test.tsx            <- Queue display, filters, and failure state
+│       └── StaffTicketDetail.test.tsx           <- Workflow controls and confidential note styling
 └── e2e/
     ├── lab-02/                                  <- Lab 2 E2E (adapted to real login)
     └── lab-03/
         ├── authentication.spec.ts               <- Login, mandatory first-login change, logout flow
-        └── ui-quality.spec.ts                   <- Planned later-slice responsive/a11y coverage
+        ├── staff-ticket-flow.spec.ts            <- Claim, priority, status, notes, requester resolution
+        └── ui-quality.spec.ts                   <- Responsive, keyboard, failure, and safe-text coverage
 ```
 
 ---
@@ -69,19 +74,19 @@ toktickit/
 | **AC-09** | Requester ownership derived strictly from session | `API-REQ-01`, `E2E-RESP-01` | `server/tests/lab-03/authorization.api.test.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed (API) — 2026-09-19** |
 | **AC-10** | My Tickets scoping to authenticated user across all roles | `API-REQ-02`, `E2E-RESP-01` | `server/tests/lab-03/authorization.api.test.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed (API) — 2026-09-19** |
 | **AC-11** | Requester cross-resource isolation (404 information hiding) | `API-SEC-01`, `API-SEC-02` | `server/tests/lab-03/authorization.api.test.ts` | **Passed — 2026-09-19** |
-| **AC-12** | Public Comments view and append with safe text representation | `API-COM-01`, `API-COM-02`, `API-COM-04`, `UI-COM-01`, `E2E-FAIL-01`, `E2E-TEXT-01`, `E2E-RESP-01` | `server/tests/lab-03/comments-notes.api.test.ts`<br>`client/tests/lab-03/RequesterTicketDetail.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-13** | Requester "Problem Appears Resolved" signal & automated comment | `API-STAT-06`, `UI-REQ-01`, `E2E-STAFF-02` | `server/tests/lab-03/staff-ticket-detail.api.test.ts`<br>`client/tests/lab-03/RequesterTicketDetail.test.tsx`<br>`e2e/lab-03/staff-ticket-flow.spec.ts` | **Not Run** |
-| **AC-14** | Resolution signal idempotency and timestamp preservation | `API-STAT-07`, `API-STAT-11` | `server/tests/lab-03/staff-ticket-detail.api.test.ts` | **Not Run** |
-| **AC-15** | Resolution reset on reopen or manual comment submission | `API-STAT-08`, `API-COM-03` | `server/tests/lab-03/staff-ticket-detail.api.test.ts`<br>`server/tests/lab-03/comments-notes.api.test.ts` | **Not Run** |
-| **AC-16** | Resolution action errors (401 unauth, 403 non-req, 404 non-owner, 400 ineligible status) | `API-STAT-09`, `API-STAT-12`, `API-STAT-13` | `server/tests/lab-03/staff-ticket-detail.api.test.ts` | **Not Run** |
-| **AC-17** | Internal Notes hidden & blocked from Requesters (404) | `API-NOTE-01`, `API-NOTE-02`, `UI-SEC-01` | `server/tests/lab-03/comments-notes.api.test.ts`<br>`client/tests/lab-03/RequesterTicketDetail.test.tsx` | **Not Run** |
-| **AC-18** | Staff Internal Notes view and append with safe text representation | `API-NOTE-03`, `API-NOTE-04`, `API-NOTE-05`, `UI-NOTE-01`, `E2E-TEXT-01`, `E2E-RESP-01` | `server/tests/lab-03/comments-notes.api.test.ts`<br>`client/tests/lab-03/StaffTicketDetail.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-19** | Staff Queue search, multi-filter, sort, tie-breaker, pagination | `API-QUEUE-01`–`API-QUEUE-04`, `UI-QUEUE-01`–`UI-QUEUE-03`, `UI-RESP-01`, `E2E-STAFF-01`, `E2E-RESP-01` | `server/tests/lab-03/staff-queue.api.test.ts`<br>`client/tests/lab-03/StaffTicketQueue.test.tsx`<br>`e2e/lab-03/staff-ticket-flow.spec.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-20** | Ticket claim on `NEW` status auto-advancing to `OPEN` | `API-STAFF-01`, `UI-STAFF-01`, `E2E-RESP-01` | `server/tests/lab-03/staff-ticket-detail.api.test.ts`<br>`client/tests/lab-03/StaffTicketDetail.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-21** | Ineligible assignment target rejection (400) | `API-STAFF-02` | `server/tests/lab-03/staff-ticket-detail.api.test.ts` | **Not Run** |
-| **AC-22** | Preserved historical owner references & orphaned ticket cleanup | `API-ADM-08`, `API-STAFF-10`, `API-STAFF-14` | `server/tests/lab-03/users-admin.api.test.ts`<br>`server/tests/lab-03/staff-ticket-detail.api.test.ts` | **Not Run** |
-| **AC-23** | IT Priority modification independent of Requested Priority | `API-STAFF-03`, `UI-STAFF-01`, `E2E-RESP-01` | `server/tests/lab-03/staff-ticket-detail.api.test.ts`<br>`client/tests/lab-03/StaffTicketDetail.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-24** | Permitted status transitions, same-status no-ops, invalid transitions | `UNIT-STAT-01`–`UNIT-STAT-03`, `API-STAFF-04`, `API-STAFF-05`, `UI-STAFF-01`, `E2E-RESP-01` | `server/tests/lab-03/unit/status-transitions.test.ts`<br>`server/tests/lab-03/staff-ticket-detail.api.test.ts`<br>`client/tests/lab-03/StaffTicketDetail.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
+| **AC-12** | Public Comments view and append with safe text representation | `API-COM-01`, `API-COM-02`, `API-COM-04`, `UI-COM-01`, `E2E-FAIL-01`, `E2E-TEXT-01` | `server/tests/lab-03/staff-workflow.api.test.ts`<br>`client/tests/lab-02/RequesterTicketDetail.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed — 2026-09-19** |
+| **AC-13** | Requester "Problem Appears Resolved" signal & automated comment | `API-STAT-06`, `UI-REQ-01`, `E2E-STAFF-02` | `server/tests/lab-03/staff-workflow.api.test.ts`<br>`client/src/RequesterTicketDetail.tsx`<br>`e2e/lab-03/staff-ticket-flow.spec.ts` | **Passed — 2026-09-19** |
+| **AC-14** | Resolution signal idempotency and timestamp preservation | `API-STAT-07`, `API-STAT-11` | `server/tests/lab-03/staff-workflow.api.test.ts` | **Passed — 2026-09-19** |
+| **AC-15** | Resolution reset on reopen or manual comment submission | `API-STAT-08`, `API-COM-03` | `server/tests/lab-03/staff-workflow.api.test.ts` | **Passed — 2026-09-19** |
+| **AC-16** | Resolution action errors and status enforcement | `API-STAT-09`, `API-STAT-12`, `API-STAT-13` | `server/tests/lab-03/staff-workflow.api.test.ts` | **Passed — 2026-09-19** |
+| **AC-17** | Internal Notes hidden & blocked from Requesters (404) | `API-NOTE-01`, `API-NOTE-02`, `UI-SEC-01` | `server/tests/lab-03/staff-workflow.api.test.ts`<br>`client/tests/lab-02/RequesterTicketDetail.test.tsx` | **Passed — 2026-09-19** |
+| **AC-18** | Staff Internal Notes view and append with safe text representation | `API-NOTE-03`–`API-NOTE-05`, `UI-NOTE-01`, `E2E-TEXT-01` | `server/tests/lab-03/staff-workflow.api.test.ts`<br>`client/tests/lab-03/StaffTicketDetail.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed — 2026-09-19** |
+| **AC-19** | Staff Queue search, multi-filter, sort, tie-breaker, pagination | `API-QUEUE-01`–`API-QUEUE-04`, `UI-QUEUE-01`–`UI-QUEUE-03`, `E2E-STAFF-01`, `E2E-RESP-01` | `server/tests/lab-03/staff-workflow.api.test.ts`<br>`client/tests/lab-03/StaffTicketQueue.test.tsx`<br>`e2e/lab-03/staff-ticket-flow.spec.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed — 2026-09-19** |
+| **AC-20** | Ticket claim on `NEW` status auto-advancing to `OPEN` | `API-STAFF-01`, `UI-STAFF-01`, `E2E-STAFF-01` | `server/tests/lab-03/staff-workflow.api.test.ts`<br>`client/tests/lab-03/StaffTicketDetail.test.tsx`<br>`e2e/lab-03/staff-ticket-flow.spec.ts` | **Passed — 2026-09-19** |
+| **AC-21** | Ineligible assignment target rejection (400) | `API-STAFF-02` | `server/tests/lab-03/staff-workflow.api.test.ts` | **Passed — 2026-09-19** |
+| **AC-22** | Historical owner references and orphan cleanup on reopen | `API-STAFF-10`, `API-STAFF-14` | `server/tests/lab-03/staff-workflow.api.test.ts` | **Passed (Feature 12 scope) — 2026-09-19** |
+| **AC-23** | IT Priority modification independent of Requested Priority | `API-STAFF-03`, `UI-STAFF-01`, `E2E-STAFF-01` | `server/tests/lab-03/staff-workflow.api.test.ts`<br>`client/tests/lab-03/StaffTicketDetail.test.tsx`<br>`e2e/lab-03/staff-ticket-flow.spec.ts` | **Passed — 2026-09-19** |
+| **AC-24** | Permitted status transitions, same-status no-ops, invalid transitions | `UNIT-STAT-01`–`UNIT-STAT-03`, `API-STAFF-04`, `API-STAFF-05`, `UI-STAFF-01` | `server/tests/lab-03/unit/status-transitions.test.ts`<br>`server/tests/lab-03/staff-workflow.api.test.ts`<br>`client/tests/lab-03/StaffTicketDetail.test.tsx` | **Passed — 2026-09-19** |
 | **AC-25** | Admin user list search & single-role filtering | `API-ADM-01`, `UI-ADM-01`, `E2E-ADM-01`, `E2E-A11Y-01`, `E2E-RESP-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/user-administration.spec.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
 | **AC-26** | Admin user creation, password length check & duplicate rejection | `API-ADM-02`, `API-ADM-03`, `API-ADM-09`, `UI-ADM-02`, `E2E-FAIL-01`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
 | **AC-27** | Admin user editing & duplicate email check on update | `API-ADM-04`, `UI-ADM-03`, `E2E-FAIL-01`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
@@ -95,10 +100,10 @@ toktickit/
 
 | UI Spec Section | Specification Requirement | Planned Test IDs | Target Test File | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **UI-Spec §6.1, §7** | Responsive Breakpoints & Zero Page Overflow (375x812, 768x1024, 1440x900 across 8 views; tablet table container scrolling; mobile card stacking; 0px page overflow) | `UI-RESP-01`, `E2E-RESP-01` | `client/tests/lab-03/StaffTicketQueue.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
+| **UI-Spec §6.1, §7** | Responsive Breakpoints & Zero Page Overflow (375x812, 768x1024, 1440x900 across implemented views; tablet table container scrolling; mobile card stacking; 0px page overflow) | `UI-RESP-01`, `E2E-RESP-01` | `client/tests/lab-03/StaffTicketQueue.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed for Features 11–12 — 2026-09-19; Feature 13 views Not Run** |
 | **UI-Spec §6.2, §7** | Keyboard Navigation & Focus Management (Tab/Shift+Tab order, visible focus rings, dialog initial focus, focus trap containment, and trigger restoration) | `UI-ADM-04`, `E2E-A11Y-01` | `client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **UI-Spec §5, §7** | Mutation Failure Recovery & Input Preservation (Server error display, preservation of uncommitted textarea/form input, re-enabled submit CTA, no false positive mutation) | `E2E-FAIL-01` | `e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **UI-Spec §4.3, §4.5, §7** | Safe Text Rendering & XSS Injection Prevention (Literal rendering of HTML/script strings in public comments and confidential internal notes; no script execution) | `API-COM-01`, `API-NOTE-03`, `E2E-TEXT-01` | `server/tests/lab-03/comments-notes.api.test.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
+| **UI-Spec §5, §7** | Mutation Failure Recovery & Input Preservation (Server error display, preservation of uncommitted textarea/form input, re-enabled submit CTA, no false positive mutation) | `E2E-FAIL-01` | `e2e/lab-03/ui-quality.spec.ts` | **Passed for Feature 12 comments — 2026-09-19; Feature 13 user save Not Run** |
+| **UI-Spec §4.3, §4.5, §7** | Safe Text Rendering & XSS Injection Prevention (Literal rendering of HTML/script strings in public comments and confidential internal notes; no script execution) | `API-COM-01`, `API-NOTE-03`, `E2E-TEXT-01` | `server/tests/lab-03/staff-workflow.api.test.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed — 2026-09-19** |
 
 ---
 
@@ -152,13 +157,13 @@ toktickit/
 - `API-RBAC-04`: Demoting a user's role from IT Staff to Requester immediately causes next staff API call to return 403 `FORBIDDEN`. [AC-30]
 - `API-RBAC-05`: Deactivating a user immediately causes next request from active session to return 401 `UNAUTHENTICATED`. [AC-30]
 
-#### `server/tests/lab-03/staff-queue.api.test.ts`
+#### `server/tests/lab-03/staff-workflow.api.test.ts` (queue coverage)
 - `API-QUEUE-01`: Staff retrieves queue with default sort (`createdAt DESC`, secondary tie-breaker `id DESC`). [AC-19]
 - `API-QUEUE-02`: Staff filters queue by status (`OPEN`, `IN_PROGRESS`), category, and owner (`unassigned`, `me`). [AC-19]
 - `API-QUEUE-03`: Staff searches queue by ticket number, summary, and requester name. [AC-19]
 - `API-QUEUE-04`: Invalid sort column or page size returns 400 `VALIDATION_ERROR`. [AC-19]
 
-#### `server/tests/lab-03/staff-ticket-detail.api.test.ts`
+#### `server/tests/lab-03/staff-workflow.api.test.ts` (workflow coverage)
 - `API-STAFF-01`: IT Staff self-claims an unassigned ticket in status `NEW`; `ownerId` updates and status advances to `OPEN`. [AC-20]
 - `API-STAFF-02`: Assigning ticket to an inactive user or user with role `REQUESTER` returns 400 `INELIGIBLE_OWNER`. [AC-21]
 - `API-STAFF-03`: Updating IT Priority updates `itPriority` while leaving `requestedPriority` unchanged. [AC-23]
@@ -174,7 +179,7 @@ toktickit/
 - `API-STAT-13`: `appear-resolved` called on another user's ticket returns 404 `TICKET_NOT_FOUND`. [AC-16]
 - `API-STAFF-14`: Unassigning ticket (`ownerId: null`) and valid reassignment to another active staff succeeds. [AC-22]
 
-#### `server/tests/lab-03/comments-notes.api.test.ts`
+#### `server/tests/lab-03/staff-workflow.api.test.ts` (comments and notes coverage)
 - `API-COM-01`: Requester posts public comment on owned ticket; returns 201 with stored raw text (no double escaping). [AC-12]
 - `API-COM-02`: Staff posts public comment on any ticket. [AC-12]
 - `API-COM-03`: Requester posting manual comment clears `requesterResolved` flag. [AC-15]

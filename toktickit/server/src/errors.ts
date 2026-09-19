@@ -22,6 +22,7 @@ const errors = {
   INVALID_STATUS_TRANSITION: { status: 400, message: "That status transition is not permitted." },
   INVALID_STATUS_FOR_RESOLUTION: { status: 400, message: "Resolution cannot be indicated for the current ticket status." },
   INELIGIBLE_OWNER: { status: 400, message: "The specified owner is inactive or does not have a permitted role." },
+  OWNER_CONFLICT: { status: 409, message: "This ticket was claimed by another user." },
   // User management
   USER_NOT_FOUND: { status: 404, message: "User not found." },
   DUPLICATE_EMAIL: { status: 409, message: "An account with that email address already exists." },

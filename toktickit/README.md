@@ -125,6 +125,8 @@ Development attachments default to private `server/uploads/attachments/`. `UPLOA
 
 From `server/`, `npm.cmd run test:db` prepares the API-test database configured by `TEST_DATABASE_URL` / `.env.test` (default database name `toktickit_test`), then `npm.cmd test` runs API tests. The database name must end in `_test`. From `client/`, run `npm.cmd test`.
 
+Feature 12 adds the authenticated Staff Queue and ticket workflow for IT Staff and Administrators, including assignment, IT priority, controlled status transitions, public comments, confidential internal notes, and the requester resolution indication. Its API coverage is consolidated in `server/tests/lab-03/staff-workflow.api.test.ts`; browser flows are in `e2e/lab-03/staff-ticket-flow.spec.ts` and responsive/failure/safe-text checks remain in `e2e/lab-03/ui-quality.spec.ts`.
+
 Feature 10 migration and seed verification uses disposable databases whose
 names begin `toktickit_feature10_` and end `_test`:
 
