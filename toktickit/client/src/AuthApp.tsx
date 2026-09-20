@@ -8,6 +8,7 @@ import { MyTickets } from "./MyTickets.js";
 import { RequesterTicketDetail } from "./RequesterTicketDetail.js";
 import { StaffTicketQueue } from "./StaffTicketQueue.js";
 import { StaffTicketDetail } from "./StaffTicketDetail.js";
+import { UserManagement } from "./UserManagement.js";
 import { navigate, usePathname } from "./navigation.js";
 
 function Router() {
@@ -20,7 +21,8 @@ function Router() {
     else if (state === "authenticated") {
       const requesterPath = path === "/tickets" || path === "/tickets/new" || /^\/tickets\/[^/]+$/.test(path);
       const staffPath = (path === "/staff/queue" || /^\/staff\/tickets(?:\/[^/]+)?$/.test(path)) && user?.role !== "REQUESTER";
-      if (!requesterPath && !staffPath) navigate(user?.role === "REQUESTER" ? "/tickets" : "/staff/queue", true);
+      const adminPath = path === "/admin/users" && user?.role === "ADMINISTRATOR";
+      if (!requesterPath && !staffPath && !adminPath) navigate(user?.role === "REQUESTER" ? "/tickets" : user?.role === "ADMINISTRATOR" ? "/admin/users" : "/staff/queue", true);
     }
   }, [state, path, user?.role]);
 
@@ -44,7 +46,8 @@ function Router() {
   // Authenticated — route to the right page
   return (
     <AppShell>
-      {(path === "/staff/queue" || path === "/staff/tickets") && user?.role !== "REQUESTER" ? <StaffTicketQueue /> :
+      {path === "/admin/users" && user?.role === "ADMINISTRATOR" ? <UserManagement /> :
+       (path === "/staff/queue" || path === "/staff/tickets") && user?.role !== "REQUESTER" ? <StaffTicketQueue /> :
        /^\/staff\/tickets\/[^/]+$/.test(path) && user?.role !== "REQUESTER" ? <StaffTicketDetail key={path} id={Number(path.split("/")[3])} /> :
        path === "/tickets/new" ? <CreateTicket /> :
        /^\/tickets\/[^/]+$/.test(path) ? <RequesterTicketDetail key={path} id={Number(path.split("/")[2])} /> :
