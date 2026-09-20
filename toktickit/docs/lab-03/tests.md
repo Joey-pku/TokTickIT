@@ -2,7 +2,7 @@
 
 > **Document Status**: Draft — Pending Review  
 > **Engineering Contracts**: [`specification.md`](./specification.md), [`ui-spec.md`](./ui-spec.md), [`api-spec.md`](./api-spec.md)  
-> **Execution State**: **Partial** — Features 10–12 passed on 2026-09-19; Feature 13 administrator user-management tests remain **Not Run**.
+> **Execution State**: **Complete** — Features 10–13 passed on 2026-09-20.
 
 ---
 
@@ -23,7 +23,7 @@
 - **Seed Invariance**: Seed tests verify that repeated runs do not overwrite user-edited emails, names, passwords, or operational ticket states.
 - **CSRF Test Client**: Integration test requests include `.set("X-Requested-With", "XMLHttpRequest")` and `.set("Origin", "http://localhost:5173")` to satisfy the server CSRF middleware.
 
-### 1.3 Test File Tree (implemented Feature 10–12 slice)
+### 1.3 Test File Tree (implemented Feature 10–13 slice)
 ```
 toktickit/
 ├── server/tests/
@@ -35,6 +35,7 @@ toktickit/
 │       ├── auth.api.test.ts                     <- Login, rate limits, CSRF, session expiry, logout replay
 │       ├── authorization.api.test.ts            <- RBAC matrix, requester ownership, 404 info-hiding
 │       ├── staff-workflow.api.test.ts           <- Queue, workflow, comments, notes, resolution intent
+│       ├── users-admin.api.test.ts               <- Provisioning, safety, revocation, cleanup, concurrency
 │       └── unit/status-transitions.test.ts      <- Eight-state transition matrix
 ├── server/scripts/
 │   └── test-feature10.mjs                       <- Dedicated migration and seed preservation harness
@@ -46,12 +47,14 @@ toktickit/
 │       ├── Login.test.tsx                       <- Login form, password toggle, busy state, alerts, responsive
 │       ├── ChangePassword.test.tsx              <- First-login gate, complexity checklist, submit
 │       ├── StaffTicketQueue.test.tsx            <- Queue display, filters, and failure state
-│       └── StaffTicketDetail.test.tsx           <- Workflow controls and confidential note styling
+│       ├── StaffTicketDetail.test.tsx           <- Workflow controls and confidential note styling
+│       └── UserManagement.test.tsx              <- List, create/edit/reset dialogs and input clearing
 └── e2e/
     ├── lab-02/                                  <- Lab 2 E2E (adapted to real login)
     └── lab-03/
         ├── authentication.spec.ts               <- Login, mandatory first-login change, logout flow
         ├── staff-ticket-flow.spec.ts            <- Claim, priority, status, notes, requester resolution
+        ├── user-administration.spec.ts           <- Provisioning, safety, reset, mandatory password change
         └── ui-quality.spec.ts                   <- Responsive, keyboard, failure, and safe-text coverage
 ```
 
@@ -87,11 +90,11 @@ toktickit/
 | **AC-22** | Historical owner references and orphan cleanup on reopen | `API-STAFF-10`, `API-STAFF-14` | `server/tests/lab-03/staff-workflow.api.test.ts` | **Passed (Feature 12 scope) — 2026-09-19** |
 | **AC-23** | IT Priority modification independent of Requested Priority | `API-STAFF-03`, `UI-STAFF-01`, `E2E-STAFF-01` | `server/tests/lab-03/staff-workflow.api.test.ts`<br>`client/tests/lab-03/StaffTicketDetail.test.tsx`<br>`e2e/lab-03/staff-ticket-flow.spec.ts` | **Passed — 2026-09-19** |
 | **AC-24** | Permitted status transitions, same-status no-ops, invalid transitions | `UNIT-STAT-01`–`UNIT-STAT-03`, `API-STAFF-04`, `API-STAFF-05`, `UI-STAFF-01` | `server/tests/lab-03/unit/status-transitions.test.ts`<br>`server/tests/lab-03/staff-workflow.api.test.ts`<br>`client/tests/lab-03/StaffTicketDetail.test.tsx` | **Passed — 2026-09-19** |
-| **AC-25** | Admin user list search & single-role filtering | `API-ADM-01`, `UI-ADM-01`, `E2E-ADM-01`, `E2E-A11Y-01`, `E2E-RESP-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/user-administration.spec.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-26** | Admin user creation, password length check & duplicate rejection | `API-ADM-02`, `API-ADM-03`, `API-ADM-09`, `UI-ADM-02`, `E2E-FAIL-01`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-27** | Admin user editing & duplicate email check on update | `API-ADM-04`, `UI-ADM-03`, `E2E-FAIL-01`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-28** | Admin password reset & immediate session revocation | `API-ADM-07`, `UI-ADM-04`, `E2E-ADM-02`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/user-administration.spec.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **AC-29** | Admin safety constraints (self-deactivation, last admin) | `API-ADM-05`, `API-ADM-06`, `UI-ADM-03`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
+| **AC-25** | Admin user list search & single-role filtering | `API-ADM-01`, `UI-ADM-01`, `E2E-ADM-01`, `E2E-A11Y-01`, `E2E-RESP-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/user-administration.spec.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed — 2026-09-20** |
+| **AC-26** | Admin user creation, password length check & duplicate rejection | `API-ADM-02`, `API-ADM-03`, `API-ADM-09`, `UI-ADM-02`, `E2E-FAIL-01`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed — 2026-09-20** |
+| **AC-27** | Admin user editing & duplicate email check on update | `API-ADM-04`, `UI-ADM-03`, `E2E-FAIL-01`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed — 2026-09-20** |
+| **AC-28** | Admin password reset & immediate session revocation | `API-ADM-07`, `UI-ADM-04`, `E2E-ADM-02`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/user-administration.spec.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed — 2026-09-20** |
+| **AC-29** | Admin safety constraints (self-deactivation, last admin) | `API-ADM-05`, `API-ADM-06`, `UI-ADM-03`, `E2E-A11Y-01` | `server/tests/lab-03/users-admin.api.test.ts`<br>`client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed — 2026-09-20** |
 | **AC-30** | Forbidden access by role & immediate enforcement upon role demotion | `API-RBAC-01`–`API-RBAC-04`, `API-RBAC-05` | `server/tests/lab-03/authorization.api.test.ts` | **Passed — 2026-09-19** |
 | **AC-31** | Non-destructive migration data preservation | `API-MIG-01` | `server/scripts/test-feature10.mjs` | **Passed — 2026-09-19** |
 | **AC-32** | Canonical seedKey invariance across reruns | `API-SEED-01` | `server/scripts/test-feature10.mjs` | **Passed — 2026-09-19** |
@@ -100,9 +103,9 @@ toktickit/
 
 | UI Spec Section | Specification Requirement | Planned Test IDs | Target Test File | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **UI-Spec §6.1, §7** | Responsive Breakpoints & Zero Page Overflow (375x812, 768x1024, 1440x900 across implemented views; tablet table container scrolling; mobile card stacking; 0px page overflow) | `UI-RESP-01`, `E2E-RESP-01` | `client/tests/lab-03/StaffTicketQueue.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed for Features 11–12 — 2026-09-19; Feature 13 views Not Run** |
-| **UI-Spec §6.2, §7** | Keyboard Navigation & Focus Management (Tab/Shift+Tab order, visible focus rings, dialog initial focus, focus trap containment, and trigger restoration) | `UI-ADM-04`, `E2E-A11Y-01` | `client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Not Run** |
-| **UI-Spec §5, §7** | Mutation Failure Recovery & Input Preservation (Server error display, preservation of uncommitted textarea/form input, re-enabled submit CTA, no false positive mutation) | `E2E-FAIL-01` | `e2e/lab-03/ui-quality.spec.ts` | **Passed for Feature 12 comments — 2026-09-19; Feature 13 user save Not Run** |
+| **UI-Spec §6.1, §7** | Responsive Breakpoints & Zero Page Overflow (375x812, 768x1024, 1440x900 across implemented views; tablet table container scrolling; mobile card stacking; 0px page overflow) | `UI-RESP-01`, `E2E-RESP-01` | `client/tests/lab-03/StaffTicketQueue.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed — 2026-09-20** |
+| **UI-Spec §6.2, §7** | Keyboard Navigation & Focus Management (Tab/Shift+Tab order, visible focus rings, dialog initial focus, focus trap containment, and trigger restoration) | `UI-ADM-04`, `E2E-A11Y-01` | `client/tests/lab-03/UserManagement.test.tsx`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed — 2026-09-20** |
+| **UI-Spec §5, §7** | Mutation Failure Recovery & Input Preservation (Server error display, preservation of uncommitted textarea/form input, re-enabled submit CTA, no false positive mutation) | `E2E-FAIL-01` | `e2e/lab-03/ui-quality.spec.ts` | **Passed — 2026-09-20** |
 | **UI-Spec §4.3, §4.5, §7** | Safe Text Rendering & XSS Injection Prevention (Literal rendering of HTML/script strings in public comments and confidential internal notes; no script execution) | `API-COM-01`, `API-NOTE-03`, `E2E-TEXT-01` | `server/tests/lab-03/staff-workflow.api.test.ts`<br>`e2e/lab-03/ui-quality.spec.ts` | **Passed — 2026-09-19** |
 
 ---

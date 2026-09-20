@@ -77,7 +77,7 @@ test.describe("E2E-RESP-01: Responsive layout", () => {
       }
     });
 
-    test.skip(`No horizontal overflow at ${vpName} — user management`, async ({ page }) => {
+    test(`No horizontal overflow at ${vpName} — user management`, async ({ page }) => {
       await page.setViewportSize(viewport);
       await login(page, process.env.E2E_ADMIN_EMAIL!, process.env.E2E_ADMIN_PASS!);
       for (const path of PAGES_ADMIN) {
@@ -179,17 +179,14 @@ test.describe("E2E-A11Y-01: Keyboard navigation and focus", () => {
     expect(found, "Navigation 'My Tickets' link not reachable by keyboard").toBe(true);
   });
 
-  test.skip("User-management dialog: initial focus, Tab containment, focus restoration", async ({ page }) => {
+  test("User-management dialog: initial focus, Tab containment, focus restoration", async ({ page }) => {
     await login(page, process.env.E2E_ADMIN_EMAIL!, process.env.E2E_ADMIN_PASS!);
     await page.goto("/admin/users");
     await page.waitForLoadState("networkidle");
 
     // Open "Create User" or "Edit User" dialog by clicking the opener button
     const opener = page.locator("button[id^='open-user-dialog'], button:has-text('Create User'), button:has-text('Add User')").first();
-    if (await opener.count() === 0) {
-      test.skip();
-      return;
-    }
+    await expect(opener).toBeVisible();
     const openerId = await opener.getAttribute("id") ?? "opener";
     await opener.click();
     // Dialog should exist
@@ -265,19 +262,19 @@ test.describe("E2E-FAIL-01: Failed mutation error handling", () => {
     }
   });
 
-  test.skip("Failed user save (admin) shows error, preserves values, re-enables save", async ({ page }) => {
+  test("Failed user save (admin) shows error, preserves values, re-enables save", async ({ page }) => {
     await login(page, process.env.E2E_ADMIN_EMAIL!, process.env.E2E_ADMIN_PASS!);
     await page.goto("/admin/users");
     await page.waitForLoadState("networkidle");
     // Open edit dialog
     const editBtn = page.locator("button:has-text('Edit'), button[aria-label^='Edit']").first();
-    if (await editBtn.count() === 0) { test.skip(); return; }
+    await expect(editBtn).toBeVisible();
     await editBtn.click();
     const dialog = page.locator("dialog[open], [role='dialog']").first();
     await expect(dialog).toBeVisible();
     // Fill the name field with something
     const nameInput = dialog.locator("input[id*='name'], input[name='name']").first();
-    if (await nameInput.count() === 0) { test.skip(); return; }
+    await expect(nameInput).toBeVisible();
     const testName = "FAIL-TEST-NAME";
     await nameInput.fill(testName);
     // Intercept PATCH to return 500

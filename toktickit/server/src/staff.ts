@@ -5,6 +5,7 @@ import { getPrisma } from "./prisma.js";
 import { sendError } from "./errors.js";
 import { attachmentSelect } from "./attachment-dto.js";
 import { canTransition, isTicketStatus, type TicketStatus } from "./status-workflow.js";
+import { lockUserEligibility } from "./user-eligibility-lock.js";
 
 export const staff = Router();
 staff.use(requireAuth, requireRole("IT_STAFF"));
@@ -74,17 +75,20 @@ staff.patch("/tickets/:ticketId/assign", async (req, res) => {
   if (!req.is("application/json") || !body || Array.isArray(body) || Object.keys(body).some(k => k !== "ownerId") || !(body.ownerId === null || (typeof body.ownerId === "number" && Number.isInteger(body.ownerId) && body.ownerId > 0))) { sendError(res, "VALIDATION_ERROR", { ownerId: "Owner must be a positive user ID or null." }); return; }
   try {
     const db = getPrisma();
-    if (typeof body.ownerId === "number" && !await db.user.findFirst({ where: { id: body.ownerId, isActive: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } }, select: { id: true } })) { sendError(res, "INELIGIBLE_OWNER"); return; }
-    const current = await db.ticket.findUnique({ where: { id: ticketId }, select: { ownerId: true, currentStatus: true } });
-    if (!current) { sendError(res, "TICKET_NOT_FOUND"); return; }
-    // Assigning yourself is the claim operation. Once another claimant wins,
-    // a concurrent self-claim must conflict instead of silently stealing it.
-    if (body.ownerId === res.locals.userId && current.ownerId !== null && current.ownerId !== res.locals.userId) { sendError(res, "OWNER_CONFLICT"); return; }
-    if (current.ownerId === null && body.ownerId !== null) {
-      const changed = await db.ticket.updateMany({ where: { id: ticketId, ownerId: null }, data: { ownerId: body.ownerId, ...(current.currentStatus === "NEW" ? { currentStatus: "OPEN" } : {}) } });
-      if (!changed.count) { sendError(res, "OWNER_CONFLICT"); return; }
-    } else await db.ticket.update({ where: { id: ticketId }, data: { ownerId: body.ownerId as number | null } });
-    const result = await db.ticket.findUniqueOrThrow({ where: { id: ticketId }, select: { id: true, ticketNumber: true, ownerId: true, currentStatus: true, updatedAt: true, owner: { select: { name: true } } } });
+    const outcome = await db.$transaction(async tx => {
+      await lockUserEligibility(tx);
+      if (typeof body.ownerId === "number" && !await tx.user.findFirst({ where: { id: body.ownerId, isActive: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } }, select: { id: true } })) return { error: "INELIGIBLE_OWNER" as const };
+      const current = await tx.ticket.findUnique({ where: { id: ticketId }, select: { ownerId: true, currentStatus: true } });
+      if (!current) return { error: "TICKET_NOT_FOUND" as const };
+      if (body.ownerId === res.locals.userId && current.ownerId !== null && current.ownerId !== res.locals.userId) return { error: "OWNER_CONFLICT" as const };
+      if (current.ownerId === null && body.ownerId !== null) {
+        const changed = await tx.ticket.updateMany({ where: { id: ticketId, ownerId: null }, data: { ownerId: body.ownerId, ...(current.currentStatus === "NEW" ? { currentStatus: "OPEN" } : {}) } });
+        if (!changed.count) return { error: "OWNER_CONFLICT" as const };
+      } else await tx.ticket.update({ where: { id: ticketId }, data: { ownerId: body.ownerId as number | null } });
+      return { result: await tx.ticket.findUniqueOrThrow({ where: { id: ticketId }, select: { id: true, ticketNumber: true, ownerId: true, currentStatus: true, updatedAt: true, owner: { select: { name: true } } } }) };
+    });
+    if ("error" in outcome && outcome.error) { sendError(res, outcome.error); return; }
+    const result = outcome.result;
     const { owner, ...dto } = result; res.json({ ...dto, ownerName: owner?.name ?? null });
   } catch { sendError(res, "INTERNAL_ERROR"); }
 });

@@ -127,6 +127,8 @@ From `server/`, `npm.cmd run test:db` prepares the API-test database configured 
 
 Feature 12 adds the authenticated Staff Queue and ticket workflow for IT Staff and Administrators, including assignment, IT priority, controlled status transitions, public comments, confidential internal notes, and the requester resolution indication. Its API coverage is consolidated in `server/tests/lab-03/staff-workflow.api.test.ts`; browser flows are in `e2e/lab-03/staff-ticket-flow.spec.ts` and responsive/failure/safe-text checks remain in `e2e/lab-03/ui-quality.spec.ts`.
 
+Feature 13 adds Administrator User Management at `/admin/users`: searchable user listing, account provisioning and editing, activation controls, temporary-password reset with session revocation, last-administrator safeguards, and active-ticket owner cleanup. Administrator operations use the same session and CSRF protections as the rest of Lab 3.
+
 Feature 10 migration and seed verification uses disposable databases whose
 names begin `toktickit_feature10_` and end `_test`:
 
