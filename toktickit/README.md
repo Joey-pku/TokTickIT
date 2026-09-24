@@ -168,3 +168,34 @@ npm.cmd run test:e2e
 The explicit development browser check is `node e2e/support/manual-development.mjs` from `toktickit/`, with development servers already running. **It creates and retains a development verification ticket and a soft-removed attachment audit record.** It is not an isolated test and performs no database cleanup.
 
 See [Part 4 verification](docs/lab-02/verification.md), [AI use](docs/lab-02/ai-use.md), and [review findings](docs/lab-02/reviewer.md). The final submission PDF and human peer-review evidence remain separate delivery responsibilities.
+
+## Lab 3 delivery verification
+
+Use checked-in migrations for an existing development database; `npm.cmd run prisma:migrate` is not a test-database reset. Before running it, confirm the effective database name and stop if Prisma reports drift or requests a reset. `npm.cmd run prisma:seed` is idempotent for canonical `seedKey` records and does not restore user-edited seed account values. Seeded accounts start with a temporary password and require a password change; consult the controlled course/demo setup source rather than placing credentials in documentation.
+
+For an isolated verification on Windows PowerShell:
+
+```powershell
+cd server
+npm.cmd ci
+npm.cmd run test:db
+npm.cmd exec -- prisma validate
+npm.cmd exec -- prisma generate
+npm.cmd run build
+npm.cmd test
+npm.cmd run test:feature10
+
+cd ..\client
+npm.cmd ci
+npm.cmd run build
+npm.cmd test
+
+cd ..
+npm.cmd ci
+npm.cmd exec -- playwright install chromium
+$env:CAPTURE_EVIDENCE = '1'
+$env:E2E_REPORT = 'artifacts/lab-03/results/e2e-final.json'
+npm.cmd run test:e2e
+```
+
+`test:db` accepts only a database name ending `_test`; Playwright uses `toktickit_e2e_test`; the Feature 10 harness accepts only its own guarded disposable names. Do not point any of these checks at development. See [Lab 3 verification](docs/lab-03/verification.md), [traceability](docs/lab-03/tests.md), [AI use](docs/lab-03/ai-use.md), and [review checklist](docs/lab-03/reviewer.md).
