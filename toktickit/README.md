@@ -6,26 +6,71 @@ TokTickIT is an IT Service Desk application.
 
 ```text
 toktickit/
-|-- client/                      # React, TypeScript and Vite frontend
-|   |-- public/                  # Static assets and favicon
-|   |-- src/                     # Pages, components and API clients
-|   `-- tests/                   # Vitest component and client tests
-|-- server/                      # Node.js, Express and TypeScript API
-|   |-- prisma/                  # Schema, migrations and seed data
-|   |-- scripts/                 # Guarded database verification scripts
-|   |-- src/                     # API routes and business logic
-|   `-- tests/                   # Vitest unit and API tests
-|-- e2e/                         # Playwright browser tests and support
-|   |-- lab-02/
-|   |-- lab-03/
-|   `-- support/
-|-- docs/                        # Specifications and delivery records
+|-- client/                            # React + TypeScript frontend
+|   |-- public/favicon.svg             # Browser icon
+|   |-- src/
+|   |   |-- main.tsx, App.tsx          # Frontend entry points
+|   |   |-- AuthApp.tsx, AuthContext.tsx
+|   |   |-- LoginPage.tsx, ChangePasswordPage.tsx
+|   |   |-- AppShell.tsx, BrandMark.tsx, Icons.tsx
+|   |   |-- MyTickets.tsx, CreateTicket.tsx
+|   |   |-- RequesterTicketDetail.tsx
+|   |   |-- StaffTicketQueue.tsx, StaffTicketDetail.tsx
+|   |   |-- UserManagement.tsx
+|   |   |-- AttachmentPicker.tsx, AttachmentSection.tsx
+|   |   |-- RemovalModal.tsx, TicketComponents.tsx
+|   |   |-- api.ts, ticket-api.ts, attachment-api.ts
+|   |   |-- staff-api.ts, admin-api.ts, navigation.ts
+|   |   `-- zen-green.css              # Shared application styles
+|   |-- tests/
+|   |   |-- lab-01/                    # Foundation UI tests
+|   |   |-- lab-02/                    # Requester workflow tests
+|   |   `-- lab-03/                    # Auth, staff and admin tests
+|   |-- index.html
+|   |-- vite.config.ts, tsconfig.json
+|   `-- package.json
+|-- server/                            # Express + TypeScript API
+|   |-- prisma/
+|   |   |-- schema.prisma              # Database models
+|   |   |-- seed.ts, seed-data.ts      # Idempotent sample data
+|   |   `-- migrations/                # Lab 1-3 SQL migrations
+|   |-- scripts/
+|   |   |-- setup-test-db.mjs          # Isolated test DB setup
+|   |   `-- test-feature10.mjs         # Migration/seed verification
+|   |-- src/
+|   |   |-- index.ts, app.ts           # API entry point and middleware
+|   |   |-- auth.ts, admin.ts, staff.ts
+|   |   |-- tickets.ts, attachments.ts
+|   |   |-- attachment-dto.ts
+|   |   |-- attachment-storage.ts
+|   |   |-- attachment-validation.ts
+|   |   |-- status-workflow.ts, ticket-number.ts
+|   |   |-- user-eligibility-lock.ts
+|   |   `-- prisma.ts, errors.ts
+|   |-- tests/
+|   |   |-- lab-01/                    # Health/category API tests
+|   |   |-- lab-02/                    # Requester/attachment API tests
+|   |   `-- lab-03/                    # Auth/staff/admin API tests
+|   |-- .env.example, .env.test
+|   |-- tsconfig.json, vitest.config.ts
+|   `-- package.json
+|-- e2e/
+|   |-- lab-02/                        # Requester browser journeys
+|   |-- lab-03/                        # Auth/staff/admin/UI journeys
+|   `-- support/                       # Fixtures and global setup
+|-- docs/
 |   |-- lab-01/
 |   |-- lab-02/
 |   `-- lab-03/
-|-- artifacts/                   # Saved verification results and screenshots
-|-- package.json                 # Repository-level E2E commands
-`-- playwright.config.ts         # Playwright configuration
+|       |-- specification.md, api-spec.md, ui-spec.md
+|       |-- tests.md, verification.md
+|       `-- ai-use.md, reviewer.md
+|-- artifacts/lab-03/
+|   |-- results/e2e-final.json         # Machine-readable E2E result
+|   `-- screenshots/                   # Reviewed UI evidence
+|-- package.json                       # Playwright command
+|-- playwright.config.ts
+`-- README.md                          # Setup and verification guide
 ```
 
 Generated folders such as `node_modules/`, `dist/`, `test-results/`, private uploads and local `.env` files are omitted.
