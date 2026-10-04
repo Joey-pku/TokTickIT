@@ -29,7 +29,20 @@ The Lab 3 work is reviewed by the same classmates who reviewed Lab 2:
 | Review 1 | Thu Thu Wai | Reviewed the completed Lab 3 work for final submission. |
 | Review 2 | Sai Bhone Myint Myat | Reviewed the completed Lab 3 work for final submission. |
 
-No feature-by-feature merge attribution is claimed in this record. The reviewers' own comments and approvals on GitHub are the authoritative peer-review evidence.
+No reviewer-specific merge attribution is claimed in this record. The reviewers' own comments and approvals on GitHub are the authoritative peer-review evidence.
+
+### Lab 3 issue and pull-request record
+
+The following closed GitHub issues have titles beginning with "Lab 3" and define the Lab 3 delivery work. Each corresponding pull request was merged into `lab3-staging`.
+
+| Issue | Work item | Pull request | Status |
+| --- | --- | --- | --- |
+| [#23](https://github.com/Joey-pku/TokTickIT/issues/23) | Prepare Sprint 3 engineering contract | [#24](https://github.com/Joey-pku/TokTickIT/pull/24) | Merged |
+| [#25](https://github.com/Joey-pku/TokTickIT/issues/25) | User migration and idempotent seed data | [#26](https://github.com/Joey-pku/TokTickIT/pull/26) | Merged |
+| [#27](https://github.com/Joey-pku/TokTickIT/issues/27) | Authentication, permissions, and authenticated requester flow | [#28](https://github.com/Joey-pku/TokTickIT/pull/28) | Merged |
+| [#32](https://github.com/Joey-pku/TokTickIT/issues/32) | Staff Ticket Workflow and Collaboration | [#29](https://github.com/Joey-pku/TokTickIT/pull/29) | Merged |
+| [#31](https://github.com/Joey-pku/TokTickIT/issues/31) | Administrator User Management | [#30](https://github.com/Joey-pku/TokTickIT/pull/30) | Merged |
+| [#33](https://github.com/Joey-pku/TokTickIT/issues/33) | Final Verification and Delivery Documentation | [#34](https://github.com/Joey-pku/TokTickIT/pull/34) | Merged |
 
 ### Student response to review
 
@@ -39,7 +52,7 @@ The completed implementation, automated results, screenshots and delivery docume
 
 The final Lab 3 integration and release review is [PR #35: Lab 3 staging](https://github.com/Joey-pku/TokTickIT/pull/35), from `lab3-staging` to `main`.
 
-**Status:** Open for final review and merge.
+**Status:** Merged into `main`.
 
 The GitHub pull-request page is the authoritative record of its final approval and merge status.
 
