@@ -24,4 +24,8 @@ Review date: 2026-10-04.
 
 ## Final pull request
 
-The final `lab3-staging` to `main` pull request is the Lab 3 integration and release review. It will be created after the latest documentation and interface updates are pushed to `lab3-staging`. The GitHub pull-request page is the authoritative record of its review, approval and merge status.
+The final Lab 3 integration and release review is [PR #35: Lab 3 staging](https://github.com/Joey-pku/TokTickIT/pull/35), from `lab3-staging` to `main`.
+
+**Status:** Open for final review and merge.
+
+The GitHub pull-request page is the authoritative record of its approval and merge status.
