@@ -1,6 +1,6 @@
 # Lab 3 AI assistance record
 
-Dates: 2026-09-19 to 2026-10-03. Antigravity, Codex and ChatGPT were used during the Lab 3 workflow. This record describes assistance supported by the repository history, working files, test artifacts and saved documentation. Precise model versions, complete prompts, contribution percentages and authorship allocations are not established by the available evidence and are not invented here.
+Dates: 2026-09-19 to 2026-10-04. Antigravity, Codex and ChatGPT were used during the Lab 3 workflow. This record describes assistance supported by the repository history, working files, test artifacts and saved documentation. Precise model versions, complete verbatim prompts, contribution percentages and authorship allocations are not established by the available evidence and are not invented here.
 
 ## Instructions and student decisions
 
@@ -20,6 +20,19 @@ Important implementation decisions reflected in the completed work were:
 - Run database and browser tests only against named isolated test databases and temporary attachment storage, never against the development database.
 
 These points summarize decisions visible in the contracts and implementation. They are not reconstructed quotations or a claim that every decision originated with AI.
+
+## Selected prompts by feature
+
+The prompt wording below is summarized in the same style as the Lab 1 AI-use record. It preserves the purpose and constraints of the feature instructions without claiming to reproduce unavailable chat transcripts word for word.
+
+| Feature | Prompt (summarized) | What I did with the result |
+| --- | --- | --- |
+| 10: user migration and seed | Read the approved Lab 3 contracts and implement the Prisma user/session migration and canonical seed without losing Lab 2 data. Make the seed idempotent, preserve user-edited seeded values, enforce case-insensitive email uniqueness, and verify both upgrade and fresh-install paths using guarded disposable test databases. | I added the schema and checked-in migration, canonical seed keys and accounts, ticket-number compatibility, and the isolated `API-MIG-01`/`API-SEED-01` verification harness. |
+| 11: authentication and permissions | Implement database-backed login, logout, current-user and password-change flows. Replace the development requester selector with secure sessions, enforce active accounts, mandatory temporary-password changes, CSRF/origin checks, requester ownership and live role authorization, and add API, component and browser tests. | I implemented the authentication API and UI, hashed session-token storage, cookie handling, password boundaries, login throttling, route guards and replacement authorization coverage. |
+| 12: staff ticket workflow | Implement the IT Staff and Administrator queue and ticket-detail workflow from the contracts, including search/filter/sort/pagination, atomic claiming and assignment, independent IT priority, approved status transitions, public comments, confidential internal notes and the requester resolution indication. Cover concurrency, information hiding and responsive browser behavior. | I added the staff endpoints and screens, status-transition rules, comment/note behavior, requester resolution/reset logic, and the corresponding unit, integration, component and E2E tests. |
+| 13: administrator user management | Implement Administrator User Management with searchable account listing, account creation and editing, activation controls and temporary-password reset. Enforce duplicate-email handling, session revocation, self-deactivation and last-active-administrator safeguards, plus cleanup of active ticket ownership when staff become ineligible. | I added the administration API and UI, serialized safety checks, role and account updates, password reset behavior, and API/component/browser coverage. |
+| 14: verification and delivery | Review the complete Lab 3 implementation against the specification, API contract, UI contract and test plan. Run isolated Prisma, build, Vitest, migration and Playwright checks; inspect assertion coverage and screenshots; correct verified problems; and prepare traceability, verification, AI-use and peer-review delivery records without inventing evidence. | I ran the integrated verification, corrected two evidence-test locators, added selected screenshot automation, inspected the captured desktop/mobile views, and documented results and limitations. |
+| Final profile and branding update | Replace the exposed header account actions with an accessible shared profile dropdown for all roles, add a reusable TokTickIT clock brand and favicon, preserve responsive layouts, update affected tests and screenshots, and finish the Lab 3 documentation and release review record. | I implemented and tested the dropdown interactions and branding, refreshed visual evidence, updated the UI contract and traceability, recorded the two reviewers, and opened the final staging-to-main release PR. |
 
 ## Assistance and validation by feature
 
