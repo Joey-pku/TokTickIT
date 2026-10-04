@@ -1,4 +1,4 @@
-import { test, expect, api, pdf, select, fillTicket } from '../support/fixtures';
+import { test, expect, api, pdf, login, fillTicket } from '../support/fixtures';
 import { mkdir } from 'node:fs/promises';
 
 test('VIS-001–015: selected visual evidence and keyboard/mobile modal inspection', async ({ page, request, fixture }) => {
@@ -10,8 +10,8 @@ test('VIS-001–015: selected visual evidence and keyboard/mobile modal inspecti
       await page.screenshot({ path: `artifacts/lab-02/screenshots/${name}.png`, fullPage: !name.includes('modal'), animations: 'disabled' });
     }
   };
-  await page.goto('/select-requester'); await expect(page.getByRole('combobox')).toBeEnabled(); await capture('desktop-requester');
-  await select(page, fixture.a.id); await fillTicket(page, fixture);
+  await page.goto('/login'); await expect(page.getByRole('button', { name: 'Sign in' })).toBeEnabled(); await capture('desktop-login');
+  await login(page, fixture.a); await fillTicket(page, fixture);
   await page.getByLabel('Ticket Summary').fill('bad'); await page.getByRole('button', { name: 'Submit Ticket' }).click();
   await page.keyboard.press('Tab');
   const focused = page.locator(':focus'); await expect(focused).toHaveCSS('outline-color', 'rgb(11, 122, 70)');
@@ -29,7 +29,7 @@ test('VIS-001–015: selected visual evidence and keyboard/mobile modal inspecti
   expect((await request.patch(`${api}/api/attachments/${removed.id}/remove`, { headers: fixture.headers, data: { removalReason: 'Replaced with the corrected supporting evidence.' } })).status()).toBe(200);
   for (const [name, width, height] of [['desktop',1280,800],['tablet-ui',820,1180],['tablet-vis',768,1024],['mobile-ui',375,667],['mobile-vis',375,812]] as const) {
     await page.setViewportSize({ width, height });
-    if (name === 'mobile-ui') { await page.goto('/select-requester'); await expect(page.getByRole('combobox')).toBeEnabled(); await capture(`${name}-requester`); }
+    if (name === 'mobile-ui') { await page.getByRole('button', { name: 'Open profile menu' }).click(); await page.getByRole('menuitem', { name: 'Logout' }).click(); await expect(page.getByRole('button', { name: 'Sign in' })).toBeEnabled(); await capture(`${name}-login`); await login(page, fixture.a); }
     for (const [screen, path] of [['create','/tickets/new'],['list','/tickets'],['detail',`/tickets/${ticket.id}`]]) {
       await page.goto(path);
       if (screen === 'create') await expect(page.getByRole('button', { name: 'Submit Ticket' })).toBeEnabled();

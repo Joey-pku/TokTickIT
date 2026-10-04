@@ -18,15 +18,18 @@ const page = await context.newPage();
 const mark = step => { result.steps.push(step); console.log(step); };
 try {
   assert.equal((await db.$queryRawUnsafe('SELECT current_database() AS name'))[0].name, 'toktickit');
-  const requesters = (await (await context.request.get(`${result.api}/api/development-requesters`)).json()).items;
-  const a = requesters.find(r => r.name === 'Jennifer Anderson'), b = requesters.find(r => r.name === 'David Lee');
+  const a = await db.user.findFirstOrThrow({ where: { email: 'jennifer.anderson@example.com', role: 'REQUESTER', isActive: true } });
+  const b = await db.user.findFirstOrThrow({ where: { email: 'david.lee@example.com', role: 'REQUESTER', isActive: true } });
   const categories = (await (await context.request.get(`${result.api}/api/categories`)).json()).items;
   const systems = (await (await context.request.get(`${result.api}/api/related-systems`)).json()).items;
-  await page.goto(result.frontend); await page.getByRole('button', { name: 'Check System' }).click(); await page.getByText('Backend: Online').waitFor(); mark('Lab 1 system check online');
-  await page.getByRole('link', { name: 'Select Development Requester' }).click();
-  await page.getByRole('combobox', { name: 'Development Requester' }).selectOption(String(a.id));
-  await page.getByRole('button', { name: 'Continue' }).click(); await page.getByRole('heading', { name: 'My Tickets', exact: true }).waitFor();
-  await page.reload(); assert.equal(await page.evaluate(() => localStorage.getItem('toktickit_selected_requester_id')), String(a.id)); mark('Requester selected and persisted after reload');
+  const login = async user => {
+    await page.goto(`${result.frontend}/login`);
+    await page.getByLabel('Email address').fill(user.email);
+    await page.getByLabel('Password', { exact: true }).fill('Initial123!');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await page.getByRole('heading', { name: 'My Tickets', exact: true }).waitFor();
+  };
+  await login(a); await page.reload(); await page.getByRole('heading', { name: 'My Tickets', exact: true }).waitFor(); mark('Requester authenticated and session persisted after reload');
   await page.goto(`${result.frontend}/tickets/new`);
   await page.getByLabel('Category').selectOption(String(categories[0].id)); await page.getByLabel('Related System').selectOption(String(systems[0].id));
   await page.getByLabel('Ticket Summary').fill('Part 4 manual development verification');
@@ -47,13 +50,11 @@ try {
   await page.getByRole('button', { name: `Remove ${filename}` }).click(); await page.getByLabel('Reason for removal').fill('Manual verification completed; retain this audit record.');
   await page.getByRole('button', { name: 'Confirm Removal' }).click(); await page.getByRole('heading', { name: 'Attachments (0/5)' }).waitFor();
   await page.getByText('Removed Attachments (1)', { exact: true }).click(); await page.getByText('Reason: Manual verification completed; retain this audit record.').waitFor();
-  const headers = { 'x-requester-id': String(a.id) };
-  assert.equal((await context.request.get(`${result.api}/api/attachments/${attachment.id}`, { headers })).status(), 200);
-  assert.equal((await context.request.get(`${result.api}/api/attachments/${attachment.id}/download`, { headers })).status(), 404); mark('Soft-removal audit visible; removed download returns 404');
-  await page.getByRole('button', { name: 'Change Requester' }).click(); await page.getByRole('combobox', { name: 'Development Requester' }).selectOption(String(b.id)); await page.getByRole('button', { name: 'Continue' }).click();
-  await page.getByRole('heading', { name: 'My Tickets', exact: true }).waitFor();
+  assert.equal((await context.request.get(`${result.api}/api/attachments/${attachment.id}`)).status(), 200);
+  assert.equal((await context.request.get(`${result.api}/api/attachments/${attachment.id}/download`)).status(), 404); mark('Soft-removal audit visible; removed download returns 404');
+  await page.getByRole('button', { name: 'Sign out' }).click(); await login(b);
   await page.goto(`${result.frontend}/tickets/${ticket.id}`); await page.getByRole('heading', { name: 'Ticket Not Found' }).waitFor();
-  assert.equal((await context.request.get(`${result.api}/api/tickets/${ticket.id}`, { headers: { 'x-requester-id': String(b.id) } })).status(), 404); mark('Requester switch and cross-requester isolation verified');
+  assert.equal((await context.request.get(`${result.api}/api/tickets/${ticket.id}`)).status(), 404); mark('Requester session switch and cross-requester isolation verified');
   result.status = 'passed'; result.retained = 'New manual verification ticket and removed attachment audit record retained; no development cleanup performed.';
 } catch (error) { result.status = 'failed'; result.error = error.message; throw error; }
 finally { result.finishedAt = new Date().toISOString(); await mkdir('artifacts/lab-02/results', { recursive: true }); await writeFile('artifacts/lab-02/results/manual-development.json', JSON.stringify(result, null, 2)); await browser.close(); await db.$disconnect(); }

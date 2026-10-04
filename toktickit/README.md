@@ -83,10 +83,12 @@ Do not commit `.env` files or secrets.
 
 Use `.env.example` as the template for local environment configuration.
 
-## Lab 2 development and verification
+## Lab 3 authentication and verification
 
-Development Requester selection is a testing identity mechanism, not authentication.
-The Lab 1 system check remains at `/`; Lab 2 starts at `/select-requester`.
+Lab 3 replaces the development requester selector and `x-requester-id` identity with
+database-backed sessions. Open the application and sign in with a seeded account;
+accounts still using their initial password are required to change it before using
+ticket features.
 
 On Windows PowerShell use `npm.cmd` to avoid the local script execution-policy restriction on `npm.ps1`.
 Before migrating, confirm the effective `DATABASE_URL` identifies the intended development database. Environment variables override `.env`.
@@ -123,6 +125,26 @@ Development attachments default to private `server/uploads/attachments/`. `UPLOA
 
 From `server/`, `npm.cmd run test:db` prepares the API-test database configured by `TEST_DATABASE_URL` / `.env.test` (default database name `toktickit_test`), then `npm.cmd test` runs API tests. The database name must end in `_test`. From `client/`, run `npm.cmd test`.
 
+Feature 12 adds the authenticated Staff Queue and ticket workflow for IT Staff and Administrators, including assignment, IT priority, controlled status transitions, public comments, confidential internal notes, and the requester resolution indication. Its API coverage is consolidated in `server/tests/lab-03/staff-workflow.api.test.ts`; browser flows are in `e2e/lab-03/staff-ticket-flow.spec.ts` and responsive/failure/safe-text checks remain in `e2e/lab-03/ui-quality.spec.ts`.
+
+Feature 13 adds Administrator User Management at `/admin/users`: searchable user listing, account provisioning and editing, activation controls, temporary-password reset with session revocation, last-administrator safeguards, and active-ticket owner cleanup. Administrator operations use the same session and CSRF protections as the rest of Lab 3.
+
+Feature 10 migration and seed verification uses disposable databases whose
+names begin `toktickit_feature10_` and end `_test`:
+
+```powershell
+cd server
+npm.cmd run test:feature10
+```
+
+The harness stages the Lab 2 migrations in a temporary directory, verifies an
+upgrade and a fresh installation, and drops only databases it created and
+tracked. It explicitly refuses the development and shared test database names.
+`User.email` case-insensitive uniqueness is maintained by the migration's
+SQL-managed `User_email_lower_key` functional index because Prisma 5 cannot
+declare functional indexes. `Session.token` stores a SHA-256 digest of a future
+opaque cookie token; it must never store the raw cookie token.
+
 For E2E, from `toktickit/`:
 
 ```powershell
@@ -146,3 +168,34 @@ npm.cmd run test:e2e
 The explicit development browser check is `node e2e/support/manual-development.mjs` from `toktickit/`, with development servers already running. **It creates and retains a development verification ticket and a soft-removed attachment audit record.** It is not an isolated test and performs no database cleanup.
 
 See [Part 4 verification](docs/lab-02/verification.md), [AI use](docs/lab-02/ai-use.md), and [review findings](docs/lab-02/reviewer.md). The final submission PDF and human peer-review evidence remain separate delivery responsibilities.
+
+## Lab 3 delivery verification
+
+Use checked-in migrations for an existing development database; `npm.cmd run prisma:migrate` is not a test-database reset. Before running it, confirm the effective database name and stop if Prisma reports drift or requests a reset. `npm.cmd run prisma:seed` is idempotent for canonical `seedKey` records and does not restore user-edited seed account values. Seeded accounts start with a temporary password and require a password change; consult the controlled course/demo setup source rather than placing credentials in documentation.
+
+For an isolated verification on Windows PowerShell:
+
+```powershell
+cd server
+npm.cmd ci
+npm.cmd run test:db
+npm.cmd exec -- prisma validate
+npm.cmd exec -- prisma generate
+npm.cmd run build
+npm.cmd test
+npm.cmd run test:feature10
+
+cd ..\client
+npm.cmd ci
+npm.cmd run build
+npm.cmd test
+
+cd ..
+npm.cmd ci
+npm.cmd exec -- playwright install chromium
+$env:CAPTURE_EVIDENCE = '1'
+$env:E2E_REPORT = 'artifacts/lab-03/results/e2e-final.json'
+npm.cmd run test:e2e
+```
+
+`test:db` accepts only a database name ending `_test`; Playwright uses `toktickit_e2e_test`; the Feature 10 harness accepts only its own guarded disposable names. Do not point any of these checks at development. See [Lab 3 verification](docs/lab-03/verification.md), [traceability](docs/lab-03/tests.md), [AI use](docs/lab-03/ai-use.md), and [peer review record](docs/lab-03/reviewer.md).

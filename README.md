@@ -82,3 +82,5 @@ npm test
 Do not commit `.env` files or secrets.
 
 Use `.env.example` as the template for local environment configuration.
+
+The maintained application setup, isolated Lab 3 test-database commands, seed-account behavior, and Windows PowerShell instructions are in [`toktickit/README.md`](toktickit/README.md). Do not run test setup against the development database.

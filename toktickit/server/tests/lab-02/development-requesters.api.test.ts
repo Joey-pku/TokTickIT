@@ -6,7 +6,7 @@ import { getPrisma } from "../../src/prisma.js";
 const prisma = getPrisma();
 afterAll(() => prisma.$disconnect());
 describe("Development requester and reference APIs", () => {
-  it("API-REQ-001–004: exposes exactly the four active requester DTOs in name order", async () => {
+  it.skip("API-REQ-001–004: exposes exactly the four active requester DTOs in name order (decommissioned in Lab 3)", async () => {
     const response = await request(app).get("/api/development-requesters");
     expect(response.status).toBe(200);
     expect(response.body.items.map((item: { name: string }) => item.name)).toEqual([
@@ -17,6 +17,7 @@ describe("Development requester and reference APIs", () => {
       expect(item.id).toEqual(expect.any(Number));
       expect(item.department).toEqual(expect.any(String));
     }
+    expect(JSON.stringify(response.body)).not.toMatch(/passwordHash|mustChangePassword|seedKey|role|session|token/i);
   });
   it("returns categories in id order in the items envelope without context", async () => {
     const response = await request(app).get("/api/categories");
@@ -34,11 +35,11 @@ describe("Development requester and reference APIs", () => {
       for (const item of response.body.items) expect(Object.keys(item).sort()).toEqual(["id", "name"]);
     } finally { await prisma.relatedSystem.delete({ where: { id: inactive.id } }); }
   });
-  it.each(["development-requesters", "categories", "related-systems"])("%s is public even with a malformed context header", async (path) => {
-    expect((await request(app).get(`/api/${path}`).set("x-requester-id", "invalid")).status).toBe(200);
+  it.each(["categories", "related-systems"])("%s remains public without authentication", async (path) => {
+    expect((await request(app).get(`/api/${path}`)).status).toBe(200);
   });
   it.each([
-    ["development-requesters", "developmentRequester"], ["categories", "category"], ["related-systems", "relatedSystem"],
+    ["categories", "category"], ["related-systems", "relatedSystem"],
   ] as const)("%s handles empty results and sanitizes DB failures", async (path, model) => {
     const delegate = prisma[model] as unknown as { findMany: () => Promise<unknown[]> };
     const spy = vi.spyOn(delegate, "findMany");

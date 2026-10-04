@@ -6,7 +6,19 @@ let f: Awaited<ReturnType<typeof ticketFixtures>>;
 beforeAll(async () => { f = await ticketFixtures(); });
 afterEach(async () => { await f.clear(); });
 afterAll(async () => { await f.dispose(); });
-const post = (body: unknown, id?: number) => request(app).post("/api/tickets").set("x-requester-id", String(id ?? f.a.id)).set("Content-Type", "application/json").send(JSON.stringify(body));
+const post = async (body: unknown, cookieOrUser?: string | { email: string }) => {
+  let cookie = typeof cookieOrUser === "string" ? cookieOrUser : undefined;
+  if (!cookieOrUser) cookie = await f.loginAs(f.a);
+  else if (typeof cookieOrUser === "object") cookie = await f.loginAs(cookieOrUser);
+
+  return request(app)
+    .post("/api/tickets")
+    .set("Cookie", cookie || "")
+    .set("X-Requested-With", "XMLHttpRequest")
+    .set("Content-Type", "application/json")
+    .send(JSON.stringify(body));
+};
+
 it("API-TCK-001–006: creates the exact DTO, assigns ownership, NEW and equal backend timestamps", async () => {
   const before = Date.now();
   const res = await post(f.body);
@@ -55,23 +67,20 @@ it.each([[5, 10], [100, 2000]])("accepts trimmed boundaries %i/%i", async (summa
 it.each(["LOW", "MEDIUM", "HIGH"])("accepts explicit priority %s", async requestedPriority => {
   expect((await post({ ...f.body, requestedPriority })).status).toBe(201);
 });
-it("API-TCK-022–025: preserves exact requester-context errors", async () => {
-  const cases = [
-    [undefined, 400, "MISSING_REQUESTER_CONTEXT"], ["bad", 400, "INVALID_REQUESTER_ID"],
-    [String(f.inactive.id), 404, "REQUESTER_NOT_FOUND"], ["2147483647", 404, "REQUESTER_NOT_FOUND"],
-  ] as const;
-  for (const [id, status, code] of cases) {
-    const req = request(app).post("/api/tickets"); if (id !== undefined) req.set("x-requester-id", id);
-    const res = await req.send(f.body); expect(res.status).toBe(status);
-    expect(res.body).toEqual({ error: { code, message: expect.any(String) } });
-  }
+it("rejects unauthorized and requires X-Requested-With header", async () => {
+  const noAuth = await request(app).post("/api/tickets").set("X-Requested-With", "XMLHttpRequest").send(f.body);
+  expect(noAuth.status).toBe(401);
+  const cookie = await f.loginAs(f.a);
+  const noCsrf = await request(app).post("/api/tickets").set("Cookie", cookie).send(f.body);
+  expect(noCsrf.status).toBe(403);
 });
 it.each([null, [], "text"])("rejects invalid JSON body shape %j", async body => {
-  const res = await request(app).post("/api/tickets").set("x-requester-id", String(f.a.id)).set("Content-Type", "application/json").send(JSON.stringify(body));
+  const res = await post(body);
   expect(res.status).toBe(400); expect(res.body.error.code).toBe("VALIDATION_ERROR");
 });
 it("returns a safe JSON validation envelope for malformed JSON", async () => {
-  const res = await request(app).post("/api/tickets").set("x-requester-id", String(f.a.id)).set("Content-Type", "application/json").send("{broken");
+  const cookie = await f.loginAs(f.a);
+  const res = await request(app).post("/api/tickets").set("Cookie", cookie).set("X-Requested-With", "XMLHttpRequest").set("Content-Type", "application/json").send("{broken");
   expect(res.status).toBe(400);
   expect(res.body).toEqual({ error: { code: "VALIDATION_ERROR", message: expect.any(String), fields: expect.any(Object) } });
   expect(JSON.stringify(res.body)).not.toMatch(/SyntaxError|stack|Prisma/);

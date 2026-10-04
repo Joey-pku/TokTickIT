@@ -1,7 +1,7 @@
-import { test, expect, api, pdf, select, fillTicket } from '../support/fixtures';
+import { test, expect, api, pdf, login, fillTicket } from '../support/fixtures';
 
 test('AC-06–09: validation, submitting guard and preserved form after API failure', async ({ page, fixture }) => {
-  await select(page, fixture.a.id); await page.goto('/tickets/new');
+  await login(page, fixture.a); await page.goto('/tickets/new');
   await expect(page.getByRole('button', { name: 'Submit Ticket' })).toBeEnabled();
   await page.getByRole('button', { name: 'Submit Ticket' }).click();
   await expect(page.getByLabel('Ticket Summary')).toHaveAttribute('aria-invalid', 'true');
@@ -18,7 +18,7 @@ test('AC-06–09: validation, submitting guard and preserved form after API fail
 });
 
 test('AC-11: partial initial upload reports reason and retries from Detail', async ({ page, fixture }) => {
-  await select(page, fixture.a.id); await fillTicket(page, fixture);
+  await login(page, fixture.a); await fillTicket(page, fixture);
   await page.getByLabel('Supporting attachments').setInputFiles([pdf, { ...pdf, name: 'retry.pdf' }]);
   let count = 0;
   await page.route('**/api/tickets/*/attachments', async route => {
@@ -36,22 +36,8 @@ test('AC-11: partial initial upload reports reason and retries from Detail', asy
   await expect(page.getByRole('heading', { name: 'Attachments (2/5)' })).toBeVisible();
 });
 
-test('Requester failed load retains persistence; Retry and successful stale-context check', async ({ page, fixture }) => {
-  await page.addInitScript(id => localStorage.setItem('toktickit_selected_requester_id', id), String(fixture.a.id));
-  await page.route('**/api/development-requesters', route => route.fulfill({ status: 500, json: { error: { code: 'INTERNAL_ERROR', message: 'Unavailable' } } }));
-  await page.goto('/tickets'); await expect(page.getByText('Unable to load Development Requesters. Please try again.')).toBeVisible();
-  expect(await page.evaluate(() => localStorage.getItem('toktickit_selected_requester_id'))).toBe(String(fixture.a.id));
-  await page.unroute('**/api/development-requesters'); await page.getByRole('button', { name: 'Retry' }).click();
-  await expect(page.getByRole('heading', { name: 'My Tickets', exact: true })).toBeVisible();
-  await page.route('**/api/development-requesters', async route => {
-    const response = await route.fetch(); const body = await response.json(); body.items = body.items.filter((item: any) => item.id !== fixture.a.id); await route.fulfill({ response, json: body });
-  });
-  await page.reload(); await expect(page).toHaveURL(/select-requester/);
-  expect(await page.evaluate(() => localStorage.getItem('toktickit_selected_requester_id'))).toBeNull();
-});
-
 test('List API failure has no stale rows and retry recovers', async ({ page, fixture }) => {
-  const ticket = await fixture.ticket(); await select(page, fixture.a.id);
+  const ticket = await fixture.ticket(); await login(page, fixture.a);
   await page.route('**/api/tickets?*', route => route.fulfill({ status: 500, json: { error: { code: 'INTERNAL_ERROR', message: 'Unavailable' } } }));
   await page.getByLabel('Search tickets').fill('printer');
   await expect(page.getByText(/Unable to load tickets from the server/)).toBeVisible(); await expect(page.locator('tbody tr')).toHaveCount(0);
