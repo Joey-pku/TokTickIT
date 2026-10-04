@@ -1,5 +1,12 @@
 # Lab 3 verification and traceability
 
+## Profile dropdown and clock-brand update (2026-10-03)
+
+- `UI-SHELL-01` covers the shared Requester, IT Staff, and Administrator dropdown plus authenticated name/role rendering.
+- `UI-SHELL-02,03` cover the existing Change Password and Logout actions and action dismissal.
+- `UI-SHELL-04,05` cover outside-click dismissal, Arrow Down keyboard opening, Escape dismissal, and trigger focus restoration.
+- The isolated visual-evidence setup captures the open menu at desktop and 375×812 mobile widths; both captures include the reusable clock branding and explicitly check mobile horizontal overflow.
+
 Verification date: 2026-09-24. Results in this file are from Feature 14 and include its uncommitted evidence-test and documentation changes. A passing test is cited only where its assertions exercise the stated behavior.
 
 ## Acceptance-criterion traceability
@@ -11,8 +18,8 @@ Verification date: 2026-09-24. Results in this file are from Feature 14 and incl
 | AC-03 | Per-email failed-login limiter | `AUTH-LOGIN-06` | Passed |
 | AC-04 | Mandatory-change middleware and route | `MCP-01`–`03`; `UI-GATE-01`, `03`; `E2E-AUTH-02` | Passed |
 | AC-05 | Unicode/byte password validator and change endpoint | `UNIT-PWD-01`–`09`; `AUTH-CHPW-01`–`05`; `UI-GATE-01,02` | Passed |
-| AC-06 | Session lookup/expiry and `/auth/me` | `AUTH-ME-02`, `03`; `UI-SHELL-01` | Passed; exact expired boundary is set by the API fixture |
-| AC-07 | Session deletion/replacement and cookie clearing | `AUTH-LOGOUT-01`, `02`; `AUTH-CHPW-06`; `UI-SHELL-02`; `E2E-AUTH-01,03` | Passed |
+| AC-06 | Session lookup/expiry and `/auth/me` | `AUTH-ME-02`, `03`; `UI-SHELL-01` | Passed; shared role profile menu displays authenticated name and role; exact expired boundary is set by the API fixture |
+| AC-07 | Session deletion/replacement and cookie clearing | `AUTH-LOGOUT-01`, `02`; `AUTH-CHPW-06`; `UI-SHELL-02,03`; `E2E-AUTH-01,03` | Passed |
 | AC-08 | Global CSRF/origin middleware | `CSRF-01`, `02`, `02b`, `02c`, `03`; Lab 2 mutation tests | Passed, including precedence and multipart requests |
 | AC-09 | Session-derived ticket requester | `AUTHZ-OWN-02`; `API-TCK-001–006` | Passed; forged `requesterId` is rejected, not trusted |
 | AC-10 | Requester-scoped list query | `API-LST-001–024` | Passed |
@@ -48,14 +55,14 @@ Run from the stated directory in Windows PowerShell:
 | `server/` | `npm.cmd exec -- prisma validate` | Passed; Prisma 5.22.0 schema valid |
 | `server/` | `npm.cmd exec -- prisma generate` | Passed |
 | `server/` | `npm.cmd run build` | Passed |
-| `client/` | `npm.cmd run build` | Passed; Vite 6.4.3, 49 modules |
+| `client/` | `npm.cmd run build` | Passed; Vite 6.4.3, 50 modules (2026-10-04) |
 | `server/` | `npm.cmd run test:db` | Passed; only `toktickit_test` migrated/seeded |
 | `server/` | `npm.cmd test -- --reporter=verbose` | 14 files; 176 passed, 1 skipped |
-| `client/` | `npm.cmd test -- --reporter=verbose` | 15 files; 55 passed, 0 skipped |
+| `client/` | `npm.cmd test` | 15 files; 60 passed, 0 skipped (2026-10-03) |
 | `server/` | `npm.cmd run test:feature10` | Passed `API-MIG-01` and `API-SEED-01` |
 | repository | `$env:CAPTURE_EVIDENCE='1'; $env:E2E_REPORT='artifacts/lab-03/results/e2e-final.json'; npm.cmd run test:e2e` | Final result recorded in `verification.md` |
 | repository root | `git diff --check` | Final result recorded in `verification.md` |
 
 The one server skip is `API-REQ-001–004: exposes exactly the four active requester DTOs in name order (decommissioned in Lab 3)` in `development-requesters.api.test.ts`. It covers the retired Lab 2 development-requester selector. Lab 3 replaces it with session login, `/api/auth/me`, ownership and RBAC tests above; this is not a missing Lab 3 behavior.
 
-Automated browser checks cover the specified 375×812, 768×1024 and 1440×900 layouts, actual overflow geometry, keyboard focus/dialog containment, safe text and failure recovery. The selected screenshots were also visually inspected. Human usability/accessibility review and independent peer approval remain pending.
+Automated browser checks cover the specified 375×812, 768×1024 and 1440×900 layouts, actual overflow geometry, keyboard focus/dialog containment, safe text and failure recovery. The selected screenshots were also visually inspected. The two peer reviews are recorded in `reviewer.md`; final release approval remains attached to the `lab3-staging` to `main` pull request.

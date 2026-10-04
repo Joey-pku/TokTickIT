@@ -29,7 +29,7 @@ test('VIS-001–015: selected visual evidence and keyboard/mobile modal inspecti
   expect((await request.patch(`${api}/api/attachments/${removed.id}/remove`, { headers: fixture.headers, data: { removalReason: 'Replaced with the corrected supporting evidence.' } })).status()).toBe(200);
   for (const [name, width, height] of [['desktop',1280,800],['tablet-ui',820,1180],['tablet-vis',768,1024],['mobile-ui',375,667],['mobile-vis',375,812]] as const) {
     await page.setViewportSize({ width, height });
-    if (name === 'mobile-ui') { await page.getByRole('button', { name: 'Toggle Navigation' }).click(); await page.getByRole('button', { name: 'Sign out' }).click(); await expect(page.getByRole('button', { name: 'Sign in' })).toBeEnabled(); await capture(`${name}-login`); await login(page, fixture.a); }
+    if (name === 'mobile-ui') { await page.getByRole('button', { name: 'Open profile menu' }).click(); await page.getByRole('menuitem', { name: 'Logout' }).click(); await expect(page.getByRole('button', { name: 'Sign in' })).toBeEnabled(); await capture(`${name}-login`); await login(page, fixture.a); }
     for (const [screen, path] of [['create','/tickets/new'],['list','/tickets'],['detail',`/tickets/${ticket.id}`]]) {
       await page.goto(path);
       if (screen === 'create') await expect(page.getByRole('button', { name: 'Submit Ticket' })).toBeEnabled();

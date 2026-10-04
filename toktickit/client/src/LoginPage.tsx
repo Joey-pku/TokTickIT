@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useAuth } from "./AuthContext.js";
 import { ApiCallError } from "./api.js";
+import { BrandMark } from "./BrandMark.js";
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -35,10 +36,7 @@ export function LoginPage() {
     <div className="zen-auth-backdrop">
       <div className="zen-auth-card" role="main">
         <div className="zen-auth-logo" aria-hidden="true">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 5v7l4 2M7 13l3 3 7-7"/>
-          </svg>
+          <BrandMark size={40} />
         </div>
         <h1 className="zen-auth-title">TokTickIT</h1>
         <p className="zen-auth-subtitle">IT Service Desk — Sign in to continue</p>

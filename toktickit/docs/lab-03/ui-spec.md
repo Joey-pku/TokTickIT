@@ -80,7 +80,7 @@ This document establishes the binding visual design and interaction specificatio
 ### 3.1 Header Navigation Layout
 The global navigation header spans the full viewport width:
 - **Height**: `64px` on Desktop/Tablet; `56px` on Mobile.
-- **Brand Identity (Left)**: TokTickIT logo glyph + "TokTickIT" title.
+- **Brand Identity (Left)**: A clear clock-face glyph with hands + "TokTickIT" title. The brand remains a link to the application root; the same clock mark is used on authentication screens and as the favicon.
 - **Role-Based Navigation Tabs (Center-Left)**:
   - **Requester**:
     - `My Tickets` (`/tickets`)
@@ -92,25 +92,22 @@ The global navigation header spans the full viewport width:
     - `User Management` (`/admin/users`)
     - `Ticket Queue` (`/staff/queue`)
 - **User Profile Menu (Right)**:
-  - User Avatar circle (initials, e.g. "JA"), User Name, and Role Badge.
-  - Dropdown trigger showing:
-    - User email and role label.
-    - `Change Password` action (navigates to `/change-password`).
-    - `Sign Out` button (red text / icon).
+  - One avatar-icon button opens a right-aligned dropdown shared by Requester, IT Staff, and Administrator.
+  - The dropdown displays the authenticated user's full name and role badge, followed by `Change Password` and `Logout` actions.
+  - The menu closes after an action, an outside click, or Escape. Escape restores focus to the trigger. The trigger exposes an accessible label, `aria-expanded`, and menu relationship; Arrow Down opens the menu and focuses its first action.
+  - The menu width is constrained to the mobile viewport and must not cause horizontal page overflow.
 
 ```
 +-----------------------------------------------------------------------------------------+
-| [Tick] TokTickIT   [Ticket Queue / User Management]  [Create Ticket] | (JA) Jane Doe [Staff] v|
+| [Clock] TokTickIT   [Ticket Queue / User Management]  [Create Ticket]            | (Profile) |
 +-----------------------------------------------------------------------------------------+
 ```
 
 ### 3.2 Mobile Navigation Drawer
-- Mobile header presents brand logo and an accessible hamburger button (`aria-label="Toggle navigation"`).
+- Mobile header presents the clock brand, an accessible hamburger button (`aria-label="Toggle navigation"`), and the same profile-menu button used at larger sizes.
 - Activating the hamburger opens a slide-over navigation drawer displaying:
-  1. Authenticated user profile card (Avatar, Name, Email, Role badge).
-  2. Role-specific navigation links with minimum touch targets of $48\text{px}$.
-  3. "Change Password" link.
-  4. "Sign Out" button.
+  1. Role-specific navigation links with minimum touch targets of $48\text{px}$.
+- Account identity and actions remain consolidated in the separate profile dropdown; they are not duplicated in the navigation drawer.
 
 ---
 
@@ -121,7 +118,7 @@ The global navigation header spans the full viewport width:
 - **Access**: Public (redirects authenticated users to their role default screen).
 - **Structure**:
   - Centered card container (max-width `440px`) on `--color-page-bg`.
-  - Brand header: TokTickIT logo, "Sign in to your account" heading, subtitle.
+  - Brand header: TokTickIT clock logo, "Sign in to your account" heading, subtitle.
   - Form fields:
     - **Email address**: Input (`type="email"`), placeholder `name@example.com`, autofocus.
     - **Password**: Input (`type="password"`), toggle show/hide password eye button. (Password input is not trimmed).
@@ -401,7 +398,7 @@ Every screen implements dedicated visual representations for the following unive
 | Area | Verification Item | Expected Behavior |
 | :--- | :--- | :--- |
 | **Header** | Role-based navigation items | Requester sees My Tickets/Create; Staff sees Queue/Create; Admin sees User Mgmt/Queue. |
-| **Header** | User profile avatar & menu | Initials avatar, full name, role badge, Change Password link, Sign Out button. |
+| **Header** | User profile avatar & menu | Icon-only accessible trigger; dropdown with full name, role badge, Change Password, and Logout. |
 | **Login** | Password visibility toggle | Clicking eye icon toggles password between masked dots and plain text. |
 | **Login** | Busy state on submit | Sign In button displays spinner and is disabled while authentication request is in flight. |
 | **Change Password** | Password complexity checklist | Dynamic green checkmarks appear as length ($\ge 8$ code points, $\le 72$ bytes), casing, number, symbol, and difference rules pass. |

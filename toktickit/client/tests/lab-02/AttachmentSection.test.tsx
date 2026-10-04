@@ -47,6 +47,6 @@ it("switching requester cancels an attachment action and hides its eventual resu
   let finish!: (value: typeof active) => void; vi.mocked(attachmentApi.uploadAttachment).mockReturnValue(new Promise(resolve => { finish = resolve; }));
   const user = userEvent.setup(); render(<AuthProvider><AuthApp /></AuthProvider>); await user.upload(await screen.findByLabelText("Supporting attachments"), new File(["pdf"], "pending.pdf", { type: "application/pdf" })); await user.dblClick(screen.getByRole("button", { name: "Upload attachments" }));
   expect(attachmentApi.uploadAttachment).toHaveBeenCalledTimes(1); expect(screen.getByRole("button", { name: "Uploading..." })).toBeDisabled();
-  const signal = vi.mocked(attachmentApi.uploadAttachment).mock.calls[0][2]!; await user.click(screen.getByRole("button", { name: "Sign out" })); expect(signal.aborted).toBe(true);
+  const signal = vi.mocked(attachmentApi.uploadAttachment).mock.calls[0][2]!; await user.click(screen.getByRole("button", { name: "Open profile menu" })); await user.click(screen.getByRole("menuitem", { name: "Logout" })); expect(signal.aborted).toBe(true);
   await act(async () => finish(active)); expect(screen.queryByText(/pending.pdf.*uploaded/)).not.toBeInTheDocument();
 });

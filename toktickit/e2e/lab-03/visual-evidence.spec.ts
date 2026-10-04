@@ -24,7 +24,10 @@ test('E2E-VIS-01: capture selected Lab 3 delivery evidence from the isolated sta
   await capture('desktop-authentication');
 
   await login(page, process.env.E2E_REQUESTER_EMAIL!, process.env.E2E_REQUESTER_PASS!);
-  await page.getByRole('button', { name: 'Change password' }).click();
+  await page.getByRole('button', { name: 'Open profile menu' }).click();
+  await expect(page.getByRole('menu')).toBeVisible();
+  await capture('desktop-profile-menu');
+  await page.getByRole('menuitem', { name: 'Change Password' }).click();
   await expect(page.getByRole('heading', { name: 'Change Password' })).toBeVisible();
   await capture('desktop-password-change');
   await page.goto('/tickets');
@@ -33,7 +36,8 @@ test('E2E-VIS-01: capture selected Lab 3 delivery evidence from the isolated sta
   await requesterTicket.click();
   await expect(page.getByRole('heading', { name: 'Ticket Details' })).toBeVisible();
   await capture('desktop-requester-ticket-detail');
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await page.getByRole('button', { name: 'Open profile menu' }).click();
+  await page.getByRole('menuitem', { name: 'Logout' }).click();
 
   await login(page, process.env.E2E_STAFF_EMAIL!, process.env.E2E_STAFF_PASS!);
   await expect(page).toHaveURL(/\/staff\/queue$/);
@@ -43,7 +47,8 @@ test('E2E-VIS-01: capture selected Lab 3 delivery evidence from the isolated sta
   await staffTicket.click();
   await expect(page.getByLabel('IT Priority')).toBeVisible();
   await capture('desktop-staff-ticket-detail');
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await page.getByRole('button', { name: 'Open profile menu' }).click();
+  await page.getByRole('menuitem', { name: 'Logout' }).click();
 
   await login(page, process.env.E2E_ADMIN_EMAIL!, process.env.E2E_ADMIN_PASS!);
   await expect(page).toHaveURL(/\/admin\/users$/);
@@ -51,6 +56,8 @@ test('E2E-VIS-01: capture selected Lab 3 delivery evidence from the isolated sta
   await page.setViewportSize({ width: 375, height: 812 });
   await page.reload();
   await expect(page.getByRole('heading', { name: 'User Management' })).toBeVisible();
+  await page.getByRole('button', { name: 'Open profile menu' }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await capture('mobile-profile-menu');
   await capture('mobile-administrator-users');
 });

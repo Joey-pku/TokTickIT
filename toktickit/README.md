@@ -198,4 +198,4 @@ $env:E2E_REPORT = 'artifacts/lab-03/results/e2e-final.json'
 npm.cmd run test:e2e
 ```
 
-`test:db` accepts only a database name ending `_test`; Playwright uses `toktickit_e2e_test`; the Feature 10 harness accepts only its own guarded disposable names. Do not point any of these checks at development. See [Lab 3 verification](docs/lab-03/verification.md), [traceability](docs/lab-03/tests.md), [AI use](docs/lab-03/ai-use.md), and [review checklist](docs/lab-03/reviewer.md).
+`test:db` accepts only a database name ending `_test`; Playwright uses `toktickit_e2e_test`; the Feature 10 harness accepts only its own guarded disposable names. Do not point any of these checks at development. See [Lab 3 verification](docs/lab-03/verification.md), [traceability](docs/lab-03/tests.md), [AI use](docs/lab-03/ai-use.md), and [peer review record](docs/lab-03/reviewer.md).

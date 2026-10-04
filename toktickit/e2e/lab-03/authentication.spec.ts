@@ -17,7 +17,8 @@ async function login(page: import('@playwright/test').Page, email: string, passw
 test('E2E-AUTH-01: requester signs in, opens My Tickets, and signs out', async ({ page }) => {
   await login(page, process.env.E2E_REQUESTER_EMAIL!, process.env.E2E_REQUESTER_PASS!);
   await expect(page.getByRole('heading', { name: 'My Tickets', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await page.getByRole('button', { name: 'Open profile menu' }).click();
+  await page.getByRole('menuitem', { name: 'Logout' }).click();
   await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
 });
 

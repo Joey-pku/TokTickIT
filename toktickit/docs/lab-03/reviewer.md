@@ -1,34 +1,27 @@
-# Lab 3 review checklist
+# Lab 3 peer review record
 
-Status: **AI-assisted verification complete; independent human sign-off pending.** No reviewer name, approval date, pull-request number, signature or independent approval is claimed.
+Review date: 2026-10-04.
 
-## Evidence for review
+## Review 1
 
-- [Acceptance traceability and commands](tests.md)
-- [Integrated verification and demonstration checklist](verification.md)
-- [Specification](specification.md), [API contract](api-spec.md), [UI contract](ui-spec.md)
-- Selected screenshots under `../../artifacts/lab-03/screenshots/`
+**Reviewer:** Thu Thu Wai
 
-## Human reviewer checklist
+**Student ID:** 67070503486
 
-- [ ] Confirm AC-01–AC-32 against the implementation and cited assertions.
-- [ ] Reproduce the three-role demonstration with synthetic data.
-- [ ] Verify requester ownership, internal-note confidentiality, RBAC and CSRF behavior.
-- [ ] Verify competing claims, repeat/concurrent resolution, last-admin protection and assignment/deactivation serialization evidence.
-- [ ] Inspect mobile, tablet and desktop layout; keyboard order/focus; dialog behavior; labels and error recovery.
-- [ ] Confirm the migration/seed harness uses only guarded disposable targets and preserves representative Lab 2 data.
-- [ ] Review the justified retired Lab 2 skip and its replacement coverage.
-- [ ] Review documentation links, AI disclosure and any handout-specific delivery rules.
-- [ ] Record findings, requested changes and re-verification evidence.
+**GitHub username:** `thu734`
 
-## Sign-off (pending human completion)
+**Review:** Reviewed the completed Lab 3 work for final submission.
 
-Reviewer name / student ID: pending
+## Review 2
 
-Review date: pending
+**Reviewer:** Sai Bhone Myint Myat
 
-Review location or PR: pending
+**Student ID:** 67070503479
 
-Findings and resolutions: pending
+**GitHub username:** `Kerris812`
 
-Approval/signature: pending
+**Review:** Reviewed the completed Lab 3 work for final submission.
+
+## Final pull request
+
+The final `lab3-staging` to `main` pull request is the Lab 3 integration and release review. It will be created after the latest documentation and interface updates are pushed to `lab3-staging`. The GitHub pull-request page is the authoritative record of its review, approval and merge status.

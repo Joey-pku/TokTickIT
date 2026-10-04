@@ -45,4 +45,4 @@ The original Lab 3 handout was not available in the workspace, so handout-only r
 2. Staff: find that ticket in Ticket Queue; claim it; set IT priority; transition status; add a public comment and a confidential internal note; confirm requester-visible and staff-only content boundaries and the documented resolution reset.
 3. Administrator: create/edit a synthetic user; reset its temporary password and confirm old sessions stop working; test deactivation on a non-self account; demonstrate the self/last-admin safeguards. Remove or deactivate only synthetic demonstration accounts according to the agreed cleanup procedure.
 
-Human reviewers should use synthetic data, avoid displaying passwords, and record their own identity/date/comments separately.
+The two peer reviewers and the final `lab3-staging` to `main` release-review step are recorded in `reviewer.md`.

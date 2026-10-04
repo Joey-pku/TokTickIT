@@ -52,7 +52,7 @@ test('Contract: removal validation and focus after the trigger disappears', asyn
 for (const [width, height] of [[1280,800],[820,1180],[375,667],[768,1024],[375,812]]) {
   test(`E2E-008,010 / AC-30–32: responsive ${width}x${height}`, async ({ page, fixture }) => {
     await page.setViewportSize({ width, height }); const ticket = await fixture.ticket(); await login(page, fixture.a);
-    if (width < 768) { await expect(page.locator('.ticket-cards')).toBeVisible(); await expect(page.locator('.ticket-table-wrap')).toBeHidden(); await page.getByRole('button', { name: 'Toggle Navigation' }).click(); await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible(); await page.keyboard.press('Escape'); }
+    if (width < 768) { await expect(page.locator('.ticket-cards')).toBeVisible(); await expect(page.locator('.ticket-table-wrap')).toBeHidden(); await page.getByRole('button', { name: 'Open profile menu' }).click(); await expect(page.getByRole('menuitem', { name: 'Logout' })).toBeVisible(); await page.keyboard.press('Escape'); }
     else await expect(page.locator('.ticket-table-wrap')).toBeVisible();
     if (width >= 768 && width < 992) {
       const search = await page.locator('.ticket-search').boundingBox(); const category = await page.locator('.ticket-toolbar > div').nth(1).boundingBox();

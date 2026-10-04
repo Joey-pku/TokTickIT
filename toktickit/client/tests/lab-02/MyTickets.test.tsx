@@ -80,7 +80,8 @@ it("ignores an old query response after a newer response", async () => {
 });
 it("logout hides tickets and returns to login", async () => {
   const user = userEvent.setup(); render(<AuthProvider><AuthApp /></AuthProvider>); await screen.findAllByText(listed.ticketNumber);
-  await user.click(screen.getByRole("button", { name: "Sign out" }));
+  await user.click(screen.getByRole("button", { name: "Open profile menu" }));
+  await user.click(screen.getByRole("menuitem", { name: "Logout" }));
   expect(await screen.findByRole("button", { name: /sign in/i })).toBeInTheDocument();
   expect(screen.queryByText(listed.ticketNumber)).not.toBeInTheDocument();
 });

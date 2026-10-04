@@ -29,7 +29,8 @@ test('E2E-003,004 and AC-29: requester sessions isolate tickets and attachment r
   const uploaded = await request.post(`${api}/api/tickets/${ticket.id}/attachments`, { headers: fixture.headers, multipart: { file: pdf } });
   expect(uploaded.status()).toBe(201); const attachment = await uploaded.json();
   await login(page, fixture.a); await expect(page.getByRole('link', { name: ticket.ticketNumber, exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await page.getByRole('button', { name: 'Open profile menu' }).click();
+  await page.getByRole('menuitem', { name: 'Logout' }).click();
   await login(page, fixture.b);
   await expect(page.getByRole('heading', { name: 'No Tickets Found' })).toBeVisible();
   await page.goto(`/tickets/${ticket.id}`); await expect(page.getByRole('heading', { name: 'Ticket Not Found' })).toBeVisible();
