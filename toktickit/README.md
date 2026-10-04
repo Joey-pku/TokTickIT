@@ -4,9 +4,31 @@ TokTickIT is an IT Service Desk application.
 
 ## Project Structure
 
-* `client/` - React + TypeScript + Vite frontend
-* `server/` - Node.js + Express + TypeScript backend
-* `server/prisma/` - Prisma database configuration
+```text
+toktickit/
+|-- client/                      # React, TypeScript and Vite frontend
+|   |-- public/                  # Static assets and favicon
+|   |-- src/                     # Pages, components and API clients
+|   `-- tests/                   # Vitest component and client tests
+|-- server/                      # Node.js, Express and TypeScript API
+|   |-- prisma/                  # Schema, migrations and seed data
+|   |-- scripts/                 # Guarded database verification scripts
+|   |-- src/                     # API routes and business logic
+|   `-- tests/                   # Vitest unit and API tests
+|-- e2e/                         # Playwright browser tests and support
+|   |-- lab-02/
+|   |-- lab-03/
+|   `-- support/
+|-- docs/                        # Specifications and delivery records
+|   |-- lab-01/
+|   |-- lab-02/
+|   `-- lab-03/
+|-- artifacts/                   # Saved verification results and screenshots
+|-- package.json                 # Repository-level E2E commands
+`-- playwright.config.ts         # Playwright configuration
+```
+
+Generated folders such as `node_modules/`, `dist/`, `test-results/`, private uploads and local `.env` files are omitted.
 
 ## Prerequisites
 
