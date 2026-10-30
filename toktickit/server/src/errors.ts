@@ -23,13 +23,21 @@ const errors = {
   INVALID_STATUS_FOR_RESOLUTION: { status: 400, message: "Resolution cannot be indicated for the current ticket status." },
   INELIGIBLE_OWNER: { status: 400, message: "The specified owner is inactive or does not have a permitted role." },
   OWNER_CONFLICT: { status: 409, message: "This ticket was claimed by another user." },
+  // Lab 4 Actions Taken
+  ACTION_NOT_FOUND: { status: 404, message: "Action not found." },
+  IDEMPOTENCY_CONFLICT: { status: 409, message: "That idempotency key was already used for different action data." },
+  INELIGIBLE_ASSIGNEE: { status: 409, message: "The specified assignee is inactive or does not have a permitted role." },
+  STALE_ACTION: { status: 409, message: "This action changed after it was loaded." },
+  INVALID_ACTION_TRANSITION: { status: 409, message: "That action status transition is not permitted." },
+  TERMINAL_ACTION: { status: 409, message: "Completed or cancelled actions cannot be edited." },
+  ACTION_UNASSIGNED: { status: 409, message: "This action must be reassigned before it can be edited or completed." },
   // User management
   USER_NOT_FOUND: { status: 404, message: "User not found." },
   DUPLICATE_EMAIL: { status: 409, message: "An account with that email address already exists." },
   CANNOT_DEACTIVATE_SELF: { status: 400, message: "You cannot deactivate your own account." },
   CANNOT_DEACTIVATE_LAST_ADMIN: { status: 400, message: "Cannot deactivate or demote the only active Administrator." },
 } as const;
-export function sendError(res: Response, code: keyof typeof errors, fields: Record<string, string> = {}): void {
+export function sendError(res: Response, code: keyof typeof errors, fields: Record<string, string> = {}, details: Record<string, unknown> = {}): void {
   const { status, message } = errors[code];
-  res.status(status).json({ error: { code, message, ...(code === "VALIDATION_ERROR" ? { fields } : {}) } });
+  res.status(status).json({ error: { code, message, ...(code === "VALIDATION_ERROR" ? { fields } : {}), ...details } });
 }

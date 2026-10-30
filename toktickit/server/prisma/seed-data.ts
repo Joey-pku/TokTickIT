@@ -128,5 +128,58 @@ export async function seed(prisma: PrismaClient): Promise<void> {
       }
       await tx.internalNote.create({ data: { seedKey: definition.seedKey, ticketId: resolvedTickets.get(definition.ticketKey)!.id, authorId: author.id, content: definition.content } });
     }
+
+    // Deterministic, create-if-missing Lab 4 examples. Existing rows are never
+    // updated, so rerunning seed cannot overwrite user-modified Action data.
+    const actions = [
+      {
+        idempotencyKey: "10000000-0000-4000-8000-000000000001", ticketKey: "seed:ticket:2",
+        performerKey: "seed:staff:1", assigneeKey: "seed:staff:2", status: "COMPLETED" as const,
+        description: "Reviewed VPN client and gateway logs.", result: "Identified repeated tunnel renegotiation.",
+        followUpRequired: true, followUpNote: "Monitor gateway stability after configuration update.",
+        attachmentNotes: "See the VPN diagnostic log attached to the Ticket.", at: new Date("2026-10-01T02:00:00.000Z"),
+      },
+      {
+        idempotencyKey: "10000000-0000-4000-8000-000000000002", ticketKey: "seed:ticket:2",
+        performerKey: "seed:staff:2", assigneeKey: "seed:staff:1", status: "IN_PROGRESS" as const,
+        description: "Apply the approved VPN gateway configuration adjustment.", result: "",
+        followUpRequired: false, followUpNote: null, attachmentNotes: null, at: new Date("2026-10-01T03:00:00.000Z"),
+      },
+      {
+        idempotencyKey: "10000000-0000-4000-8000-000000000003", ticketKey: "seed:ticket:2",
+        performerKey: "seed:admin:1", assigneeKey: "seed:staff:3", status: "CANCELLED" as const,
+        description: "Prepare a replacement VPN profile as a fallback.", result: "Fallback was not required.",
+        followUpRequired: false, followUpNote: null, attachmentNotes: null, at: new Date("2026-10-01T04:00:00.000Z"),
+      },
+      {
+        idempotencyKey: "10000000-0000-4000-8000-000000000004", ticketKey: "seed:ticket:3",
+        performerKey: "seed:staff:2", assigneeKey: "seed:admin:1", status: "COMPLETED" as const,
+        description: "Synchronized shared-mailbox group membership.", result: "Requester access was restored.",
+        followUpRequired: false, followUpNote: null, attachmentNotes: "See the access confirmation attached to the Ticket.", at: new Date("2026-10-02T02:00:00.000Z"),
+      },
+      {
+        idempotencyKey: "10000000-0000-4000-8000-000000000005", ticketKey: "seed:ticket:2",
+        performerKey: "seed:staff:3", assigneeKey: "seed:admin:1", status: "PLANNED" as const,
+        description: "Verify VPN stability with the requester after the change window.", result: "",
+        followUpRequired: true, followUpNote: "Contact the requester after one business day.",
+        attachmentNotes: null, at: new Date("2026-10-01T05:00:00.000Z"),
+      },
+    ];
+    for (const definition of actions) {
+      if (await tx.ticketAction.findUnique({ where: { idempotencyKey: definition.idempotencyKey }, select: { id: true } })) continue;
+      const performer = resolvedUsers.get(definition.performerKey)!;
+      const assignee = resolvedUsers.get(definition.assigneeKey)!;
+      if (!performer.isActive || !["IT_STAFF", "ADMINISTRATOR"].includes(performer.role)) conflict(`${definition.idempotencyKey} requires an active staff performer`);
+      if (!assignee.isActive || !["IT_STAFF", "ADMINISTRATOR"].includes(assignee.role)) conflict(`${definition.idempotencyKey} requires an active staff assignee`);
+      await tx.ticketAction.create({ data: {
+        idempotencyKey: definition.idempotencyKey,
+        ticketId: resolvedTickets.get(definition.ticketKey)!.id,
+        performedById: performer.id, assignedToId: assignee.id,
+        description: definition.description, result: definition.result,
+        followUpRequired: definition.followUpRequired, followUpNote: definition.followUpNote,
+        attachmentNotes: definition.attachmentNotes, status: definition.status,
+        createdAt: definition.at, updatedAt: definition.at,
+      } });
+    }
   });
 }
