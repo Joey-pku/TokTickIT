@@ -21,23 +21,26 @@ enum Role {
 }
 
 model User {
-  id                 Int            @id @default(autoincrement())
-  seedKey            String?        @unique
+  id                 Int                    @id @default(autoincrement())
+  seedKey            String?                @unique
   name               String
-  email              String         @unique
+  email              String                 @unique
   department         String?
   passwordHash       String
-  role               Role           @default(REQUESTER)
-  isActive           Boolean        @default(true)
-  mustChangePassword Boolean        @default(true)
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-  requestedTickets   Ticket[]       @relation("TicketRequester")
-  ownedTickets       Ticket[]       @relation("TicketOwner")
-  uploads            Attachment[]   @relation("AttachmentUploader")
-  removals           Attachment[]   @relation("AttachmentRemover")
-  comments           Comment[]      @relation("CommentAuthor")
-  internalNotes      InternalNote[] @relation("InternalNoteAuthor")
+  role               Role                   @default(REQUESTER)
+  isActive           Boolean                @default(true)
+  mustChangePassword Boolean                @default(true)
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  requestedTickets   Ticket[]               @relation("TicketRequester")
+  ownedTickets       Ticket[]               @relation("TicketOwner")
+  uploads            Attachment[]           @relation("AttachmentUploader")
+  removals           Attachment[]           @relation("AttachmentRemover")
+  comments           Comment[]              @relation("CommentAuthor")
+  internalNotes      InternalNote[]         @relation("InternalNoteAuthor")
+  performedActions   TicketAction[]         @relation("ActionPerformer")
+  assignedActions    TicketAction[]         @relation("ActionAssignee")
+  actionRevisions    TicketActionRevision[] @relation("ActionRevisionEditor")
   sessions           Session[]
 }
 
@@ -53,6 +56,13 @@ enum RequestedPriority {
   LOW
   MEDIUM
   HIGH
+}
+
+enum ActionStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
 }
 
 model TicketNumberCounter {
@@ -71,6 +81,8 @@ model Ticket {
   currentStatus       String            @default("NEW")
   requesterResolved   Boolean           @default(false)
   requesterResolvedAt DateTime?
+  workflowVersion     Int               @default(1)
+  resolvedAt          DateTime?
   requesterId         Int
   ownerId             Int?
   categoryId          Int
@@ -84,29 +96,70 @@ model Ticket {
   attachments         Attachment[]
   comments            Comment[]
   internalNotes       InternalNote[]
+  actions             TicketAction[]
 
   @@index([requesterId, createdAt(sort: Desc)])
   @@index([requesterId, currentStatus])
   @@index([ownerId, currentStatus])
 }
 
+model TicketAction {
+  id               Int                    @id @default(autoincrement())
+  idempotencyKey   String                 @unique @db.Uuid
+  ticketId         Int
+  performedById    Int
+  assignedToId     Int?
+  description      String                 @db.VarChar(2000)
+  result           String                 @default("") @db.VarChar(2000)
+  followUpRequired Boolean                @default(false)
+  followUpNote     String?                @db.VarChar(2000)
+  attachmentNotes  String?                @db.VarChar(2000)
+  status           ActionStatus           @default(PLANNED)
+  version          Int                    @default(1)
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  ticket           Ticket                 @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  performedBy      User                   @relation("ActionPerformer", fields: [performedById], references: [id], onDelete: Restrict)
+  assignedTo       User?                  @relation("ActionAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  revisions        TicketActionRevision[]
+
+  @@index([ticketId, createdAt, id])
+  @@index([assignedToId, status, updatedAt(sort: Desc)])
+  @@index([ticketId, status])
+}
+
+model TicketActionRevision {
+  id          Int          @id @default(autoincrement())
+  actionId    Int
+  version     Int
+  editedById  Int
+  beforeState Json
+  afterState  Json
+  createdAt   DateTime     @default(now())
+  action      TicketAction @relation(fields: [actionId], references: [id], onDelete: Restrict)
+  editedBy    User         @relation("ActionRevisionEditor", fields: [editedById], references: [id], onDelete: Restrict)
+
+  @@unique([actionId, version])
+  @@index([actionId, createdAt])
+}
+
 model Attachment {
-  id               Int      @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   ticketId         Int
   originalFileName String
-  storedFileName   String   @unique
+  storedFileName   String    @unique
   filePath         String
   mimeType         String
   fileSizeBytes    Int
-  isRemoved        Boolean  @default(false)
+  isRemoved        Boolean   @default(false)
   removedAt        DateTime?
   removedById      Int?
-  removalReason    String?  @db.VarChar(255)
+  removalReason    String?   @db.VarChar(255)
   uploadedById     Int
-  createdAt        DateTime @default(now())
-  ticket           Ticket   @relation(fields: [ticketId], references: [id], onDelete: Restrict)
-  uploadedBy       User     @relation("AttachmentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
-  removedBy        User?    @relation("AttachmentRemover", fields: [removedById], references: [id], onDelete: SetNull)
+  createdAt        DateTime  @default(now())
+  ticket           Ticket    @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  uploadedBy       User      @relation("AttachmentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+  removedBy        User?     @relation("AttachmentRemover", fields: [removedById], references: [id], onDelete: SetNull)
 
   @@index([ticketId, isRemoved])
 }
