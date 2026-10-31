@@ -6,6 +6,7 @@ export interface StaffTicket { id: number; ticketNumber: string; summary: string
 export interface StaffTicketPage { items: StaffTicket[]; pagination: { page: number; pageSize: number; totalItems: number; totalPages: number } }
 export interface InternalNote extends Comment {}
 export interface StaffTicketDetail extends TicketDetail { requesterEmail: string; ownerName: string | null; internalNotes: InternalNote[] }
+export interface WorkflowResult { id: number; ticketNumber: string; currentStatus: TicketStatus; ownerId: number | null; requesterResolved: boolean; requesterResolvedAt: string | null; workflowVersion: number; resolvedAt: string | null; updatedAt: string }
 export interface StaffUser { id: number; name: string; role: "IT_STAFF" | "ADMINISTRATOR" }
 export interface StaffQuery { search?: string; categoryId?: number; status?: string; itPriority?: Priority; requestedPriority?: Priority; ownerId?: number | "unassigned" | "me"; sortBy?: string; sortOrder?: "asc" | "desc"; page?: number; pageSize?: number }
 
@@ -15,5 +16,5 @@ export const getStaffUsers = () => apiJson<{ items: StaffUser[] }>("/api/staff/u
 const patch = <T>(path: string, body: object) => apiJson<T>(path, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 export const assignTicket = (id: number, ownerId: number | null) => patch(`/api/staff/tickets/${id}/assign`, { ownerId });
 export const updateItPriority = (id: number, itPriority: Priority) => patch(`/api/staff/tickets/${id}/priority`, { itPriority });
-export const updateTicketStatus = (id: number, status: TicketStatus) => patch(`/api/staff/tickets/${id}/status`, { status });
+export const updateTicketStatus = (id: number, status: TicketStatus, workflowVersion: number) => patch<WorkflowResult>(`/api/staff/tickets/${id}/status`, { status, workflowVersion });
 export const postInternalNote = (id: number, content: string) => apiJson<InternalNote>(`/api/tickets/${id}/internal-notes`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content }) });

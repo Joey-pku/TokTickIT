@@ -127,7 +127,7 @@ export function ActionsSection({ ticketId, editable }: { ticketId: number; edita
     } catch { setMessage("Unable to refresh the latest Action. Your draft is still preserved."); }
   }
 
-  return <section className="ticket-panel actions-section" aria-labelledby={`actions-heading-${ticketId}`}>
+  return <section id={`actions-${ticketId}`} tabIndex={-1} className="ticket-panel actions-section" aria-labelledby={`actions-heading-${ticketId}`}>
     <div className="actions-heading"><div><h2 id={`actions-heading-${ticketId}`}>Actions Taken</h2><p>Recorded work and follow-up for this Ticket.</p></div>{editable && !mode && <button className="zen-button zen-primary" onClick={openCreate}>Add Action</button>}</div>
     {message && <div className={`zen-alert ${stale || fields.assignedToId ? "zen-error" : "ticket-success"}`} role="status" aria-live="polite">{message}</div>}
     {state === "loading" && <Skeleton label="Loading Actions Taken..." />}
