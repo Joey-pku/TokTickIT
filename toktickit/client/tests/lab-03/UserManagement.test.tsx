@@ -12,7 +12,10 @@ beforeEach(() => { vi.clearAllMocks(); vi.mocked(admin.listUsers).mockResolvedVa
 it("UI-ADM-01/02: renders users and validates/provisions a new account", async () => {
   const user = userEvent.setup(); vi.mocked(admin.createUser).mockResolvedValue({ user: member }); render(<UserManagement/>);
   expect((await screen.findAllByText("Staff User"))[0]).toBeVisible(); expect(screen.getAllByText("Support")[0]).toBeVisible(); expect(screen.getAllByText("Active")[0]).toBeVisible();
-  await user.click(screen.getByRole("button", { name: "+ Create User" })); expect(screen.getByRole("dialog")).toBeVisible(); expect(screen.getByLabelText("Full Name *")).toHaveFocus();
+  await user.click(screen.getByRole("button", { name: "+ Create User" })); expect(screen.getByRole("dialog")).toHaveAccessibleDescription("Create an account and assign its initial access role."); expect(screen.getByLabelText("Full Name *")).toHaveFocus();
+  await user.click(screen.getByRole("button", { name: "Save User" }));
+  expect(screen.getByLabelText("Full Name *")).toHaveAccessibleDescription("Enter at least 2 characters.");
+  expect(screen.getByLabelText("Email Address *")).toHaveAccessibleDescription("Enter a valid email address.");
   await user.type(screen.getByLabelText("Full Name *"), "New Person"); await user.type(screen.getByLabelText("Email Address *"), "new@example.com"); await user.selectOptions(screen.getByLabelText("Role *"), "REQUESTER"); await user.type(screen.getByLabelText("Initial Password *"), "Temporary1!"); await user.click(screen.getByRole("button", { name: "Save User" }));
   expect(admin.createUser).toHaveBeenCalledWith(expect.objectContaining({ name: "New Person", initialPassword: "Temporary1!", isActive: true }));
 });

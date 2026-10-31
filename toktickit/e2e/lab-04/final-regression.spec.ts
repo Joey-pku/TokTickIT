@@ -96,3 +96,28 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 768, height: 1024
     await expect(page.locator(':focus')).toBeVisible();
   });
 }
+
+test('E2E-02: staff Action and administrator controls remain reachable on 375x812 mobile', async ({ page, fixture }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  const ticket = await fixture.ticket({ summary: 'Mobile UI polish evidence' });
+  await loginAs(page, process.env.E2E_STAFF_EMAIL!, process.env.E2E_STAFF_PASS!);
+  await page.goto('/staff/dashboard');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  await page.goto('/staff/queue');
+  await expect(page.getByRole('heading', { name: 'Mobile UI polish evidence' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  await page.goto(`/staff/tickets/${ticket.id}`);
+  await page.getByRole('button', { name: 'Add Action' }).click();
+  await expect(page.getByRole('heading', { name: 'Add Action' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  await logout(page);
+  await loginAs(page, process.env.E2E_ADMIN_EMAIL!, process.env.E2E_ADMIN_PASS!);
+  await page.goto('/admin/users');
+  await page.getByRole('button', { name: '+ Create User' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Create User' });
+  await expect(dialog).toBeVisible();
+  await expect(page.getByLabel('Full Name *')).toBeFocused();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button', { name: '+ Create User' })).toBeFocused();
+});

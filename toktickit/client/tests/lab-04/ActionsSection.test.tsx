@@ -63,6 +63,7 @@ describe("Feature 17 Actions Taken UI", () => {
     await user.click(screen.getByLabelText(/Follow-Up Required/));
     await user.click(screen.getByRole("button", { name: "Record Action" }));
     expect(screen.getByText("Follow-up Note must be between 1 and 2000 characters.")).toBeVisible();
+    expect(screen.getByLabelText(/Follow-up Note/)).toHaveAccessibleDescription("Follow-up Note must be between 1 and 2000 characters.");
     await user.type(screen.getByLabelText(/Follow-up Note/), "Check again tomorrow");
     vi.mocked(actions.createTicketAction).mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({ ...planned, id: 42 });
     await user.click(screen.getByRole("button", { name: "Record Action" }));
@@ -82,6 +83,7 @@ describe("Feature 17 Actions Taken UI", () => {
     await user.selectOptions(screen.getByLabelText("Status"), "CANCELLED");
     await user.click(screen.getByRole("button", { name: "Save Action" }));
     expect(screen.getByRole("dialog", { name: "Cancel this Action?" })).toBeVisible();
+    expect(screen.getByRole("dialog", { name: "Cancel this Action?" })).toHaveAccessibleDescription("The Action will remain in history and become read-only.");
     expect(screen.getByRole("button", { name: "Cancel Action" })).toHaveFocus();
     await user.keyboard("{Escape}"); expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     cleanup();
