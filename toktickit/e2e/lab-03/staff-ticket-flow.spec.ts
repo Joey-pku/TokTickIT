@@ -7,7 +7,7 @@ const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 
 async function login(page: import('@playwright/test').Page, email: string, password: string) {
-  await page.goto('/login'); await page.getByLabel('Email address').fill(email); await page.getByLabel('Password', { exact: true }).fill(password); await page.getByRole('button', { name: 'Sign in' }).click(); await page.waitForURL(/\/(tickets|staff\/queue)$/);
+  await page.goto('/login'); await page.getByLabel('Email address').fill(email); await page.getByLabel('Password', { exact: true }).fill(password); await page.getByRole('button', { name: 'Sign in' }).click(); await page.waitForURL(/\/(dashboard|staff\/dashboard)$/);
 }
 
 test('E2E-STAFF-01: staff finds, claims, prioritizes, progresses, and notes a ticket', async ({ page }) => {
@@ -18,11 +18,11 @@ test('E2E-STAFF-01: staff finds, claims, prioritizes, progresses, and notes a ti
   const marker = `Workflow ${randomUUID()}`;
   const ticket = await db.ticket.create({ data: { ticketNumber: `E2E-${randomUUID()}`, summary: marker, description: 'Feature 12 staff workflow browser verification.', requestedPriority: 'MEDIUM', itPriority: 'MEDIUM', requesterId: requester.id, categoryId: category.id, relatedSystemId: system.id } });
   try {
-    await login(page, process.env.E2E_STAFF_EMAIL!, process.env.E2E_STAFF_PASS!); await expect(page).toHaveURL(/\/staff\/queue$/);
+    await login(page, process.env.E2E_STAFF_EMAIL!, process.env.E2E_STAFF_PASS!); await page.goto('/staff/queue');
     await page.getByLabel('Search tickets').fill(marker); await expect(page.getByRole('link', { name: ticket.ticketNumber })).toBeVisible(); await page.getByRole('link', { name: ticket.ticketNumber }).click();
-    await page.getByLabel('Assigned Owner').selectOption(String(staff.id)); await expect(page.getByLabel('Current Status')).toHaveValue('OPEN');
+    await page.getByLabel('Assigned Owner').selectOption(String(staff.id)); await expect(page.getByText('New', { exact: true })).toBeVisible();
     await page.getByLabel('IT Priority').selectOption('HIGH'); await expect(page.getByLabel('IT Priority')).toHaveValue('HIGH');
-    await page.getByLabel('Current Status').selectOption('IN_PROGRESS'); await expect(page.getByLabel('Current Status')).toHaveValue('IN_PROGRESS');
+    await page.getByLabel('Change status').selectOption('IN_PROGRESS'); await page.getByRole('button', { name: 'Update Status' }).click(); await expect(page.getByText('In Progress', { exact: true })).toBeVisible();
     await page.getByLabel('Add Internal Note').fill('<b>diagnostic remains plain text</b>'); await page.getByRole('button', { name: 'Post Internal Note' }).click();
     await expect(page.getByText('<b>diagnostic remains plain text</b>')).toBeVisible();
   } finally { await db.internalNote.deleteMany({ where: { ticketId: ticket.id } }); await db.comment.deleteMany({ where: { ticketId: ticket.id } }); await db.ticket.delete({ where: { id: ticket.id } }); await db.$disconnect(); }
