@@ -6,7 +6,7 @@ export interface ListedTicket extends Omit<Ticket, "description" | "requesterId"
 export interface Comment { id: number; ticketId: number; authorId: number; authorName: string; authorRole: string; content: string; createdAt: string }
 export interface TicketDetail extends Ticket { requesterName: string; categoryName: string; relatedSystemName: string; attachments: { id: number; originalFileName: string; mimeType: string; fileSizeBytes: number; isRemoved: boolean; removedAt: string | null; removalReason: string | null; createdAt: string }[]; comments: Comment[] }
 export interface TicketPage { items: ListedTicket[]; pagination: { page: number; pageSize: number; totalItems: number; totalPages: number } }
-export interface TicketQuery { search?: string; categoryId?: number; requestedPriority?: Priority; status?: string; sortBy?: "createdAt" | "ticketNumber" | "updatedAt"; sortOrder?: "asc" | "desc"; page?: number; pageSize?: number }
+export interface TicketQuery { search?: string; categoryId?: number; requestedPriority?: Priority; status?: string; view?: "active" | "resolved"; sortBy?: "createdAt" | "ticketNumber" | "updatedAt" | "resolvedAt"; sortOrder?: "asc" | "desc"; page?: number; pageSize?: number }
 export { ApiCallError as TicketApiError };
 
 async function request<T>(path: string, init: RequestInit): Promise<T> {

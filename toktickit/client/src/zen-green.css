@@ -245,6 +245,17 @@
 .resolution-action { margin-top: 16px; }
 .resolution-action p { color: #475569; font-size: 13px; }
 .actions-section { overflow: hidden; }
+.dashboard-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.ticket-page a.dashboard-metric { display: grid; gap: 6px; color: var(--color-text-main); text-decoration: none; }
+.dashboard-metric strong { color: var(--color-primary-green); font-size: 34px; line-height: 1; }
+.dashboard-metric small { color: var(--color-text-muted); }
+.dashboard-section > header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.dashboard-section h2 { margin: 0; }
+.dashboard-list { display: grid; }
+.dashboard-ticket { display: grid; grid-template-columns: minmax(180px, 1fr) auto auto minmax(170px, auto); align-items: center; gap: 16px; padding: 14px 0; border-top: 1px solid var(--color-border-subtle); }
+.dashboard-ticket:first-child { border-top: 0; }
+.dashboard-ticket p { margin: 4px 0 0; overflow-wrap: anywhere; }
+.dashboard-ticket time, .dashboard-empty { color: var(--color-text-muted); }
 .actions-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .actions-heading h2, .actions-heading h3, .action-card h3 { margin-top: 0; overflow-wrap: anywhere; }
 .actions-heading p, .action-card header p { margin: 4px 0 0; color: var(--color-text-muted); font-size: 13px; }
@@ -267,6 +278,10 @@
 .action-modal-backdrop { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 16px; background: rgb(0 0 0 / 45%); }
 .action-modal { width: min(480px, 100%); padding: 24px; border-radius: 10px; background: white; box-shadow: 0 24px 64px rgb(0 0 0 / 25%); }
 @media (max-width: 767px) {
+  .dashboard-metrics { grid-template-columns: 1fr; gap: 0; }
+  .dashboard-section > header { align-items: flex-start; }
+  .dashboard-ticket { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; }
+  .dashboard-ticket > div, .dashboard-ticket time { grid-column: 1 / -1; }
   .actions-heading, .action-card header { align-items: stretch; flex-direction: column; }
   .actions-heading .zen-button, .action-card-actions .zen-button { width: 100%; }
   .action-details { grid-template-columns: minmax(0, 1fr); }
