@@ -13,6 +13,8 @@ export const created: Ticket = {
   currentStatus: "NEW",
   requesterResolved: false,
   requesterResolvedAt: null,
+  workflowVersion: 1,
+  resolvedAt: null,
   requesterId: 1,
   ownerId: null,
   categoryId: 2,

@@ -1,8 +1,8 @@
 import { apiFetch, ApiCallError } from "./api.js";
 export type Priority = "LOW" | "MEDIUM" | "HIGH";
 export interface CreateTicketBody { categoryId: number; relatedSystemId: number; requestedPriority: Priority; summary: string; description: string }
-export interface Ticket extends CreateTicketBody { id: number; ticketNumber: string; itPriority: Priority; currentStatus: string; requesterResolved: boolean; requesterResolvedAt: string | null; requesterId: number; ownerId: number | null; createdAt: string; updatedAt: string }
-export interface ListedTicket extends Omit<Ticket, "description" | "requesterId" | "ownerId"> { categoryName: string; relatedSystemName: string }
+export interface Ticket extends CreateTicketBody { id: number; ticketNumber: string; itPriority: Priority; currentStatus: string; requesterResolved: boolean; requesterResolvedAt: string | null; workflowVersion: number; resolvedAt: string | null; requesterId: number; ownerId: number | null; createdAt: string; updatedAt: string }
+export interface ListedTicket extends Omit<Ticket, "description" | "requesterId" | "ownerId" | "workflowVersion" | "resolvedAt"> { categoryName: string; relatedSystemName: string }
 export interface Comment { id: number; ticketId: number; authorId: number; authorName: string; authorRole: string; content: string; createdAt: string }
 export interface TicketDetail extends Ticket { requesterName: string; categoryName: string; relatedSystemName: string; attachments: { id: number; originalFileName: string; mimeType: string; fileSizeBytes: number; isRemoved: boolean; removedAt: string | null; removalReason: string | null; createdAt: string }[]; comments: Comment[] }
 export interface TicketPage { items: ListedTicket[]; pagination: { page: number; pageSize: number; totalItems: number; totalPages: number } }

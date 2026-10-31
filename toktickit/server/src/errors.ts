@@ -19,7 +19,7 @@ const errors = {
   INTERNAL_ERROR: { status: 500, message: "An unexpected server error occurred." },
   TICKET_NOT_FOUND: { status: 404, message: "Ticket not found." },
   VALIDATION_ERROR: { status: 400, message: "The request contains invalid data." },
-  INVALID_STATUS_TRANSITION: { status: 400, message: "That status transition is not permitted." },
+  INVALID_STATUS_TRANSITION: { status: 409, message: "That status transition is not permitted." },
   INVALID_STATUS_FOR_RESOLUTION: { status: 400, message: "Resolution cannot be indicated for the current ticket status." },
   INELIGIBLE_OWNER: { status: 400, message: "The specified owner is inactive or does not have a permitted role." },
   OWNER_CONFLICT: { status: 409, message: "This ticket was claimed by another user." },
@@ -31,6 +31,8 @@ const errors = {
   INVALID_ACTION_TRANSITION: { status: 409, message: "That action status transition is not permitted." },
   TERMINAL_ACTION: { status: 409, message: "Completed or cancelled actions cannot be edited." },
   ACTION_UNASSIGNED: { status: 409, message: "This action must be reassigned before it can be edited or completed." },
+  ACTION_REQUIRED: { status: 409, message: "At least one completed action with a result is required before resolving this ticket." },
+  STALE_TICKET: { status: 409, message: "This ticket workflow changed after it was loaded." },
   // User management
   USER_NOT_FOUND: { status: 404, message: "User not found." },
   DUPLICATE_EMAIL: { status: 409, message: "An account with that email address already exists." },
