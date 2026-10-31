@@ -70,3 +70,15 @@ it("UI-SHELL-05: supports keyboard opening and Escape dismissal with restored fo
   expect(screen.queryByRole("menu")).not.toBeInTheDocument();
   expect(trigger).toHaveFocus();
 });
+
+it("UI-SHELL-06: closes mobile navigation with Escape and restores trigger focus", async () => {
+  const user = userEvent.setup();
+  render(<AppShell><h1>Content</h1></AppShell>);
+  const trigger = screen.getByRole("button", { name: "Open navigation" });
+  await user.click(trigger);
+  expect(trigger).toHaveAttribute("aria-expanded", "true");
+  expect(trigger).toHaveAccessibleName("Close navigation");
+  await user.keyboard("{Escape}");
+  expect(trigger).toHaveAttribute("aria-expanded", "false");
+  expect(trigger).toHaveFocus();
+});
