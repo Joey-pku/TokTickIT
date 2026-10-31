@@ -5,6 +5,7 @@ import { requireAuth, csrfProtection } from "./auth.js";
 import { sendError } from "./errors.js";
 import { attachmentSelect } from "./attachment-dto.js";
 import { allocateTicketNumber } from "./ticket-number.js";
+import { activeTicketStatuses, resolvedTicketStatuses } from "./dashboard-rules.js";
 
 export const tickets = Router();
 // All requester-facing ticket routes require a fully authenticated session.
@@ -61,7 +62,7 @@ tickets.get("/", async (req, res) => {
   try {
     const q = req.query;
     const fields: Record<string, string> = Object.create(null);
-    const allowed = ["search", "categoryId", "requestedPriority", "status", "sortBy", "sortOrder", "page", "pageSize"];
+    const allowed = ["search", "categoryId", "requestedPriority", "status", "view", "sortBy", "sortOrder", "page", "pageSize"];
     for (const [key, value] of Object.entries(q)) if (!allowed.includes(key) || typeof value !== "string") fields[key] = "Invalid query parameter.";
     const parse = (key: string, fallback?: number) => {
       if (q[key] === undefined) return fallback;
@@ -72,8 +73,12 @@ tickets.get("/", async (req, res) => {
     const pageSize = parse("pageSize", 10)!;
     const categoryId = parse("categoryId");
     if (![10, 25, 50].includes(pageSize)) fields.pageSize = "Page size must be 10, 25, or 50.";
-    const sortBy = q.sortBy ?? "createdAt", sortOrder = q.sortOrder ?? "desc";
-    if (!["createdAt", "ticketNumber", "updatedAt"].includes(sortBy as string)) fields.sortBy = "Invalid sort column.";
+    const view = q.view;
+    if (view !== undefined && !["active", "resolved"].includes(view as string)) fields.view = "View must be active or resolved.";
+    if (view !== undefined && q.status !== undefined) fields.view = "View and status cannot be combined.";
+    const sortBy = q.sortBy ?? (view === "resolved" ? "resolvedAt" : "createdAt"), sortOrder = q.sortOrder ?? "desc";
+    if (!["createdAt", "ticketNumber", "updatedAt", "resolvedAt"].includes(sortBy as string)) fields.sortBy = "Invalid sort column.";
+    if (sortBy === "resolvedAt" && view !== "resolved") fields.sortBy = "Resolved date sorting requires the resolved view.";
     if (!["asc", "desc"].includes(sortOrder as string)) fields.sortOrder = "Invalid sort order.";
     if (q.requestedPriority !== undefined && !priorities.includes(q.requestedPriority as string)) fields.requestedPriority = "Invalid priority.";
     if (q.status !== undefined && !statuses.includes(q.status as string)) fields.status = "Invalid status.";
@@ -86,6 +91,8 @@ tickets.get("/", async (req, res) => {
       ...(categoryId !== undefined ? { categoryId } : {}),
       ...(q.requestedPriority ? { requestedPriority: q.requestedPriority as RequestedPriority } : {}),
       ...(typeof q.status === "string" ? { currentStatus: q.status } : {}),
+      ...(view === "active" ? { currentStatus: { in: [...activeTicketStatuses] } } : {}),
+      ...(view === "resolved" ? { currentStatus: { in: [...resolvedTicketStatuses] }, resolvedAt: { not: null } } : {}),
       ...(search ? { OR: [{ ticketNumber: { contains: search, mode: "insensitive" } }, { summary: { contains: search, mode: "insensitive" } }] } : {}),
     };
     const { rows, totalItems } = await db.$transaction(async tx => {
