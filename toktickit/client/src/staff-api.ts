@@ -8,7 +8,7 @@ export interface InternalNote extends Comment {}
 export interface StaffTicketDetail extends TicketDetail { requesterEmail: string; ownerName: string | null; internalNotes: InternalNote[] }
 export interface WorkflowResult { id: number; ticketNumber: string; currentStatus: TicketStatus; ownerId: number | null; requesterResolved: boolean; requesterResolvedAt: string | null; workflowVersion: number; resolvedAt: string | null; updatedAt: string }
 export interface StaffUser { id: number; name: string; role: "IT_STAFF" | "ADMINISTRATOR" }
-export interface StaffQuery { search?: string; categoryId?: number; status?: string; itPriority?: Priority; requestedPriority?: Priority; ownerId?: number | "unassigned" | "me"; sortBy?: string; sortOrder?: "asc" | "desc"; page?: number; pageSize?: number }
+export interface StaffQuery { search?: string; categoryId?: number; status?: string; view?: "active"; itPriority?: Priority; requestedPriority?: Priority; ownerId?: number | "unassigned" | "me"; sortBy?: string; sortOrder?: "asc" | "desc"; page?: number; pageSize?: number }
 
 export function listStaffTickets(query: StaffQuery, signal?: AbortSignal) { const params = new URLSearchParams(); for (const [key, value] of Object.entries(query)) if (value !== undefined && value !== "") params.set(key, String(value)); return apiJson<StaffTicketPage>(`/api/staff/tickets?${params}`, { signal }); }
 export const getStaffTicket = (id: number, signal?: AbortSignal) => apiJson<StaffTicketDetail>(`/api/staff/tickets/${id}`, { signal });
