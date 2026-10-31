@@ -6,6 +6,7 @@ import { sendError } from "./errors.js";
 import { attachmentSelect } from "./attachment-dto.js";
 import { canTransition, isTicketStatus, type TicketStatus } from "./status-workflow.js";
 import { lockUserEligibility } from "./user-eligibility-lock.js";
+import { activeTicketStatuses } from "./dashboard-rules.js";
 
 export const staff = Router();
 staff.use(requireAuth, requireRole("IT_STAFF"));
@@ -17,7 +18,7 @@ const flattenAuthor = ({ author, ...item }: any) => ({ ...item, authorName: auth
 staff.get("/tickets", async (req, res) => {
   try {
     const q = req.query, fields: Record<string, string> = {};
-    const allowed = ["search", "categoryId", "status", "itPriority", "requestedPriority", "ownerId", "sortBy", "sortOrder", "page", "pageSize"];
+    const allowed = ["search", "categoryId", "status", "view", "itPriority", "requestedPriority", "ownerId", "sortBy", "sortOrder", "page", "pageSize"];
     for (const [key, value] of Object.entries(q)) if (!allowed.includes(key) || typeof value !== "string") fields[key] = "Invalid query parameter.";
     const positive = (key: string, fallback?: number) => {
       if (q[key] === undefined) return fallback;
@@ -27,8 +28,10 @@ staff.get("/tickets", async (req, res) => {
     const page = positive("page", 1)!, pageSize = positive("pageSize", 10)!, categoryId = positive("categoryId");
     if (![10, 25, 50].includes(pageSize)) fields.pageSize = "Page size must be 10, 25, or 50.";
     if (q.status !== undefined && !isTicketStatus(q.status)) fields.status = "Invalid status.";
+    if (q.view !== undefined && q.view !== "active") fields.view = "View must be active.";
+    if (q.view === "active" && typeof q.status === "string" && isTicketStatus(q.status) && !activeTicketStatuses.includes(q.status as any)) fields.status = "Status contradicts the active view.";
     for (const key of ["itPriority", "requestedPriority"]) if (q[key] !== undefined && !priorities.includes(q[key] as any)) fields[key] = "Invalid priority.";
-    const sortBy = q.sortBy ?? "createdAt", sortOrder = q.sortOrder ?? "desc";
+    const sortBy = q.sortBy ?? (q.view === "active" && q.itPriority === "HIGH" ? "updatedAt" : "createdAt"), sortOrder = q.sortOrder ?? "desc";
     if (!["createdAt", "ticketNumber", "updatedAt", "itPriority", "currentStatus"].includes(sortBy as string)) fields.sortBy = "Invalid sort column.";
     if (!["asc", "desc"].includes(sortOrder as string)) fields.sortOrder = "Invalid sort order.";
     let ownerId: number | "unassigned" | "me" | undefined;
@@ -41,6 +44,7 @@ staff.get("/tickets", async (req, res) => {
     const where: Prisma.TicketWhereInput = {
       ...(categoryId ? { categoryId } : {}),
       ...(typeof q.status === "string" ? { currentStatus: q.status } : {}),
+      ...(q.view === "active" && typeof q.status !== "string" ? { currentStatus: { in: [...activeTicketStatuses] } } : {}),
       ...(q.itPriority ? { itPriority: q.itPriority as RequestedPriority } : {}),
       ...(q.requestedPriority ? { requestedPriority: q.requestedPriority as RequestedPriority } : {}),
       ...(ownerId === "unassigned" ? { ownerId: null } : ownerId === "me" ? { ownerId: res.locals.userId } : typeof ownerId === "number" ? { ownerId } : {}),

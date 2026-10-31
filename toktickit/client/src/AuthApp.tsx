@@ -10,6 +10,7 @@ import { StaffTicketQueue } from "./StaffTicketQueue.js";
 import { StaffTicketDetail } from "./StaffTicketDetail.js";
 import { UserManagement } from "./UserManagement.js";
 import { RequesterDashboard } from "./RequesterDashboard.js";
+import { StaffDashboard } from "./StaffDashboard.js";
 import { navigate, usePathname } from "./navigation.js";
 
 function Router() {
@@ -20,10 +21,10 @@ function Router() {
     if (state === "unauthenticated" && path !== "/login") navigate("/login", true);
     else if (state === "must-change-password" && path !== "/change-password") navigate("/change-password", true);
     else if (state === "authenticated") {
-      const requesterPath = path === "/dashboard" || path === "/tickets" || path === "/tickets/new" || /^\/tickets\/[^/]+$/.test(path);
-      const staffPath = (path === "/staff/queue" || /^\/staff\/tickets(?:\/[^/]+)?$/.test(path)) && user?.role !== "REQUESTER";
+      const requesterPath = user?.role === "REQUESTER" && (path === "/dashboard" || path === "/tickets" || path === "/tickets/new" || /^\/tickets\/[^/]+$/.test(path));
+      const staffPath = (path === "/staff/dashboard" || path === "/staff/queue" || /^\/staff\/tickets(?:\/[^/]+)?$/.test(path)) && user?.role !== "REQUESTER";
       const adminPath = path === "/admin/users" && user?.role === "ADMINISTRATOR";
-      if (!requesterPath && !staffPath && !adminPath) navigate(user?.role === "REQUESTER" ? "/dashboard" : user?.role === "ADMINISTRATOR" ? "/admin/users" : "/staff/queue", true);
+      if (!requesterPath && !staffPath && !adminPath) navigate(user?.role === "REQUESTER" ? "/dashboard" : "/staff/dashboard", true);
     }
   }, [state, path, user?.role]);
 
@@ -49,6 +50,7 @@ function Router() {
     <AppShell>
       {path === "/admin/users" && user?.role === "ADMINISTRATOR" ? <UserManagement /> :
        path === "/dashboard" && user?.role === "REQUESTER" ? <RequesterDashboard /> :
+       path === "/staff/dashboard" && user?.role !== "REQUESTER" ? <StaffDashboard /> :
        (path === "/staff/queue" || path === "/staff/tickets") && user?.role !== "REQUESTER" ? <StaffTicketQueue /> :
        /^\/staff\/tickets\/[^/]+$/.test(path) && user?.role !== "REQUESTER" ? <StaffTicketDetail key={path} id={Number(path.split("/")[3])} /> :
        path === "/tickets/new" ? <CreateTicket /> :

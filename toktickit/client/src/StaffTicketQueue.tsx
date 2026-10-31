@@ -11,7 +11,15 @@ function visiblePages(current: number, total: number) {
 }
 
 export function StaffTicketQueue() {
-  const [query, setQuery] = useState<StaffQuery>({ page: 1, pageSize: 10, sortBy: "createdAt", sortOrder: "desc" });
+  const [query, setQuery] = useState<StaffQuery>(() => {
+    const params = new URLSearchParams(window.location.search), owner = params.get("ownerId"), priority = params.get("itPriority");
+    return { page: 1, pageSize: 10, sortBy: params.get("view") === "active" && priority === "HIGH" ? "updatedAt" : "createdAt", sortOrder: "desc",
+      ...(params.get("view") === "active" ? { view: "active" as const } : {}),
+      ...(params.get("status") ? { status: params.get("status")! } : {}),
+      ...(priority && priorities.includes(priority) ? { itPriority: priority as StaffQuery["itPriority"] } : {}),
+      ...(owner === "me" || owner === "unassigned" ? { ownerId: owner } : {}),
+    };
+  });
   const [items, setItems] = useState<StaffTicket[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
@@ -42,7 +50,7 @@ export function StaffTicketQueue() {
     <div className="ticket-page-heading"><div><p className="ticket-eyebrow">Operations</p><h1>Ticket Queue</h1><p>{totalItems} matching tickets</p></div></div>
     <div className="ticket-panel ticket-toolbar staff-toolbar">
       <label>Search tickets<input className="zen-input" placeholder="Search by ticket number, summary, or requester..." value={query.search ?? ""} onChange={event => update({ search: event.target.value })} /></label>
-      <label>Status<select className="zen-input" value={query.status ?? ""} onChange={event => update({ status: event.target.value || undefined })}><option value="">All Statuses</option>{statuses.map(value => <option key={value}>{value}</option>)}</select></label>
+      <label>Status<select className="zen-input" value={query.status ?? ""} onChange={event => update({ view: undefined, status: event.target.value || undefined })}><option value="">All Statuses</option>{statuses.map(value => <option key={value}>{value}</option>)}</select></label>
       <label>Category<select className="zen-input" value={query.categoryId ?? ""} onChange={event => update({ categoryId: event.target.value ? Number(event.target.value) : undefined })}><option value="">All Categories</option>{categories.map(category => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
       <label>Requested Priority<select className="zen-input" value={query.requestedPriority ?? ""} onChange={event => update({ requestedPriority: (event.target.value || undefined) as StaffQuery["requestedPriority"] })}><option value="">All Priorities</option>{priorities.map(value => <option key={value}>{value}</option>)}</select></label>
       <label>IT Priority<select className="zen-input" value={query.itPriority ?? ""} onChange={event => update({ itPriority: (event.target.value || undefined) as StaffQuery["itPriority"] })}><option value="">All Priorities</option>{priorities.map(value => <option key={value}>{value}</option>)}</select></label>
