@@ -1,268 +1,99 @@
 # TokTickIT
 
-TokTickIT is an IT Service Desk application.
+TokTickIT is a role-based IT service-desk application for submitting, coordinating, documenting, and resolving support Tickets. Lab 4 completes the workflow with auditable Actions Taken, controlled eight-state Ticket transitions, Requester and Staff dashboards, and responsive Zen Green interfaces.
 
-## Project Structure
+## Capabilities
+
+- **Requesters:** sign in, create and search their Tickets, manage attachments, read public comments and Actions Taken, use the personal dashboard, and indicate that a problem appears resolved.
+- **IT Staff:** use the operational dashboard and queue, assign Tickets, set IT priority, add public comments and confidential notes, record and complete Actions, and perform permitted Ticket transitions.
+- **Administrators:** have Staff operational access plus User Management for provisioning, role/active-state changes, and temporary-password resets.
+- **Platform:** database-backed sessions, CSRF checks, role/ownership enforcement, optimistic workflow and Action versions, idempotent Action creation, audit revisions, and private attachment storage.
+
+## Technology and architecture
+
+React 18, TypeScript, Vite, Bootstrap, and the Zen Green CSS system provide the browser client. Express and TypeScript expose a JSON API backed by PostgreSQL through Prisma. Vitest, Testing Library, Supertest, and Playwright provide unit, component, API/integration, and browser coverage.
+
+```text
+Browser (localhost:5173)
+  -> React routes and role shell
+  -> credentialed JSON requests
+API (localhost:3000)
+  -> session, CSRF, role and ownership checks
+  -> service transactions and Prisma
+PostgreSQL + private attachment directory
+```
+
+## Repository layout
 
 ```text
 toktickit/
-|-- client/                            # React + TypeScript frontend
-|   |-- public/favicon.svg             # Browser icon
-|   |-- src/
-|   |   |-- main.tsx, App.tsx          # Frontend entry points
-|   |   |-- AuthApp.tsx, AuthContext.tsx
-|   |   |-- LoginPage.tsx, ChangePasswordPage.tsx
-|   |   |-- AppShell.tsx, BrandMark.tsx, Icons.tsx
-|   |   |-- MyTickets.tsx, CreateTicket.tsx
-|   |   |-- RequesterTicketDetail.tsx
-|   |   |-- StaffTicketQueue.tsx, StaffTicketDetail.tsx
-|   |   |-- UserManagement.tsx
-|   |   |-- AttachmentPicker.tsx, AttachmentSection.tsx
-|   |   |-- RemovalModal.tsx, TicketComponents.tsx
-|   |   |-- api.ts, ticket-api.ts, attachment-api.ts
-|   |   |-- staff-api.ts, admin-api.ts, navigation.ts
-|   |   `-- zen-green.css              # Shared application styles
-|   |-- tests/
-|   |   |-- lab-01/                    # Foundation UI tests
-|   |   |-- lab-02/                    # Requester workflow tests
-|   |   `-- lab-03/                    # Auth, staff and admin tests
-|   |-- index.html
-|   |-- vite.config.ts, tsconfig.json
-|   `-- package.json
-|-- server/                            # Express + TypeScript API
-|   |-- prisma/
-|   |   |-- schema.prisma              # Database models
-|   |   |-- seed.ts, seed-data.ts      # Idempotent sample data
-|   |   `-- migrations/                # Lab 1-3 SQL migrations
-|   |-- scripts/
-|   |   |-- setup-test-db.mjs          # Isolated test DB setup
-|   |   `-- test-feature10.mjs         # Migration/seed verification
-|   |-- src/
-|   |   |-- index.ts, app.ts           # API entry point and middleware
-|   |   |-- auth.ts, admin.ts, staff.ts
-|   |   |-- tickets.ts, attachments.ts
-|   |   |-- attachment-dto.ts
-|   |   |-- attachment-storage.ts
-|   |   |-- attachment-validation.ts
-|   |   |-- status-workflow.ts, ticket-number.ts
-|   |   |-- user-eligibility-lock.ts
-|   |   `-- prisma.ts, errors.ts
-|   |-- tests/
-|   |   |-- lab-01/                    # Health/category API tests
-|   |   |-- lab-02/                    # Requester/attachment API tests
-|   |   `-- lab-03/                    # Auth/staff/admin API tests
-|   |-- .env.example, .env.test
-|   |-- tsconfig.json, vitest.config.ts
-|   `-- package.json
-|-- e2e/
-|   |-- lab-02/                        # Requester browser journeys
-|   |-- lab-03/                        # Auth/staff/admin/UI journeys
-|   `-- support/                       # Fixtures and global setup
-|-- docs/
-|   |-- lab-01/
-|   |-- lab-02/
-|   `-- lab-03/
-|       |-- specification.md, api-spec.md, ui-spec.md
-|       |-- tests.md, verification.md
-|       `-- ai-use.md, reviewer.md
-|-- artifacts/lab-03/
-|   |-- results/e2e-final.json         # Machine-readable E2E result
-|   `-- screenshots/                   # Reviewed UI evidence
-|-- package.json                       # Playwright command
+|-- client/                 React application and component tests
+|-- server/                 Express API, Prisma, migrations and API tests
+|-- e2e/                    Playwright Labs 2-4 journeys and safe setup
+|-- docs/lab-04/            Contract, guides, traceability and evidence
+|-- artifacts/              Opt-in reviewed browser evidence
 |-- playwright.config.ts
-`-- README.md                          # Setup and verification guide
+`-- package.json            Playwright command
 ```
 
-Generated folders such as `node_modules/`, `dist/`, `test-results/`, private uploads and local `.env` files are omitted.
+## Quick start
 
-## Prerequisites
-
-* Node.js >=22 and npm. Part 4 was executed on Node 24.14.0; Node 22 was not execution-tested. The installed `file-type@22.0.2` and `content-disposition@3.0.0` require Node >=22.
-* PostgreSQL
-
-## Frontend Setup
-
-```bash
-cd client
-npm install
-npm run dev
-```
-
-Frontend runs at `http://localhost:5173`.
-
-## Backend Setup
-
-```bash
-cd server
-npm install
-```
-
-Create `.env` from `.env.example` and configure the PostgreSQL connection:
-
-```env
-DATABASE_URL="postgresql://toktickit:toktickit@localhost:5432/toktickit?schema=public"
-PORT=3000
-```
-
-Start the backend:
-
-```bash
-npm run dev
-```
-
-Backend runs at `http://localhost:3000`.
-
-## Database and Prisma
-
-Make sure PostgreSQL is running on port `5432`.
-
-Validate the Prisma schema:
-
-```bash
-npx prisma validate
-```
-
-Run migrations when Prisma models are available:
-
-```bash
-npm run prisma:migrate
-```
-
-## Testing
-
-### Frontend
-
-```bash
-cd client
-npm test
-```
-
-### Backend
-
-```bash
-cd server
-npm test
-```
-
-## Environment Variables
-
-Do not commit `.env` files or secrets.
-
-Use `.env.example` as the template for local environment configuration.
-
-## Lab 3 authentication and verification
-
-Lab 3 replaces the development requester selector and `x-requester-id` identity with
-database-backed sessions. Open the application and sign in with a seeded account;
-accounts still using their initial password are required to change it before using
-ticket features.
-
-On Windows PowerShell use `npm.cmd` to avoid the local script execution-policy restriction on `npm.ps1`.
-Before migrating, confirm the effective `DATABASE_URL` identifies the intended development database. Environment variables override `.env`.
-From `server/`:
+Requirements: Node.js 22 or newer, npm, and PostgreSQL. Commands below are run from this `toktickit/` directory; use `npm.cmd` instead of `npm` on Windows systems that block `npm.ps1`.
 
 ```powershell
+cd server
 npm.cmd ci
+Copy-Item .env.example .env
+# Edit .env and verify DATABASE_URL names the intended development database.
 npm.cmd exec -- prisma migrate status
 npm.cmd run prisma:migrate
 npm.cmd run prisma:seed
-npm.cmd exec -- prisma validate
-$env:NODE_ENV = 'development'
-$env:PORT = '3000'
 npm.cmd run dev
 ```
 
-Apply checked-in migrations only. If Prisma reports drift, requests a reset, or proposes unexpected schema work, stop and investigate. Never run test cleanup against development. Stop project server processes before regenerating Prisma Client on Windows if its engine DLL is locked.
-
-From a separate terminal in `client/`:
+In another terminal:
 
 ```powershell
+cd client
 npm.cmd ci
-$env:VITE_API_URL = 'http://localhost:3000'
+Copy-Item .env.example .env
 npm.cmd run dev -- --host localhost --strictPort
 ```
 
-PostgreSQL uses localhost:5432; frontend uses http://localhost:5173; API uses http://localhost:3000. This machine's PostgreSQL service is `postgresql-x64-18`; installations elsewhere may use a different service name. Do not stop another process merely to reclaim a port.
+Open `http://localhost:5173`; the API is `http://localhost:3000`. Seed accounts use an initial password and must change it after sign-in. Credentials belong in controlled course/demo material, not documentation or source control.
 
-For the compiled server, run `npm.cmd run build` followed by `npm.cmd start` in `server/`. Its entry point is `dist/src/index.js`.
+See the [installation guide](docs/lab-04/installation.md) for database safety, environment variables, production builds, isolated tests, and troubleshooting.
 
-Development attachments default to private `server/uploads/attachments/`. `UPLOAD_DIR` can override that path. Removal retains audit metadata and may retain the binary; requester downloads of removed files return 404.
+## Development and verification commands
 
-### Isolated tests
+| Area | Command | Working directory |
+| --- | --- | --- |
+| API development | `npm run dev` | `server/` |
+| Client development | `npm run dev` | `client/` |
+| API build/start | `npm run build`; `npm start` | `server/` |
+| Client production build | `npm run build`; `npm run preview` | `client/` |
+| Backend tests | `npm run test:db`; `npm test` | `server/` |
+| Frontend tests | `npm test` | `client/` |
+| Browser tests | `npm run test:e2e` | application root |
+| Prisma validation | `npx prisma validate` | `server/` |
 
-From `server/`, `npm.cmd run test:db` prepares the API-test database configured by `TEST_DATABASE_URL` / `.env.test` (default database name `toktickit_test`), then `npm.cmd test` runs API tests. The database name must end in `_test`. From `client/`, run `npm.cmd test`.
+## Documentation
 
-Feature 12 adds the authenticated Staff Queue and ticket workflow for IT Staff and Administrators, including assignment, IT priority, controlled status transitions, public comments, confidential internal notes, and the requester resolution indication. Its API coverage is consolidated in `server/tests/lab-03/staff-workflow.api.test.ts`; browser flows are in `e2e/lab-03/staff-ticket-flow.spec.ts` and responsive/failure/safe-text checks remain in `e2e/lab-03/ui-quality.spec.ts`.
+- [Engineering specification](docs/lab-04/specification.md)
+- [Approved API contract](docs/lab-04/api-spec.md)
+- [UI contract](docs/lab-04/ui-spec.md)
+- [Test design and traceability](docs/lab-04/tests.md)
+- [Installation and operations](docs/lab-04/installation.md)
+- [Role-based user guide](docs/lab-04/user-guide.md)
+- [Implemented API index](docs/lab-04/api-reference.md)
+- [Feature 21 test report](docs/lab-04/feature-21-test-report.md)
+- [Feature 22 UI/accessibility review](docs/lab-04/feature-22-ui-accessibility-review.md)
+- [Final delivery evidence and checklist](docs/lab-04/final-delivery.md)
 
-Feature 13 adds Administrator User Management at `/admin/users`: searchable user listing, account provisioning and editing, activation controls, temporary-password reset with session revocation, last-administrator safeguards, and active-ticket owner cleanup. Administrator operations use the same session and CSRF protections as the rest of Lab 3.
+## Known limitations
 
-Feature 10 migration and seed verification uses disposable databases whose
-names begin `toktickit_feature10_` and end `_test`:
-
-```powershell
-cd server
-npm.cmd run test:feature10
-```
-
-The harness stages the Lab 2 migrations in a temporary directory, verifies an
-upgrade and a fresh installation, and drops only databases it created and
-tracked. It explicitly refuses the development and shared test database names.
-`User.email` case-insensitive uniqueness is maintained by the migration's
-SQL-managed `User_email_lower_key` functional index because Prisma 5 cannot
-declare functional indexes. `Session.token` stores a SHA-256 digest of a future
-opaque cookie token; it must never store the raw cookie token.
-
-For E2E, from `toktickit/`:
-
-```powershell
-npm.cmd ci
-npm.cmd exec -- playwright install chromium
-npm.cmd run test:e2e
-```
-
-Playwright uses a real API on 3001, Vite on 5174 and the dedicated `toktickit_e2e_test` database. It derives connection credentials from the effective development connection, replaces the database name, and never resets development. The PostgreSQL role must be able to create the E2E database if absent. E2E preparation does not write `server/.env.test`. Do not share the E2E database with another simultaneous run.
-
-Tests seed reference data, create their own tickets, and clean their mutable data. Uploads use an isolated temporary directory named `toktickit-attachments-test-e2e-*`; normal development storage is untouched. One worker and zero automatic retries are configured.
-
-To refresh the selected screenshot evidence:
-
-```powershell
-$env:CAPTURE_EVIDENCE = '1'
-$env:E2E_REPORT = 'artifacts/lab-02/results/e2e-green.json'
-npm.cmd run test:e2e
-```
-
-The explicit development browser check is `node e2e/support/manual-development.mjs` from `toktickit/`, with development servers already running. **It creates and retains a development verification ticket and a soft-removed attachment audit record.** It is not an isolated test and performs no database cleanup.
-
-See [Part 4 verification](docs/lab-02/verification.md), [AI use](docs/lab-02/ai-use.md), and [review findings](docs/lab-02/reviewer.md). The final submission PDF and human peer-review evidence remain separate delivery responsibilities.
-
-## Lab 3 delivery verification
-
-Use checked-in migrations for an existing development database; `npm.cmd run prisma:migrate` is not a test-database reset. Before running it, confirm the effective database name and stop if Prisma reports drift or requests a reset. `npm.cmd run prisma:seed` is idempotent for canonical `seedKey` records and does not restore user-edited seed account values. Seeded accounts start with a temporary password and require a password change; consult the controlled course/demo setup source rather than placing credentials in documentation.
-
-For an isolated verification on Windows PowerShell:
-
-```powershell
-cd server
-npm.cmd ci
-npm.cmd run test:db
-npm.cmd exec -- prisma validate
-npm.cmd exec -- prisma generate
-npm.cmd run build
-npm.cmd test
-npm.cmd run test:feature10
-
-cd ..\client
-npm.cmd ci
-npm.cmd run build
-npm.cmd test
-
-cd ..
-npm.cmd ci
-npm.cmd exec -- playwright install chromium
-$env:CAPTURE_EVIDENCE = '1'
-$env:E2E_REPORT = 'artifacts/lab-03/results/e2e-final.json'
-npm.cmd run test:e2e
-```
-
-`test:db` accepts only a database name ending `_test`; Playwright uses `toktickit_e2e_test`; the Feature 10 harness accepts only its own guarded disposable names. Do not point any of these checks at development. See [Lab 3 verification](docs/lab-03/verification.md), [traceability](docs/lab-03/tests.md), [AI use](docs/lab-03/ai-use.md), and [peer review record](docs/lab-03/reviewer.md).
+- The application is configured for local origins `http://localhost:5173` and `http://localhost:5174`; deployment configuration is outside the Lab 4 scope.
+- Attachment storage is local/private filesystem storage, not an external object store.
+- Action audit revisions are internal evidence and have no user-facing read API or screen.
+- Automated checks do not prove full WCAG compliance. Screen-reader, 200% zoom, and subjective visual/contrast review remain manual.
+- Screenshot evidence is opt-in; verify the official handout and course submission portal for any required PDF, video, screenshots, naming, or upload format.
