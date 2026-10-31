@@ -24,20 +24,28 @@ export default async function setup() {
   }
   try {
     // Do not write server/.env.test: API tests and E2E have separate databases.
-    const { PrismaClient } = createRequire(join(server, 'package.json'))('@prisma/client');
+    const serverRequire = createRequire(join(server, 'package.json'));
+    const { PrismaClient } = serverRequire('@prisma/client');
+    const bcrypt = serverRequire('bcrypt');
     const adminUrl = new URL(target); adminUrl.pathname = '/postgres';
     const admin = new PrismaClient({ datasources: { db: { url: adminUrl.toString() } } });
     try {
       const found = await admin.$queryRawUnsafe("SELECT datname FROM pg_database WHERE datname = 'toktickit_e2e_test'");
       if (!found.length) await admin.$executeRawUnsafe('CREATE DATABASE toktickit_e2e_test');
     } finally { await admin.$disconnect(); }
-    for (const args of [['node_modules/prisma/build/index.js', 'migrate', 'deploy'], ['node_modules/tsx/dist/cli.mjs', 'prisma/seed.ts']]) {
+    // Compile before seeding so constrained Windows runners do not depend on
+    // tsx's user-profile temporary-directory lookup.
+    for (const args of [['node_modules/prisma/build/index.js', 'migrate', 'deploy'], ['node_modules/typescript/bin/tsc'], ['dist/prisma/seed.js']]) {
       const prepared = spawnSync(process.execPath, args, { cwd: server, env, stdio: 'inherit' });
       if (prepared.status !== 0) throw new Error('Isolated E2E database preparation failed.');
     }
     const testDb = new PrismaClient({ datasources: { db: { url: target.toString() } } });
     try {
-      await testDb.user.updateMany({ data: { mustChangePassword: false } });
+      const passwordHash = await bcrypt.hash('Initial123!', 4);
+      await testDb.user.updateMany({
+        where: { email: { in: ['jennifer.anderson@example.com', 'staff.mike@toktickit.com', 'admin@toktickit.com'] } },
+        data: { passwordHash, mustChangePassword: false, isActive: true },
+      });
     } finally {
       await testDb.$disconnect();
     }
@@ -49,7 +57,7 @@ export default async function setup() {
     process.env.E2E_ADMIN_PASS = 'Initial123!';
 
     for (const [port, cwd, args, extra] of [
-      [3001, server, ['--import', 'tsx', 'src/index.ts'], { PORT: '3001' }],
+      [3001, server, ['dist/src/index.js'], { PORT: '3001' }],
       [5174, resolve('client'), ['node_modules/vite/bin/vite.js', '--host', 'localhost', '--port', '5174', '--strictPort'], { VITE_API_URL: 'http://localhost:3001' }],
     ] as const) {
       try { await fetch(`http://localhost:${port}`); throw new Error(`Port ${port} is already in use.`); }
