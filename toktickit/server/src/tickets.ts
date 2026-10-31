@@ -11,7 +11,7 @@ export const tickets = Router();
 tickets.use(requireAuth);
 const priorities = ["LOW", "MEDIUM", "HIGH"];
 const statuses = ["NEW", "OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER", "RESOLVED", "CLOSED", "REOPENED", "CANCELLED"];
-const createSelect = { id: true, ticketNumber: true, summary: true, description: true, requestedPriority: true, itPriority: true, currentStatus: true, requesterResolved: true, requesterResolvedAt: true, requesterId: true, ownerId: true, categoryId: true, relatedSystemId: true, createdAt: true, updatedAt: true } as const;
+const createSelect = { id: true, ticketNumber: true, summary: true, description: true, requestedPriority: true, itPriority: true, currentStatus: true, requesterResolved: true, requesterResolvedAt: true, workflowVersion: true, resolvedAt: true, requesterId: true, ownerId: true, categoryId: true, relatedSystemId: true, createdAt: true, updatedAt: true } as const;
 const integer = (value: unknown): value is number => typeof value === "number" && Number.isInteger(value) && value > 0 && value <= 2147483647;
 const accessibleTicket = (id: number, userId: number, role: string) => getPrisma().ticket.findFirst({ where: role === "REQUESTER" ? { id, requesterId: userId } : { id }, select: { id: true } });
 const threadSelect = { id: true, ticketId: true, authorId: true, content: true, createdAt: true, author: { select: { name: true, role: true } } } as const;

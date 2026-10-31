@@ -1,10 +1,11 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AttachmentSection } from "./AttachmentSection.js";
 import { postComment } from "./ticket-api.js";
 import { assignTicket, getStaffTicket, getStaffUsers, postInternalNote, updateItPriority, updateTicketStatus, type StaffTicketDetail as Detail, type StaffUser, type TicketStatus } from "./staff-api.js";
 import { Badge, formatDate, ReadOnly, Skeleton, TicketLink } from "./TicketComponents.js";
 import { useAuth } from "./AuthContext.js";
 import { ActionsSection } from "./ActionsSection.js";
+import { ApiCallError } from "./api.js";
 
 const transitions: Record<TicketStatus, TicketStatus[]> = { NEW:["OPEN","IN_PROGRESS","CANCELLED"], OPEN:["IN_PROGRESS","WAITING_FOR_REQUESTER","RESOLVED","CANCELLED"], IN_PROGRESS:["WAITING_FOR_REQUESTER","OPEN","RESOLVED","CANCELLED"], WAITING_FOR_REQUESTER:["IN_PROGRESS","OPEN","RESOLVED","CANCELLED"], RESOLVED:["CLOSED","REOPENED"], CLOSED:["REOPENED"], REOPENED:["IN_PROGRESS","OPEN","RESOLVED","CANCELLED"], CANCELLED:[] };
 
@@ -12,18 +13,35 @@ export function StaffTicketDetail({ id }: { id: number }) {
   const { user } = useAuth();
   const [ticket, setTicket] = useState<Detail | null>(null), [users, setUsers] = useState<StaffUser[]>([]), [state, setState] = useState<"loading"|"ready"|"missing"|"error">("loading");
   const [comment, setComment] = useState(""), [note, setNote] = useState(""), [busy, setBusy] = useState(false), [error, setError] = useState("");
+  const [statusTarget, setStatusTarget] = useState<TicketStatus | "">(""), [statusBusy, setStatusBusy] = useState(false), [workflowStale, setWorkflowStale] = useState(false);
+  const reviewLatest = useRef<HTMLButtonElement>(null);
   async function refresh() { const value = await getStaffTicket(id); setTicket(value); }
   useEffect(() => { let active = true; setState("loading"); Promise.all([getStaffTicket(id), getStaffUsers()]).then(([value, staff]) => { if (active) { setTicket(value); setUsers(staff.items); setState("ready"); } }).catch((e: any) => { if (active) setState(e?.status === 404 ? "missing" : "error"); }); return () => { active = false; }; }, [id]);
   async function mutate(work: () => Promise<unknown>) { if (busy) return false; setBusy(true); setError(""); try { await work(); await refresh(); return true; } catch (e: any) { setError(e?.error?.message ?? "Unable to update this ticket."); return false; } finally { setBusy(false); } }
   async function submit(event: FormEvent, kind: "comment"|"note") { event.preventDefault(); const text = kind === "comment" ? comment : note; if (!text.trim()) return; const success = await mutate(() => kind === "comment" ? postComment(id, text) : postInternalNote(id, text)); if (success) kind === "comment" ? setComment("") : setNote(""); }
+  useEffect(() => { if (workflowStale) reviewLatest.current?.focus(); }, [workflowStale]);
+  async function transitionStatus() {
+    if (!ticket || !statusTarget || statusBusy) return;
+    setStatusBusy(true); setError(""); setWorkflowStale(false);
+    try { await updateTicketStatus(id, statusTarget, ticket.workflowVersion); await refresh(); setStatusTarget(""); }
+    catch (cause) {
+      if (cause instanceof ApiCallError && cause.error.code === "ACTION_REQUIRED") {
+        setError("A completed Action with a nonblank Result is required before resolving this Ticket.");
+        requestAnimationFrame(() => document.getElementById(`actions-${id}`)?.focus());
+      } else if (cause instanceof ApiCallError && cause.error.code === "STALE_TICKET") {
+        setWorkflowStale(true); setError("This Ticket changed since you opened it. Review the latest workflow state before retrying.");
+      } else setError(cause instanceof ApiCallError ? cause.error.message : "Unable to update the Ticket status. Your selection has been preserved.");
+    } finally { setStatusBusy(false); }
+  }
+  async function resolveStale(discard: boolean) { try { await refresh(); if (discard) setStatusTarget(""); setWorkflowStale(false); setError(discard ? "Your previous status selection was discarded." : "Latest workflow state loaded. Review it before retrying your preserved selection."); } catch { setError("Unable to load the latest Ticket. Your status selection is preserved."); } }
   if (state === "loading") return <Skeleton label="Loading staff ticket details..."/>;
   if (state === "missing") return <div className="ticket-panel ticket-empty"><h1>Ticket Not Found</h1></div>;
   if (state === "error" || !ticket) return <div className="zen-alert zen-error" role="alert">Unable to load staff ticket details.</div>;
-  const statuses = [ticket.currentStatus as TicketStatus, ...transitions[ticket.currentStatus as TicketStatus]];
+  const statuses = transitions[ticket.currentStatus as TicketStatus];
   return <section className="ticket-page staff-detail"><div className="ticket-page-heading"><div><nav><TicketLink href="/staff/queue">Ticket Queue</TicketLink> &gt; Ticket Detail</nav><h1>{ticket.ticketNumber}</h1><p>{ticket.summary}</p></div><TicketLink className="zen-button zen-secondary" href="/staff/queue">Back to Queue</TicketLink></div>
     {ticket.requesterResolved && <div className="zen-alert zen-success">Requester {ticket.requesterName} indicated{ticket.requesterResolvedAt ? ` on ${formatDate(ticket.requesterResolvedAt)}` : ""} that the problem appears resolved.</div>}
-    {error && <div className="zen-alert zen-error" role="alert">{error}</div>}
-    <section className="ticket-panel operational-bar"><h2>Operational Controls</h2><label>Assigned Owner<select className="zen-input" value={ticket.ownerId ?? ""} disabled={busy} onChange={e => mutate(() => assignTicket(id, e.target.value ? Number(e.target.value) : null))}><option value="">Unassigned</option>{users.map(member => <option key={member.id} value={member.id}>{member.id === user?.id && ticket.ownerId !== member.id ? "Claim Ticket (Assign to Me)" : `${member.name} (${member.role.replace("_", " ")})`}</option>)}</select></label><label>IT Priority<select className="zen-input" value={ticket.itPriority} disabled={busy} onChange={e => mutate(() => updateItPriority(id, e.target.value as any))}>{["LOW","MEDIUM","HIGH"].map(v => <option key={v}>{v}</option>)}</select></label><label>Current Status<select className="zen-input" value={ticket.currentStatus} disabled={busy} onChange={e => mutate(() => updateTicketStatus(id, e.target.value as TicketStatus))}>{statuses.map(value => <option key={value} value={value}>{value.toLowerCase().split("_").map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(" ")}</option>)}</select></label></section>
+    {error && <div className={workflowStale ? "zen-alert zen-error workflow-conflict" : "zen-alert zen-error"} role="alert">{error}{workflowStale && <div><button ref={reviewLatest} className="zen-button zen-primary" onClick={() => resolveStale(false)}>Review latest</button><button className="zen-button zen-secondary" onClick={() => resolveStale(true)}>Discard selection</button></div>}</div>}
+    <section className="ticket-panel operational-bar"><h2>Operational Controls</h2><label>Assigned Owner<select className="zen-input" value={ticket.ownerId ?? ""} disabled={busy} onChange={e => mutate(() => assignTicket(id, e.target.value ? Number(e.target.value) : null))}><option value="">Unassigned</option>{users.map(member => <option key={member.id} value={member.id}>{member.id === user?.id && ticket.ownerId !== member.id ? "Claim Ticket (Assign to Me)" : `${member.name} (${member.role.replace("_", " ")})`}</option>)}</select></label><label>IT Priority<select className="zen-input" value={ticket.itPriority} disabled={busy} onChange={e => mutate(() => updateItPriority(id, e.target.value as any))}>{["LOW","MEDIUM","HIGH"].map(v => <option key={v}>{v}</option>)}</select></label><div className="workflow-control"><span className="ticket-label">Current Status</span><div><Badge value={ticket.currentStatus}/></div><label htmlFor="workflow-next-status">Change status</label><select id="workflow-next-status" className="zen-input" value={statusTarget} disabled={statusBusy || !statuses.length} onChange={event => setStatusTarget(event.target.value as TicketStatus | "")}><option value="">Select next status</option>{statuses.map(value => <option key={value} value={value}>{value.toLowerCase().split("_").map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(" ")}</option>)}</select>{statusTarget === "RESOLVED" && <p className="ticket-hint">Requires at least one completed Action with a Result.</p>}<button className="zen-button zen-primary" disabled={statusBusy || !statusTarget} onClick={transitionStatus}>{statusBusy ? "Updating..." : "Update Status"}</button><small>Workflow version {ticket.workflowVersion}</small></div></section>
     <div className="ticket-detail-layout"><div><section className="ticket-panel"><div className="ticket-grid"><ReadOnly label="Requester">{ticket.requesterName} ({ticket.requesterEmail})</ReadOnly><ReadOnly label="Created Date">{formatDate(ticket.createdAt)}</ReadOnly><ReadOnly label="Category">{ticket.categoryName}</ReadOnly><ReadOnly label="Related System">{ticket.relatedSystemName}</ReadOnly><ReadOnly label="Requested Priority"><Badge value={ticket.requestedPriority}/></ReadOnly></div><ReadOnly label="Summary">{ticket.summary}</ReadOnly><ReadOnly label="Description">{ticket.description}</ReadOnly></section>
       <ActionsSection ticketId={ticket.id} editable />
       <section className="ticket-panel comments-section" data-testid="comments-section"><h2>Public Comments ({ticket.comments.length})</h2>{ticket.comments.map(c => <article className="comment-card" key={c.id}><header><strong>{c.authorName}</strong> · {formatDate(c.createdAt)}</header><p>{c.content}</p></article>)}<form onSubmit={e => submit(e,"comment")}><label htmlFor="staff-comment">Add Public Comment</label><textarea id="staff-comment" className="zen-input" maxLength={2000} value={comment} onChange={e => setComment(e.target.value)}/><button className="zen-button zen-primary" disabled={busy || !comment.trim()}>Post Comment</button></form></section>
