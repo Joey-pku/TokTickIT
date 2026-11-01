@@ -15,6 +15,9 @@ export async function ticketFixtures() {
   const body = { categoryId: category.id, relatedSystemId: system.id, requestedPriority: "MEDIUM", summary: "VPN connection failed", description: "The VPN connection fails after entering my credentials." };
   async function clear() {
     const tickets = await db.ticket.findMany({ where: { requesterId: { in: [a.id, b.id, inactive.id] } }, select: { id: true } });
+    const actions = await db.ticketAction.findMany({ where: { ticketId: { in: tickets.map(t => t.id) } }, select: { id: true } });
+    await db.ticketActionRevision.deleteMany({ where: { actionId: { in: actions.map(action => action.id) } } });
+    await db.ticketAction.deleteMany({ where: { ticketId: { in: tickets.map(t => t.id) } } });
     await db.comment.deleteMany({ where: { ticketId: { in: tickets.map(t => t.id) } } });
     await db.internalNote.deleteMany({ where: { ticketId: { in: tickets.map(t => t.id) } } });
     await db.attachment.deleteMany({ where: { ticketId: { in: tickets.map(t => t.id) } } });
@@ -43,6 +46,6 @@ export async function ticketFixtures() {
     }
   };
 }
-export const createKeys = ["id", "ticketNumber", "summary", "description", "requestedPriority", "itPriority", "currentStatus", "requesterResolved", "requesterResolvedAt", "requesterId", "ownerId", "categoryId", "relatedSystemId", "createdAt", "updatedAt"].sort();
+export const createKeys = ["id", "ticketNumber", "summary", "description", "requestedPriority", "itPriority", "currentStatus", "requesterResolved", "requesterResolvedAt", "workflowVersion", "resolvedAt", "requesterId", "ownerId", "categoryId", "relatedSystemId", "createdAt", "updatedAt"].sort();
 export const listKeys = ["id", "ticketNumber", "summary", "requestedPriority", "itPriority", "currentStatus", "requesterResolved", "requesterResolvedAt", "categoryId", "categoryName", "relatedSystemId", "relatedSystemName", "createdAt", "updatedAt"].sort();
 

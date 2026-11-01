@@ -28,7 +28,7 @@ async function login(page: Page, email: string, password: string) {
   await page.fill("#login-email", email);
   await page.fill("#login-password", password);
   await page.click("#login-submit");
-  await page.waitForURL(/\/(tickets|staff|admin)/);
+  await page.waitForURL(/\/(dashboard|staff|admin)/);
 }
 
 async function hasHorizontalOverflow(page: Page): Promise<boolean> {

@@ -7,6 +7,8 @@ import { attachments } from "./attachments.js";
 import { auth, csrfProtection } from "./auth.js";
 import { staff } from "./staff.js";
 import { admin } from "./admin.js";
+import { actions } from "./actions.js";
+import { dashboard } from "./dashboard.js";
 import type { ErrorRequestHandler } from "express";
 
 const ALLOWED_ORIGINS = ["http://localhost:5173", "http://localhost:5174"];
@@ -41,6 +43,8 @@ app.use("/api/auth", auth);
 app.use("/api", attachments);
 app.use("/api/staff", staff);
 app.use("/api/admin", admin);
+app.use("/api", actions);
+app.use("/api/dashboard", dashboard);
 // Requester ticket endpoints
 app.use("/api/tickets", tickets);
 

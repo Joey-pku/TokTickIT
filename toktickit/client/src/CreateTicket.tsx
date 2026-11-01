@@ -8,12 +8,15 @@ import { uploadAttachment } from "./attachment-api.js";
 
 export function CreateTicket() {
   const { user } = useAuth();
+  const isStaff = user?.role === "IT_STAFF" || user?.role === "ADMINISTRATOR";
+  const listHref = isStaff ? "/staff/queue" : "/tickets";
   const refs = useReferences(true);
   const [categoryId, setCategory] = useState(""); const [relatedSystemId, setSystem] = useState("");
   const [priority, setPriority] = useState<Priority>("MEDIUM");
   const [summary, setSummary] = useState(""); const [description, setDescription] = useState("");
   const [fields, setFields] = useState<Record<string, string>>({}); const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false); const [created, setCreated] = useState<Ticket | null>(null);
+  const detailHref = created ? (isStaff ? `/staff/tickets/${created.id}` : `/tickets/${created.id}`) : "";
   const pending = useRef(false); const controller = useRef<AbortController | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [uploadMessages, setUploadMessages] = useState<{ name: string; failed: boolean; reason?: string }[]>([]);
@@ -59,14 +62,14 @@ export function CreateTicket() {
     {created && <div className="zen-alert ticket-success" role="status">Ticket {created.ticketNumber} created successfully.</div>}
     {uploading && <p role="status"><span className="zen-spinner ticket-inline-spinner" aria-hidden="true" /> Uploading attachments...</p>}
     <div aria-live="polite">{uploadMessages.map((item, i) => <p key={i} className={`zen-alert ${item.failed ? "zen-error" : "ticket-success"}`}>{item.name} {item.failed ? `upload failed. ${item.reason} The ticket remains created. You can retry uploading this attachment from Ticket Detail.` : "uploaded successfully."}</p>)}</div>
-    {created && uploadMessages.some(item => item.failed) && <><p><TicketLink href={`/tickets/${created.id}`}>Retry failed uploads from Ticket Detail</TicketLink></p><div className="ticket-panel"><ReadOnly label="Summary">{summary}</ReadOnly><ReadOnly label="Description">{description}</ReadOnly></div></>}
+    {created && uploadMessages.some(item => item.failed) && <><p><TicketLink href={detailHref}>Retry failed uploads from Ticket Detail</TicketLink></p><div className="ticket-panel"><ReadOnly label="Summary">{summary}</ReadOnly><ReadOnly label="Description">{description}</ReadOnly></div></>}
     <form className="ticket-panel" onSubmit={submit} noValidate>
       <div className="ticket-grid">
         <ReadOnly label="Ticket Number">{created?.ticketNumber ?? "Generated after submission"}</ReadOnly>
         <ReadOnly label="Ticket Date">{created ? formatDate(created.createdAt) : "Assigned after submission"}</ReadOnly>
         <ReadOnly label="Requester">{user?.name}</ReadOnly>
       </div>
-      {created ? <div className="ticket-actions"><TicketLink className="zen-button zen-secondary" href="/tickets">Go to My Tickets</TicketLink><TicketLink className="zen-button zen-primary" href={`/tickets/${created.id}`}>View Ticket Details</TicketLink></div> : <>
+      {created ? <div className="ticket-actions"><TicketLink className="zen-button zen-secondary" href={listHref}>{isStaff ? "Go to Ticket Queue" : "Go to My Tickets"}</TicketLink><TicketLink className="zen-button zen-primary" href={detailHref}>View Ticket Details</TicketLink></div> : <>
         {refs.state === "loading" && <p role="status">Loading categories and related systems...</p>}
         {refs.state === "error" && <div className="zen-alert zen-error" role="alert">Unable to load categories and related systems. <button className="zen-button zen-secondary" type="button" onClick={refs.retry}>Retry</button></div>}
         {refs.state === "ready" && (!refs.categories.length || !refs.relatedSystems.length) && <div className="zen-alert zen-info">No categories or active related systems are available. <button className="zen-button zen-secondary" type="button" onClick={refs.retry}>Retry</button></div>}
@@ -78,7 +81,7 @@ export function CreateTicket() {
         <div className="ticket-field"><label htmlFor="summary">Ticket Summary <span className="required-marker">*</span></label><input {...fieldProps("summary")} value={summary} onChange={e => setSummary(e.target.value)} />{errorFor("summary")}<div className={`ticket-hint ${fields.summary ? "ticket-field-error" : ""}`}><span>Brief overview of the issue (5–100 characters)</span><span>{summary.length}/100</span></div></div>
         <div className="ticket-field"><label htmlFor="description">Description <span className="required-marker">*</span></label><textarea {...fieldProps("description")} value={description} onChange={e => setDescription(e.target.value)} />{errorFor("description")}<div className={`ticket-hint ${fields.description ? "ticket-field-error" : ""}`}><span>Detailed symptoms, error messages, and reproduction steps (10–2,000 characters)</span><span>{description.length}/2,000</span></div></div>
         <AttachmentPicker files={files} onChange={setFiles} disabled={busy} />
-        <div className="ticket-actions"><button className="zen-button zen-secondary" type="button" onClick={() => navigate("/tickets")}>Cancel</button><button className="zen-button zen-primary" disabled={busy || refs.state !== "ready" || !refs.categories.length || !refs.relatedSystems.length} type="submit">{busy && <span className="zen-spinner ticket-inline-spinner" aria-hidden="true" />}{busy ? "Submitting..." : "Submit Ticket"}</button></div>
+        <div className="ticket-actions"><button className="zen-button zen-secondary" type="button" onClick={() => navigate(listHref)}>Cancel</button><button className="zen-button zen-primary" disabled={busy || refs.state !== "ready" || !refs.categories.length || !refs.relatedSystems.length} type="submit">{busy && <span className="zen-spinner ticket-inline-spinner" aria-hidden="true" />}{busy ? "Submitting..." : "Submit Ticket"}</button></div>
       </>}
     </form>
   </section>;

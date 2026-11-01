@@ -11,6 +11,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const navigationTriggerRef = useRef<HTMLButtonElement>(null);
   const profileTriggerRef = useRef<HTMLButtonElement>(null);
   const firstActionRef = useRef<HTMLButtonElement>(null);
   const focusFirstActionRef = useRef(false);
@@ -28,7 +29,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
     function dismissOnEscape(event: globalThis.KeyboardEvent) {
       if (event.key !== "Escape") return;
-      setNavigationOpen(false);
+      if (navigationOpen) {
+        setNavigationOpen(false);
+        navigationTriggerRef.current?.focus();
+      }
       if (profileOpen) {
         setProfileOpen(false);
         profileTriggerRef.current?.focus();
@@ -40,7 +44,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       document.removeEventListener("pointerdown", dismissOnOutsideClick);
       window.removeEventListener("keydown", dismissOnEscape);
     };
-  }, [profileOpen]);
+  }, [navigationOpen, profileOpen]);
 
   function follow(event: MouseEvent<HTMLAnchorElement>, destination: string) {
     if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
@@ -67,11 +71,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         <BrandMark />
         <span>TokTickIT<small>IT Service Desk</small></span>
       </a>
-      <button className="zen-menu-toggle" aria-label="Toggle Navigation" aria-expanded={navigationOpen} aria-controls="main-navigation" onClick={() => setNavigationOpen(value => !value)}>☰</button>
+      <button ref={navigationTriggerRef} className="zen-menu-toggle" aria-label={navigationOpen ? "Close navigation" : "Open navigation"} aria-expanded={navigationOpen} aria-controls="main-navigation" onClick={() => setNavigationOpen(value => !value)}>☰</button>
       {navigationOpen && <button className="zen-backdrop" aria-label="Close navigation" onClick={() => setNavigationOpen(false)} />}
       <nav id="main-navigation" className={`zen-navigation ${navigationOpen ? "is-open" : ""}`} aria-label="Main navigation">
         <div className="zen-nav-links">
-          <a href="/tickets" aria-current={path === "/tickets" ? "page" : undefined} onClick={event => follow(event, "/tickets")}>My Tickets</a>
+          {user?.role === "REQUESTER" && <a href="/dashboard" aria-current={path === "/dashboard" ? "page" : undefined} onClick={event => follow(event, "/dashboard")}>Dashboard</a>}
+          {user && user.role !== "REQUESTER" && <a href="/staff/dashboard" aria-current={path === "/staff/dashboard" ? "page" : undefined} onClick={event => follow(event, "/staff/dashboard")}>Dashboard</a>}
+          {user?.role === "REQUESTER" && <a href="/tickets" aria-current={path === "/tickets" ? "page" : undefined} onClick={event => follow(event, "/tickets")}>My Tickets</a>}
           <a href="/tickets/new" aria-current={path === "/tickets/new" ? "page" : undefined} onClick={event => follow(event, "/tickets/new")}>Create Ticket</a>
           {user && user.role !== "REQUESTER" && <a href="/staff/queue" aria-current={path === "/staff/queue" || path.startsWith("/staff/tickets") ? "page" : undefined} onClick={event => follow(event, "/staff/queue")}>Ticket Queue</a>}
           {user?.role === "ADMINISTRATOR" && <a href="/admin/users" aria-current={path === "/admin/users" ? "page" : undefined} onClick={event => follow(event, "/admin/users")}>User Management</a>}

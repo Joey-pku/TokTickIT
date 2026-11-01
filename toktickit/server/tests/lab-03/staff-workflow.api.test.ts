@@ -52,10 +52,10 @@ describe("Feature 12 staff workflow", () => {
     const ticket = await f.ticket({ ownerId: staff.id, currentStatus: "OPEN", requestedPriority: "LOW", itPriority: "LOW" });
     const priority = await request(app).patch(`/api/staff/tickets/${ticket.id}/priority`).set(mutate(staffCookie)).send({ itPriority: "HIGH" });
     expect(priority.body).toMatchObject({ requestedPriority: "LOW", itPriority: "HIGH" });
-    expect((await request(app).patch(`/api/staff/tickets/${ticket.id}/status`).set(mutate(staffCookie)).send({ status: "CLOSED" })).body.error.code).toBe("INVALID_STATUS_TRANSITION");
-    expect((await request(app).patch(`/api/staff/tickets/${ticket.id}/status`).set(mutate(staffCookie)).send({ status: "OPEN" })).status).toBe(200);
+    expect((await request(app).patch(`/api/staff/tickets/${ticket.id}/status`).set(mutate(staffCookie)).send({ status: "CLOSED", workflowVersion: 1 })).body.error.code).toBe("INVALID_STATUS_TRANSITION");
+    expect((await request(app).patch(`/api/staff/tickets/${ticket.id}/status`).set(mutate(staffCookie)).send({ status: "OPEN", workflowVersion: 1 })).status).toBe(200);
     await (await import("../../src/prisma.js")).getPrisma().ticket.update({ where: { id: ticket.id }, data: { currentStatus: "RESOLVED", ownerId: inactive.id, requesterResolved: true, requesterResolvedAt: new Date() } });
-    const reopened = await request(app).patch(`/api/staff/tickets/${ticket.id}/status`).set(mutate(adminCookie)).send({ status: "REOPENED" });
+    const reopened = await request(app).patch(`/api/staff/tickets/${ticket.id}/status`).set(mutate(adminCookie)).send({ status: "REOPENED", workflowVersion: 1 });
     expect(reopened.body).toMatchObject({ currentStatus: "REOPENED", ownerId: null, requesterResolved: false, requesterResolvedAt: null });
   });
 

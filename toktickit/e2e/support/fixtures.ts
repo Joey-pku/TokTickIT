@@ -38,6 +38,9 @@ export const test = base.extend<{ fixture: any }>({
       const tickets = await db.ticket.findMany({ where: { id: { notIn: before } }, select: { id: true } });
       const ids = tickets.map((t: any) => t.id);
       const attachments = await db.attachment.findMany({ where: { ticketId: { in: ids } } });
+      const actions = await db.ticketAction.findMany({ where: { ticketId: { in: ids } }, select: { id: true } });
+      await db.ticketActionRevision.deleteMany({ where: { actionId: { in: actions.map((action: any) => action.id) } } });
+      await db.ticketAction.deleteMany({ where: { ticketId: { in: ids } } });
       await db.attachment.deleteMany({ where: { ticketId: { in: ids } } });
       await db.ticket.deleteMany({ where: { id: { in: ids } } });
       await db.session.deleteMany({ where: { userId: { in: [a.id, b.id] } } });
@@ -53,6 +56,8 @@ export async function login(page: Page, user: { email: string; testPassword: str
   await page.getByLabel('Email address').fill(user.email);
   await page.getByLabel('Password', { exact: true }).fill(user.testPassword);
   await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(page).toHaveURL(/\/(dashboard|staff\/dashboard)$/);
+  await page.goto('/tickets');
   await expect(page.getByRole('heading', { name: 'My Tickets', exact: true })).toBeVisible();
 }
 export async function fillTicket(page: Page, fixture: any) {

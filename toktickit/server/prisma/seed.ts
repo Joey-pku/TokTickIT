@@ -2,7 +2,7 @@ import { getPrisma } from "../src/prisma.js";
 import { seed } from "./seed-data.js";
 const prisma = getPrisma();
 seed(prisma)
-  .then(() => console.log("Lab 3 reference and sample data seeded successfully."))
+  .then(() => console.log("TokTickIT reference and sample data seeded successfully."))
   .catch(error => {
     const message = error instanceof Error && error.message.startsWith("SEED_CONFLICT:")
       ? error.message

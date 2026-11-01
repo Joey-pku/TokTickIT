@@ -15,6 +15,11 @@ const userSelect = { id: true, name: true, email: true, department: true, role: 
 const parseId = (raw: string) => /^\d+$/.test(raw) && Number(raw) > 0 && Number(raw) <= 2147483647 ? Number(raw) : null;
 const emailValid = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && value.length <= 254;
 const duplicate = (error: unknown) => typeof error === "object" && error !== null && "code" in error && (error as { code?: string }).code === "P2002";
+const actionAuditState = (action: {
+  id: number; ticketId: number; performedById: number; assignedToId: number | null;
+  description: string; result: string; followUpRequired: boolean; followUpNote: string | null;
+  attachmentNotes: string | null; status: string; version: number; createdAt: Date; updatedAt: Date;
+}) => ({ ...action, createdAt: action.createdAt.toISOString(), updatedAt: action.updatedAt.toISOString() });
 
 function profile(body: Record<string, unknown>, includePassword: boolean) {
   const allowed = ["name", "email", "department", "role", "isActive", ...(includePassword ? ["initialPassword"] : [])];
@@ -87,6 +92,22 @@ admin.patch("/users/:userId", async (req, res) => {
       const losesOwnerEligibility = (current.role !== "REQUESTER" && parsed.data.role === "REQUESTER") || (current.isActive && !parsed.data.isActive);
       const user = await tx.user.update({ where: { id: userId }, data: parsed.data, select: userSelect });
       if (losesOwnerEligibility) await tx.ticket.updateMany({ where: { ownerId: userId, currentStatus: { in: activeStatuses } }, data: { ownerId: null } });
+      if (losesOwnerEligibility) {
+        const assignedActions = await tx.ticketAction.findMany({
+          where: { assignedToId: userId, status: { in: ["PLANNED", "IN_PROGRESS"] } },
+          select: { id: true, ticketId: true, performedById: true, assignedToId: true, description: true, result: true, followUpRequired: true, followUpNote: true, attachmentNotes: true, status: true, version: true, createdAt: true, updatedAt: true },
+        });
+        for (const action of assignedActions) {
+          const updated = await tx.ticketAction.update({
+            where: { id: action.id }, data: { assignedToId: null, version: { increment: 1 } },
+            select: { id: true, ticketId: true, performedById: true, assignedToId: true, description: true, result: true, followUpRequired: true, followUpNote: true, attachmentNotes: true, status: true, version: true, createdAt: true, updatedAt: true },
+          });
+          await tx.ticketActionRevision.create({ data: {
+            actionId: action.id, version: updated.version, editedById: res.locals.userId,
+            beforeState: actionAuditState(action), afterState: actionAuditState(updated),
+          } });
+        }
+      }
       if (current.isActive && !parsed.data.isActive) await tx.session.deleteMany({ where: { userId } });
       return { user };
     });

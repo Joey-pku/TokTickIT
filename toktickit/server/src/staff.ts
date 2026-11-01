@@ -6,6 +6,7 @@ import { sendError } from "./errors.js";
 import { attachmentSelect } from "./attachment-dto.js";
 import { canTransition, isTicketStatus, type TicketStatus } from "./status-workflow.js";
 import { lockUserEligibility } from "./user-eligibility-lock.js";
+import { activeTicketStatuses } from "./dashboard-rules.js";
 
 export const staff = Router();
 staff.use(requireAuth, requireRole("IT_STAFF"));
@@ -17,7 +18,7 @@ const flattenAuthor = ({ author, ...item }: any) => ({ ...item, authorName: auth
 staff.get("/tickets", async (req, res) => {
   try {
     const q = req.query, fields: Record<string, string> = {};
-    const allowed = ["search", "categoryId", "status", "itPriority", "requestedPriority", "ownerId", "sortBy", "sortOrder", "page", "pageSize"];
+    const allowed = ["search", "categoryId", "status", "view", "itPriority", "requestedPriority", "ownerId", "sortBy", "sortOrder", "page", "pageSize"];
     for (const [key, value] of Object.entries(q)) if (!allowed.includes(key) || typeof value !== "string") fields[key] = "Invalid query parameter.";
     const positive = (key: string, fallback?: number) => {
       if (q[key] === undefined) return fallback;
@@ -27,8 +28,10 @@ staff.get("/tickets", async (req, res) => {
     const page = positive("page", 1)!, pageSize = positive("pageSize", 10)!, categoryId = positive("categoryId");
     if (![10, 25, 50].includes(pageSize)) fields.pageSize = "Page size must be 10, 25, or 50.";
     if (q.status !== undefined && !isTicketStatus(q.status)) fields.status = "Invalid status.";
+    if (q.view !== undefined && q.view !== "active") fields.view = "View must be active.";
+    if (q.view === "active" && typeof q.status === "string" && isTicketStatus(q.status) && !activeTicketStatuses.includes(q.status as any)) fields.status = "Status contradicts the active view.";
     for (const key of ["itPriority", "requestedPriority"]) if (q[key] !== undefined && !priorities.includes(q[key] as any)) fields[key] = "Invalid priority.";
-    const sortBy = q.sortBy ?? "createdAt", sortOrder = q.sortOrder ?? "desc";
+    const sortBy = q.sortBy ?? (q.view === "active" && q.itPriority === "HIGH" ? "updatedAt" : "createdAt"), sortOrder = q.sortOrder ?? "desc";
     if (!["createdAt", "ticketNumber", "updatedAt", "itPriority", "currentStatus"].includes(sortBy as string)) fields.sortBy = "Invalid sort column.";
     if (!["asc", "desc"].includes(sortOrder as string)) fields.sortOrder = "Invalid sort order.";
     let ownerId: number | "unassigned" | "me" | undefined;
@@ -41,6 +44,7 @@ staff.get("/tickets", async (req, res) => {
     const where: Prisma.TicketWhereInput = {
       ...(categoryId ? { categoryId } : {}),
       ...(typeof q.status === "string" ? { currentStatus: q.status } : {}),
+      ...(q.view === "active" && typeof q.status !== "string" ? { currentStatus: { in: [...activeTicketStatuses] } } : {}),
       ...(q.itPriority ? { itPriority: q.itPriority as RequestedPriority } : {}),
       ...(q.requestedPriority ? { requestedPriority: q.requestedPriority as RequestedPriority } : {}),
       ...(ownerId === "unassigned" ? { ownerId: null } : ownerId === "me" ? { ownerId: res.locals.userId } : typeof ownerId === "number" ? { ownerId } : {}),
@@ -62,7 +66,7 @@ staff.get("/users", async (_req, res) => {
 staff.get("/tickets/:ticketId", async (req, res) => {
   const ticketId = id(req.params.ticketId); if (!ticketId) { sendError(res, "TICKET_NOT_FOUND"); return; }
   try {
-    const ticket = await getPrisma().ticket.findUnique({ where: { id: ticketId }, select: { id: true, ticketNumber: true, summary: true, description: true, requestedPriority: true, itPriority: true, currentStatus: true, requesterResolved: true, requesterResolvedAt: true, requesterId: true, ownerId: true, categoryId: true, relatedSystemId: true, createdAt: true, updatedAt: true, requester: { select: { name: true, email: true } }, owner: { select: { name: true } }, category: { select: { name: true } }, relatedSystem: { select: { name: true } }, attachments: { orderBy: { id: "asc" }, select: { ...attachmentSelect, uploadedById: true } }, comments: { orderBy: [{ createdAt: "asc" }, { id: "asc" }], select: commentSelect }, internalNotes: { orderBy: [{ createdAt: "asc" }, { id: "asc" }], select: commentSelect } } });
+    const ticket = await getPrisma().ticket.findUnique({ where: { id: ticketId }, select: { id: true, ticketNumber: true, summary: true, description: true, requestedPriority: true, itPriority: true, currentStatus: true, requesterResolved: true, requesterResolvedAt: true, workflowVersion: true, resolvedAt: true, requesterId: true, ownerId: true, categoryId: true, relatedSystemId: true, createdAt: true, updatedAt: true, requester: { select: { name: true, email: true } }, owner: { select: { name: true } }, category: { select: { name: true } }, relatedSystem: { select: { name: true } }, attachments: { orderBy: { id: "asc" }, select: { ...attachmentSelect, uploadedById: true } }, comments: { orderBy: [{ createdAt: "asc" }, { id: "asc" }], select: commentSelect }, internalNotes: { orderBy: [{ createdAt: "asc" }, { id: "asc" }], select: commentSelect } } });
     if (!ticket) { sendError(res, "TICKET_NOT_FOUND"); return; }
     const { requester, owner, category, relatedSystem, comments, internalNotes, ...dto } = ticket;
     res.json({ ...dto, requesterName: requester.name, requesterEmail: requester.email, ownerName: owner?.name ?? null, categoryName: category.name, relatedSystemName: relatedSystem.name, comments: comments.map(flattenAuthor), internalNotes: internalNotes.map(flattenAuthor) });
@@ -78,11 +82,11 @@ staff.patch("/tickets/:ticketId/assign", async (req, res) => {
     const outcome = await db.$transaction(async tx => {
       await lockUserEligibility(tx);
       if (typeof body.ownerId === "number" && !await tx.user.findFirst({ where: { id: body.ownerId, isActive: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } }, select: { id: true } })) return { error: "INELIGIBLE_OWNER" as const };
-      const current = await tx.ticket.findUnique({ where: { id: ticketId }, select: { ownerId: true, currentStatus: true } });
+      const current = await tx.ticket.findUnique({ where: { id: ticketId }, select: { ownerId: true, currentStatus: true, workflowVersion: true } });
       if (!current) return { error: "TICKET_NOT_FOUND" as const };
       if (body.ownerId === res.locals.userId && current.ownerId !== null && current.ownerId !== res.locals.userId) return { error: "OWNER_CONFLICT" as const };
       if (current.ownerId === null && body.ownerId !== null) {
-        const changed = await tx.ticket.updateMany({ where: { id: ticketId, ownerId: null }, data: { ownerId: body.ownerId, ...(current.currentStatus === "NEW" ? { currentStatus: "OPEN" } : {}) } });
+        const changed = await tx.ticket.updateMany({ where: { id: ticketId, ownerId: null, currentStatus: current.currentStatus, workflowVersion: current.workflowVersion }, data: { ownerId: body.ownerId, ...(current.currentStatus === "NEW" ? { currentStatus: "OPEN", workflowVersion: { increment: 1 } } : {}) } });
         if (!changed.count) return { error: "OWNER_CONFLICT" as const };
       } else await tx.ticket.update({ where: { id: ticketId }, data: { ownerId: body.ownerId as number | null } });
       return { result: await tx.ticket.findUniqueOrThrow({ where: { id: ticketId }, select: { id: true, ticketNumber: true, ownerId: true, currentStatus: true, updatedAt: true, owner: { select: { name: true } } } }) };
@@ -103,17 +107,46 @@ staff.patch("/tickets/:ticketId/priority", async (req, res) => {
 
 staff.patch("/tickets/:ticketId/status", async (req, res) => {
   const ticketId = id(req.params.ticketId); if (!ticketId) { sendError(res, "TICKET_NOT_FOUND"); return; }
-  const body = req.body as Record<string, unknown> | undefined, status = body?.status;
-  if (!req.is("application/json") || !body || Array.isArray(body) || !isTicketStatus(status) || Object.keys(body).some(k => k !== "status")) { sendError(res, "VALIDATION_ERROR", { status: "Select a valid status." }); return; }
+  const body = req.body as Record<string, unknown> | undefined, status = body?.status, workflowVersion = body?.workflowVersion;
+  const fields: Record<string, string> = {};
+  if (!req.is("application/json") || !body || Array.isArray(body)) fields.body = "A JSON object is required.";
+  else {
+    for (const key of Object.keys(body)) if (!["status", "workflowVersion"].includes(key)) fields[key] = "This field is not allowed.";
+    if (!isTicketStatus(status)) fields.status = "Select a valid status.";
+    if (typeof workflowVersion !== "number" || !Number.isInteger(workflowVersion) || workflowVersion < 1 || workflowVersion > 2147483647) fields.workflowVersion = "Current workflow version must be a positive integer.";
+  }
+  if (Object.keys(fields).length) { sendError(res, "VALIDATION_ERROR", fields); return; }
   try {
     const db = getPrisma();
-    const current = await db.ticket.findUnique({ where: { id: ticketId }, select: { id: true, ticketNumber: true, currentStatus: true, ownerId: true, requesterResolved: true, requesterResolvedAt: true, updatedAt: true, owner: { select: { isActive: true, role: true } } } });
-    if (!current) { sendError(res, "TICKET_NOT_FOUND"); return; }
-    if (!isTicketStatus(current.currentStatus) || !canTransition(current.currentStatus, status as TicketStatus)) { sendError(res, "INVALID_STATUS_TRANSITION"); return; }
-    if (current.currentStatus === status) { const { owner: _owner, ...dto } = current; res.json(dto); return; }
-    const reopening = status === "REOPENED";
-    const clearOwner = reopening && current.owner && (!current.owner.isActive || current.owner.role === "REQUESTER");
-    const result = await db.ticket.update({ where: { id: ticketId }, data: { currentStatus: status, ...(reopening ? { requesterResolved: false, requesterResolvedAt: null } : {}), ...(clearOwner ? { ownerId: null } : {}) }, select: { id: true, ticketNumber: true, currentStatus: true, ownerId: true, requesterResolved: true, requesterResolvedAt: true, updatedAt: true } });
-    res.json(result);
+    const outcome = await db.$transaction(async tx => {
+      const select = { id: true, ticketNumber: true, currentStatus: true, ownerId: true, requesterResolved: true, requesterResolvedAt: true, workflowVersion: true, resolvedAt: true, updatedAt: true, owner: { select: { isActive: true, role: true } } } as const;
+      const current = await tx.ticket.findUnique({ where: { id: ticketId }, select });
+      if (!current) return { error: "TICKET_NOT_FOUND" as const };
+      if (current.workflowVersion !== workflowVersion) return { error: "STALE_TICKET" as const, currentVersion: current.workflowVersion };
+      if (!isTicketStatus(current.currentStatus) || !canTransition(current.currentStatus, status as TicketStatus)) return { error: "INVALID_STATUS_TRANSITION" as const };
+      if (current.currentStatus === status) return { result: current };
+      if (status === "RESOLVED") {
+        const completed = await tx.ticketAction.findMany({ where: { ticketId, status: "COMPLETED" }, select: { result: true } });
+        if (!completed.some(action => action.result.trim().length > 0)) return { error: "ACTION_REQUIRED" as const };
+      }
+      const reopening = status === "REOPENED";
+      const clearOwner = reopening && current.owner && (!current.owner.isActive || current.owner.role === "REQUESTER");
+      const changed = await tx.ticket.updateMany({
+        where: { id: ticketId, workflowVersion: workflowVersion as number, currentStatus: current.currentStatus },
+        data: {
+          currentStatus: status as TicketStatus, workflowVersion: { increment: 1 },
+          ...(status === "RESOLVED" ? { resolvedAt: new Date() } : {}),
+          ...(reopening ? { requesterResolved: false, requesterResolvedAt: null, resolvedAt: null } : {}),
+          ...(clearOwner ? { ownerId: null } : {}),
+        },
+      });
+      if (!changed.count) {
+        const latest = await tx.ticket.findUnique({ where: { id: ticketId }, select: { workflowVersion: true } });
+        return { error: "STALE_TICKET" as const, currentVersion: latest?.workflowVersion ?? current.workflowVersion };
+      }
+      return { result: await tx.ticket.findUniqueOrThrow({ where: { id: ticketId }, select }) };
+    });
+    if ("error" in outcome && outcome.error) { sendError(res, outcome.error, {}, "currentVersion" in outcome ? { currentVersion: outcome.currentVersion } : {}); return; }
+    const { owner: _owner, ...dto } = outcome.result; res.json(dto);
   } catch { sendError(res, "INTERNAL_ERROR"); }
 });
