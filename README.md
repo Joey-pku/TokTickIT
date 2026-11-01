@@ -5,9 +5,9 @@ TokTickIT is a React, Express, PostgreSQL, and Prisma IT service-desk applicatio
 The maintained application workspace is [`toktickit/`](toktickit/).
 
 - [Project overview and quick start](toktickit/README.md)
-- [Installation and environment setup](toktickit/docs/lab-04/installation.md)
-- [Role-based user guide](toktickit/docs/lab-04/user-guide.md)
-- [Implemented API index](toktickit/docs/lab-04/api-reference.md)
-- [Final delivery evidence and checklist](toktickit/docs/lab-04/final-delivery.md)
+- [Lab 4 Engineering Specification](toktickit/docs/lab-04/specification.md)
+- [Lab 4 integrated verification](toktickit/docs/lab-04/verification.md)
+- [Lab 4 peer-review record](toktickit/docs/lab-04/reviewer.md)
+- [Lab 4 AI-use record](toktickit/docs/lab-04/ai-use.md)
 
 Do not commit local `.env` files, credentials, database dumps, generated dependencies, build output, test results, or private attachment uploads.

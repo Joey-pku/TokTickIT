@@ -9,7 +9,7 @@ export interface DashboardResolvedTicket {
   resolvedAt: string; href: string;
 }
 export interface RequesterDashboardData {
-  metrics: { active: number; waitingForRequester: number };
+  metrics: { active: number; inProgress: number; resolved: number; closed: number; waitingForRequester: number };
   recentlyUpdated: DashboardUpdatedTicket[];
   recentlyResolved: DashboardResolvedTicket[];
   drillDown: { active: string; waitingForRequester: string; recentlyUpdated: string; recentlyResolved: string };

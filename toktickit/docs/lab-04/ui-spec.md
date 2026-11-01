@@ -22,6 +22,8 @@ The active page is programmatically and visually indicated. Existing verified de
 
 **API:** `GET /api/dashboard/requester`
 
+The personalized heading is `Welcome, {authenticated display name}!` with a generic fallback. The desktop summary uses four compact cards: **My Open Tickets** (all active statuses, not only `OPEN`), **In Progress**, **Resolved**, and **Closed**. The existing **Waiting for you** value remains a visible secondary indicator. Below, **My Recent Tickets** and **Quick Actions** form a two-column layout; Quick Actions reuse `/tickets/new` and `/tickets`. Recently resolved Tickets remain available in their existing secondary list. The ASCII sketch below is a high-level inventory rather than a fixed arrangement.
+
 **Traceability:** FR-L4-RD-01–03, FR-L4-HARD-01, FR-L4-HARD-02, FR-L4-HARD-04; AC-L4-14, AC-L4-16, AC-L4-17, AC-L4-20, AC-L4-22.
 
 ```text
@@ -37,7 +39,8 @@ The active page is programmatically and visually indicated. Existing verified de
 +------------------------------------------------------+
 ```
 
-- **Active card:** count of `NEW|OPEN|IN_PROGRESS|WAITING_FOR_REQUESTER|REOPENED`; link `/tickets?view=active`.
+- **My Open Tickets card:** count of `NEW|OPEN|IN_PROGRESS|WAITING_FOR_REQUESTER|REOPENED`; link `/tickets?view=active`. This aggregate is distinct from the single `OPEN` status.
+- **In Progress, Resolved, and Closed cards:** exact per-status counts linking to their matching My Tickets status filter.
 - **Waiting card:** exact `WAITING_FOR_REQUESTER`; link `/tickets?status=WAITING_FOR_REQUESTER`.
 - **Recently updated:** five owned Tickets, `updatedAt DESC, id DESC`; items link `/tickets/:id`, View all sorts My Tickets by update.
 - **Recently resolved:** five owned `RESOLVED|CLOSED` Tickets, `resolvedAt DESC, id DESC`; items link to detail, View all `/tickets?view=resolved`.
@@ -52,11 +55,15 @@ The active page is programmatically and visually indicated. Existing verified de
 
 **API:** `GET /api/dashboard/staff`
 
+Refresh disables itself while loading, shows progress, and announces `Dashboard updated.` after a successful response.
+
+The personalized heading is `Welcome back, {authenticated display name}!` with a generic fallback and retains Refresh; the redundant Open Queue heading action is omitted because queue access remains in navigation and Quick Actions. The primary desktop summary has compact cards for **New Tickets**, **Open Tickets**, **In Progress**, **Waiting for Requester**, and **My Assigned Active**. **Active unassigned** remains a visible secondary operational indicator with a **View unassigned Tickets** link. A two-column section places **Recent / Urgent Tickets** beside Quick Actions for the existing Create Ticket form, full queue search, and the current user's queue. Staff creation returns to staff queue/detail routes. **My Current Actions Taken** remains visible, while all eight status counts and active-priority counts remain available in the keyboard-operable, collapsed-by-default **Additional dashboard statistics** section. The ASCII sketch below is a high-level inventory rather than a fixed arrangement.
+
 **Traceability:** FR-L4-SD-01–03, FR-L4-HARD-01, FR-L4-HARD-02, FR-L4-HARD-04; AC-L4-15–17, AC-L4-20, AC-L4-22.
 
 ```text
 +------------------------------------------------------+
-| Staff Dashboard                         [Open Queue]  |
+| Staff Dashboard                            [Refresh]  |
 | [Unassigned: 4 →] [Owned by me: 6 →]                 |
 | Ticket status                 Active IT priority      |
 | New 2 Open 3 ...              Low 2 Medium 5 High 3  |

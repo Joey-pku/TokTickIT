@@ -32,7 +32,7 @@ describe("Feature 19 requester dashboard", () => {
 
     const response = await request(app).get("/api/dashboard/requester").set("Cookie", requesterCookie);
     expect(response.status).toBe(200);
-    expect(response.body.metrics).toEqual({ active: 5, waitingForRequester: 1 });
+    expect(response.body.metrics).toEqual({ active: 5, inProgress: 1, resolved: 1, closed: 1, waitingForRequester: 1 });
     expect(response.body.recentlyUpdated).toHaveLength(5);
     expect(response.body.recentlyUpdated.map((item: any) => item.id)).toEqual([closed.id, resolved.id, owned[1].id, owned[0].id, owned[2].id]);
     expect(response.body.recentlyResolved.map((item: any) => item.id)).toEqual([closed.id, resolved.id]);
@@ -42,7 +42,7 @@ describe("Feature 19 requester dashboard", () => {
 
   it("API-RD-04: returns exact zero schema and unchanged UTC timestamps", async () => {
     const response = await request(app).get("/api/dashboard/requester").set("Cookie", emptyCookie);
-    expect(response.body).toEqual({ metrics: { active: 0, waitingForRequester: 0 }, recentlyUpdated: [], recentlyResolved: [], drillDown: { active: "/tickets?view=active", waitingForRequester: "/tickets?status=WAITING_FOR_REQUESTER", recentlyUpdated: "/tickets?sortBy=updatedAt&sortOrder=desc", recentlyResolved: "/tickets?view=resolved" } });
+    expect(response.body).toEqual({ metrics: { active: 0, inProgress: 0, resolved: 0, closed: 0, waitingForRequester: 0 }, recentlyUpdated: [], recentlyResolved: [], drillDown: { active: "/tickets?view=active", waitingForRequester: "/tickets?status=WAITING_FOR_REQUESTER", recentlyUpdated: "/tickets?sortBy=updatedAt&sortOrder=desc", recentlyResolved: "/tickets?view=resolved" } });
   });
 
   it("SEC-04: rejects unauthenticated and non-requester roles", async () => {

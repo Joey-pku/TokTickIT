@@ -77,7 +77,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="zen-nav-links">
           {user?.role === "REQUESTER" && <a href="/dashboard" aria-current={path === "/dashboard" ? "page" : undefined} onClick={event => follow(event, "/dashboard")}>Dashboard</a>}
           {user && user.role !== "REQUESTER" && <a href="/staff/dashboard" aria-current={path === "/staff/dashboard" ? "page" : undefined} onClick={event => follow(event, "/staff/dashboard")}>Dashboard</a>}
-          <a href="/tickets" aria-current={path === "/tickets" ? "page" : undefined} onClick={event => follow(event, "/tickets")}>My Tickets</a>
+          {user?.role === "REQUESTER" && <a href="/tickets" aria-current={path === "/tickets" ? "page" : undefined} onClick={event => follow(event, "/tickets")}>My Tickets</a>}
           <a href="/tickets/new" aria-current={path === "/tickets/new" ? "page" : undefined} onClick={event => follow(event, "/tickets/new")}>Create Ticket</a>
           {user && user.role !== "REQUESTER" && <a href="/staff/queue" aria-current={path === "/staff/queue" || path.startsWith("/staff/tickets") ? "page" : undefined} onClick={event => follow(event, "/staff/queue")}>Ticket Queue</a>}
           {user?.role === "ADMINISTRATOR" && <a href="/admin/users" aria-current={path === "/admin/users" ? "page" : undefined} onClick={event => follow(event, "/admin/users")}>User Management</a>}

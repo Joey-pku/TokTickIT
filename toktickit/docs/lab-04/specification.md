@@ -143,7 +143,10 @@ Every query includes `requesterId = session.userId`.
 
 | Metric/list | Exact calculation | Drill-down |
 |---|---|---|
-| Active Tickets | Count statuses in BR-L4-16. | `/tickets?view=active` (extend existing My Tickets query contract). |
+| My Open Tickets | Count every active status in BR-L4-16 (`NEW|OPEN|IN_PROGRESS|WAITING_FOR_REQUESTER|REOPENED`); this is not the single `OPEN` status. | `/tickets?view=active` (extend existing My Tickets query contract). |
+| In Progress | Count `IN_PROGRESS`. | `/tickets?status=IN_PROGRESS`. |
+| Resolved | Count `RESOLVED`. | `/tickets?status=RESOLVED`. |
+| Closed | Count `CLOSED`. | `/tickets?status=CLOSED`. |
 | Waiting for Requester | Count `WAITING_FOR_REQUESTER`. | `/tickets?status=WAITING_FOR_REQUESTER`. |
 | Recently updated | Top five all owned Tickets by BR-L4-17. | Each item `/tickets/:ticketId`; “View all” `/tickets?sortBy=updatedAt&sortOrder=desc`. |
 | Recently resolved | Top five owned `RESOLVED` or `CLOSED` Tickets with nonnull `resolvedAt`. | Each item `/tickets/:ticketId`; “View all” `/tickets?view=resolved`. |
@@ -152,8 +155,8 @@ Every query includes `requesterId = session.userId`.
 
 | Metric/list | Exact calculation | Drill-down |
 |---|---|---|
-| Unassigned | Active Tickets with `ownerId = null`. | `/staff/queue?view=active&ownerId=unassigned`. |
-| Owned by me | Active Tickets with `ownerId = session.userId`. | `/staff/queue?view=active&ownerId=me`. |
+| Active unassigned | Active Tickets with `ownerId = null`; shown as a secondary operational indicator. | `/staff/queue?view=active&ownerId=unassigned`. |
+| My Assigned Active | Active Tickets with `ownerId = session.userId`; shown in the five-card primary summary. | `/staff/queue?view=active&ownerId=me`. |
 | By status | Count all Tickets grouped across all eight statuses. | `/staff/queue?status={status}`. |
 | By IT priority | Count active Tickets grouped `LOW|MEDIUM|HIGH`. | `/staff/queue?view=active&itPriority={priority}`. |
 | Recent urgent | Top five active `itPriority=HIGH` Tickets by BR-L4-17. | Each item `/staff/tickets/:ticketId`; “View all” `/staff/queue?view=active&itPriority=HIGH`. |

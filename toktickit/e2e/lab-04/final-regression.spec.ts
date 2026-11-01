@@ -53,13 +53,13 @@ test('E2E-03: requester sees Action history and staff resolves, closes, and reop
 test('E2E-04: requester and staff dashboard cards drill into authorized views', async ({ page, fixture }) => {
   await fixture.ticket({ summary: 'Dashboard drill-down evidence' });
   await loginAs(page, fixture.a.email, fixture.a.testPassword);
-  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
-  await page.getByRole('link', { name: /active Tickets/ }).click();
+  await expect(page.getByRole('heading', { name: /^Welcome, /, level: 1 })).toBeVisible();
+  await page.getByRole('link', { name: /^My Open Tickets:/ }).click();
   await expect(page).toHaveURL(/\/tickets\?.*view=active/);
   await expect(page.getByRole('cell', { name: 'Dashboard drill-down evidence' })).toBeVisible();
   await logout(page);
   await loginAs(page, process.env.E2E_STAFF_EMAIL!, process.env.E2E_STAFF_PASS!);
-  await expect(page.getByRole('heading', { name: 'Staff Dashboard' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /^Welcome back, /, level: 1 })).toBeVisible();
   await page.getByRole('link', { name: /active unassigned Tickets/ }).click();
   await expect(page).toHaveURL(/\/staff\/queue\?.*unassigned/);
   await expect(page.getByRole('cell', { name: 'Dashboard drill-down evidence' })).toBeVisible();
@@ -90,7 +90,7 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 768, height: 1024
   test(`E2E-02: dashboards remain keyboard usable without horizontal overflow at ${viewport.width}px`, async ({ page, fixture }) => {
     await page.setViewportSize(viewport);
     await loginAs(page, fixture.a.email, fixture.a.testPassword);
-    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /^Welcome, /, level: 1 })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
     await page.keyboard.press('Tab');
     await expect(page.locator(':focus')).toBeVisible();

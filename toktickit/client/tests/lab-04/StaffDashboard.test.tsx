@@ -26,11 +26,18 @@ describe("Feature 20 staff dashboard UI", () => {
   it("UI-02: renders exact metrics, summaries, lists, and contracted links", async () => {
     render(<StaffDashboard />);
     expect(await screen.findByRole("link", { name: "4 active unassigned Tickets" })).toHaveAttribute("href", data.drillDown.unassignedActive);
-    expect(screen.getByRole("link", { name: "6 active Tickets owned by me" })).toHaveAttribute("href", data.drillDown.ownedByMeActive);
+    expect(screen.getByRole("link", { name: "4 active unassigned Tickets" })).toHaveTextContent("View unassigned Tickets");
+    expect(screen.queryByRole("link", { name: "Open Queue" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "My Assigned Active: 6" })).toHaveAttribute("href", data.drillDown.ownedByMeActive);
     expect(screen.getByRole("link", { name: /New\s*2/ })).toHaveAttribute("href", "/staff/queue?status=NEW");
     expect(screen.getByRole("link", { name: /High\s*3/ })).toHaveAttribute("href", "/staff/queue?view=active&itPriority=HIGH");
+    expect(screen.getByRole("link", { name: /Create Ticket/ })).toHaveAttribute("href", "/tickets/new");
+    expect(screen.getByRole("link", { name: /Search Tickets/ })).toHaveAttribute("href", "/staff/queue");
+    expect(screen.getByRole("link", { name: /My Queue/ })).toHaveAttribute("href", data.drillDown.ownedByMeActive);
     expect(screen.getAllByRole("link", { name: "TKT-2026-000017" })[0]).toHaveAttribute("href", "/staff/tickets/17");
     expect(screen.getByText("Replace damaged cable").closest("article")?.querySelector("a")).toHaveAttribute("href", "/staff/tickets/17#action-41");
+    const statistics = screen.getByText("Additional dashboard statistics").closest("details");
+    expect(statistics).not.toHaveAttribute("open");
   });
 
   it("UI-02: distinguishes loading from an all-zero dashboard and renders specific empty states", async () => {
@@ -40,6 +47,16 @@ describe("Feature 20 staff dashboard UI", () => {
     resolve({ ...data, metrics: { unassignedActive: 0, ownedByMeActive: 0 }, byStatus: Object.fromEntries(Object.keys(data.byStatus).map(key => [key, 0])) as typeof data.byStatus, activeByPriority: { LOW: 0, MEDIUM: 0, HIGH: 0 }, recentUrgent: [], myCurrentActions: [] });
     expect(await screen.findByRole("link", { name: "0 active unassigned Tickets" })).toBeVisible();
     expect(screen.getByText("No active high-priority Tickets.")).toBeVisible(); expect(screen.getByText("No current Actions assigned to you.")).toBeVisible();
+  });
+
+  it("UI-02: expands secondary statistics with the native keyboard-operable disclosure", async () => {
+    const user = userEvent.setup();
+    render(<StaffDashboard />);
+    const summary = await screen.findByText("Additional dashboard statistics");
+    const statistics = summary.closest("details");
+    expect(statistics).not.toHaveAttribute("open");
+    await user.click(summary);
+    expect(statistics).toHaveAttribute("open");
   });
 
   it("UI-02: retries safe failures and refreshes without duplicate clicks", async () => {
@@ -53,13 +70,23 @@ describe("Feature 20 staff dashboard UI", () => {
     expect(screen.getByRole("button", { name: "Refreshing..." })).toBeDisabled();
   });
 
+  it("UI-02: announces a successful refresh even when the response is immediate", async () => {
+    const user = userEvent.setup();
+    render(<StaffDashboard />);
+    await screen.findByRole("link", { name: "My Assigned Active: 6" });
+    vi.mocked(dashboardApi.getStaffDashboard).mockResolvedValueOnce(data);
+    await user.click(screen.getByRole("button", { name: "Refresh" }));
+    expect(await screen.findByRole("status")).toHaveTextContent("Dashboard updated.");
+    expect(dashboardApi.getStaffDashboard).toHaveBeenCalledTimes(2);
+  });
+
   it.each(["IT_STAFF", "ADMINISTRATOR"] as const)("UI-02: uses the staff dashboard as the %s default with active navigation", async role => {
     window.history.replaceState({}, "", "/");
     vi.spyOn(api, "getMe").mockResolvedValue({ id: 3, name: "Operator", email: "operator@example.com", role, isActive: true, mustChangePassword: false });
     vi.spyOn(api, "logout").mockResolvedValue(undefined); vi.spyOn(api, "getCategories").mockResolvedValue([]);
     vi.spyOn(staffApi, "getStaffUsers").mockResolvedValue({ items: [] }); vi.spyOn(staffApi, "listStaffTickets").mockResolvedValue({ items: [], pagination: { page: 1, pageSize: 10, totalItems: 0, totalPages: 0 } });
     render(<AuthProvider><AuthApp /></AuthProvider>);
-    expect(await screen.findByRole("heading", { name: "Staff Dashboard" })).toBeVisible(); expect(window.location.pathname).toBe("/staff/dashboard");
+    expect(await screen.findByRole("heading", { name: "Welcome back, Operator!" })).toBeVisible(); expect(window.location.pathname).toBe("/staff/dashboard");
     expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("aria-current", "page");
   });
 });

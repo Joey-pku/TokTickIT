@@ -62,7 +62,7 @@ npm.cmd run dev -- --host localhost --strictPort
 
 Open `http://localhost:5173`; the API is `http://localhost:3000`. Seed accounts use an initial password and must change it after sign-in. Credentials belong in controlled course/demo material, not documentation or source control.
 
-See the [installation guide](docs/lab-04/installation.md) for database safety, environment variables, production builds, isolated tests, and troubleshooting.
+Before migrating, confirm the effective `DATABASE_URL` names the intended development database. Stop if Prisma reports drift, requests a reset, or proposes unexpected schema work. API tests use a guarded database name ending in `_test`; Playwright derives `toktickit_e2e_test`, starts the API on 3001 and client on 5174, and uses temporary attachment storage. Never point test cleanup at development.
 
 ## Development and verification commands
 
@@ -83,12 +83,9 @@ See the [installation guide](docs/lab-04/installation.md) for database safety, e
 - [Approved API contract](docs/lab-04/api-spec.md)
 - [UI contract](docs/lab-04/ui-spec.md)
 - [Test design and traceability](docs/lab-04/tests.md)
-- [Installation and operations](docs/lab-04/installation.md)
-- [Role-based user guide](docs/lab-04/user-guide.md)
-- [Implemented API index](docs/lab-04/api-reference.md)
-- [Feature 21 test report](docs/lab-04/feature-21-test-report.md)
-- [Feature 22 UI/accessibility review](docs/lab-04/feature-22-ui-accessibility-review.md)
-- [Final delivery evidence and checklist](docs/lab-04/final-delivery.md)
+- [Integrated verification](docs/lab-04/verification.md)
+- [Peer-review record](docs/lab-04/reviewer.md)
+- [AI assistance and reflection](docs/lab-04/ai-use.md)
 
 ## Known limitations
 

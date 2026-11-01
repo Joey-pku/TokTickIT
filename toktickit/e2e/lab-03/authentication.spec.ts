@@ -16,7 +16,7 @@ async function login(page: import('@playwright/test').Page, email: string, passw
 
 test('E2E-AUTH-01: requester signs in, opens the dashboard, and signs out', async ({ page }) => {
   await login(page, process.env.E2E_REQUESTER_EMAIL!, process.env.E2E_REQUESTER_PASS!);
-  await expect(page.getByRole('heading', { name: 'Dashboard', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /^Welcome, /, level: 1 })).toBeVisible();
   await page.getByRole('button', { name: 'Open profile menu' }).click();
   await page.getByRole('menuitem', { name: 'Logout' }).click();
   await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
@@ -38,7 +38,7 @@ test('E2E-AUTH-02: temporary-password user is gated until changing password', as
     await page.getByLabel('New password', { exact: true }).fill(replacement);
     await page.getByLabel('Confirm new password').fill(replacement);
     await page.getByRole('button', { name: 'Set new password' }).click();
-    await expect(page.getByRole('heading', { name: 'Dashboard', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /^Welcome, /, level: 1 })).toBeVisible();
   } finally {
     await db.session.deleteMany({ where: { userId: account.id } });
     await db.user.delete({ where: { id: account.id } });
