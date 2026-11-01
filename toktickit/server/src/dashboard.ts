@@ -15,16 +15,19 @@ dashboard.get("/requester", requireRole("REQUESTER"), async (_req, res) => {
     const requesterId = res.locals.userId;
     const result = await getPrisma().$transaction(async tx => {
       const owned = { requesterId } as const;
-      const [active, waitingForRequester, recentlyUpdated, recentlyResolved] = await Promise.all([
+      const [active, inProgress, resolved, closed, waitingForRequester, recentlyUpdated, recentlyResolved] = await Promise.all([
         tx.ticket.count({ where: { ...owned, currentStatus: { in: [...activeTicketStatuses] } } }),
+        tx.ticket.count({ where: { ...owned, currentStatus: "IN_PROGRESS" } }),
+        tx.ticket.count({ where: { ...owned, currentStatus: "RESOLVED" } }),
+        tx.ticket.count({ where: { ...owned, currentStatus: "CLOSED" } }),
         tx.ticket.count({ where: { ...owned, currentStatus: "WAITING_FOR_REQUESTER" } }),
         tx.ticket.findMany({ where: owned, orderBy: [{ updatedAt: "desc" }, { id: "desc" }], take: 5, select: updatedSelect }),
         tx.ticket.findMany({ where: { ...owned, currentStatus: { in: [...resolvedTicketStatuses] }, resolvedAt: { not: null } }, orderBy: [{ resolvedAt: "desc" }, { id: "desc" }], take: 5, select: resolvedSelect }),
       ]);
-      return { active, waitingForRequester, recentlyUpdated, recentlyResolved };
+      return { active, inProgress, resolved, closed, waitingForRequester, recentlyUpdated, recentlyResolved };
     }, { isolationLevel: "RepeatableRead" });
     res.json({
-      metrics: { active: result.active, waitingForRequester: result.waitingForRequester },
+      metrics: { active: result.active, inProgress: result.inProgress, resolved: result.resolved, closed: result.closed, waitingForRequester: result.waitingForRequester },
       recentlyUpdated: result.recentlyUpdated.map(ticket => ({ ...ticket, href: `/tickets/${ticket.id}` })),
       recentlyResolved: result.recentlyResolved.map(ticket => ({ ...ticket, href: `/tickets/${ticket.id}` })),
       drillDown: {

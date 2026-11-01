@@ -82,3 +82,11 @@ it("UI-SHELL-06: closes mobile navigation with Escape and restores trigger focus
   expect(trigger).toHaveAttribute("aria-expanded", "false");
   expect(trigger).toHaveFocus();
 });
+
+it.each(["IT_STAFF", "ADMINISTRATOR"] as const)("UI-SHELL-07: hides requester-only My Tickets navigation for %s", role => {
+  vi.mocked(useAuth).mockReturnValue({ ...vi.mocked(useAuth)(), user: { id: 1, name: "Mike Brown", email: "mike@example.com", role, isActive: true, mustChangePassword: false } });
+  render(<AppShell><h1>Content</h1></AppShell>);
+  expect(screen.queryByRole("link", { name: "My Tickets" })).not.toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Create Ticket" })).toHaveAttribute("href", "/tickets/new");
+  expect(screen.getByRole("link", { name: "Ticket Queue" })).toHaveAttribute("href", "/staff/queue");
+});

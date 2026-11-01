@@ -311,7 +311,7 @@ The inventory above is the complete set of 78 test IDs. The 16 `TC-D01`–`TC-D1
 - **Level:** API.
 - **Preconditions/data:** two requesters with deliberately overlapping status/time patterns and more than five records.
 - **Steps:** fetch as each Requester and independently calculate expected values.
-- **Expected:** exact owned counts, stable top five, UTC timestamps, zero/empty keys, and no foreign identifiers. For each drill-down, `totalItems` equals the metric/filter count and concatenating all pages equals the complete scoped dataset; each dashboard summary is exactly the first five items under its contract ordering.
+- **Expected:** exact owned My Open (all active statuses), In Progress, Resolved, Closed, and Waiting for Requester counts; stable top five; UTC timestamps; zero/empty keys; and no foreign identifiers. For each drill-down, `totalItems` equals the metric/filter count and concatenating all pages equals the complete scoped dataset; each dashboard summary is exactly the first five items under its contract ordering.
 - **Evidence:** API payload versus direct scoped aggregate assertions.
 
 ### TC-D11 — Staff Dashboard Snapshot (`API-SD-01–06`, `REL-05`)

@@ -22,7 +22,7 @@ function Router() {
     else if (state === "must-change-password" && path !== "/change-password") navigate("/change-password", true);
     else if (state === "authenticated") {
       const requesterPath = user?.role === "REQUESTER" && (path === "/dashboard" || path === "/tickets" || path === "/tickets/new" || /^\/tickets\/[^/]+$/.test(path));
-      const staffPath = (path === "/staff/dashboard" || path === "/staff/queue" || /^\/staff\/tickets(?:\/[^/]+)?$/.test(path)) && user?.role !== "REQUESTER";
+      const staffPath = (path === "/staff/dashboard" || path === "/staff/queue" || path === "/tickets/new" || /^\/staff\/tickets(?:\/[^/]+)?$/.test(path)) && user?.role !== "REQUESTER";
       const adminPath = path === "/admin/users" && user?.role === "ADMINISTRATOR";
       if (!requesterPath && !staffPath && !adminPath) navigate(user?.role === "REQUESTER" ? "/dashboard" : "/staff/dashboard", true);
     }
@@ -49,8 +49,8 @@ function Router() {
   return (
     <AppShell>
       {path === "/admin/users" && user?.role === "ADMINISTRATOR" ? <UserManagement /> :
-       path === "/dashboard" && user?.role === "REQUESTER" ? <RequesterDashboard /> :
-       path === "/staff/dashboard" && user?.role !== "REQUESTER" ? <StaffDashboard /> :
+       path === "/dashboard" && user?.role === "REQUESTER" ? <RequesterDashboard displayName={user.name} /> :
+       path === "/staff/dashboard" && user?.role !== "REQUESTER" ? <StaffDashboard displayName={user?.name} /> :
        (path === "/staff/queue" || path === "/staff/tickets") && user?.role !== "REQUESTER" ? <StaffTicketQueue /> :
        /^\/staff\/tickets\/[^/]+$/.test(path) && user?.role !== "REQUESTER" ? <StaffTicketDetail key={path} id={Number(path.split("/")[3])} /> :
        path === "/tickets/new" ? <CreateTicket /> :

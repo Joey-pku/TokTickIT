@@ -156,7 +156,7 @@ Edits the current record while appending one audit revision.
 
 ```json
 {
-  "metrics": { "active": 3, "waitingForRequester": 1 },
+  "metrics": { "active": 3, "inProgress": 2, "resolved": 1, "closed": 4, "waitingForRequester": 1 },
   "recentlyUpdated": [{
     "id": 17, "ticketNumber": "TKT-2026-000017", "summary": "No network connection",
     "currentStatus": "IN_PROGRESS", "requestedPriority": "HIGH",
@@ -177,6 +177,8 @@ Edits the current record while appending one audit revision.
 ```
 
 Calculations, statuses, order, limit five, UTC interpretation, and zero behavior are exactly Section 7.1 of `specification.md`. Every query includes authenticated requester ownership. Errors: `401`, `403`, `500`; no partial metric payload on failure.
+
+`metrics.active` is the **My Open Tickets** aggregate across all active statuses; it is not the single `OPEN` status. `inProgress`, `resolved`, and `closed` are exact counts for `IN_PROGRESS`, `RESOLVED`, and `CLOSED`. These additions refine the Lab 4 dashboard response and existing callers/tests must consume the complete shape.
 
 - **Traceability:** FR-L4-RD-01–03; AC-L4-14, AC-L4-16–17.
 
